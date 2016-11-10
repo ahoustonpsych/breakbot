@@ -1,0 +1,19 @@
+{
+  "name": "breakbot",
+  "version": "0.1.0",
+  "description": "slack bot that facilitates livechat agents taking breaks",
+  "main": "index.js",
+  "dependencies": {
+    "@slack/client": "^3.6.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@git.liquidweb.com:ahouston/breakbot.git"
+  },
+  "author": "Alexander Houston",
+  "license": "ISC"
+}
