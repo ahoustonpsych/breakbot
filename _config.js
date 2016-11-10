@@ -2,6 +2,9 @@
 
 module.exports = {
 	//slack api token
-	token: '',
+	slackAPIKey: '',
+	//livechat api credentials
+	lcAPIUser: "yourname@liquidweb.com",
+	lcAPIKey: '',
 	loglevel: "error"
 };
