@@ -1,41 +1,86 @@
 var slack = require('../../lib/slack');
-var requests = require('./lc_requests.js');
+var requests = require('../lc_requests');
 
-var lc_user = require('../../config').lcAPIUser;
-var lc_key = require('../../config').lcAPIKey;
+var breaks = require('../breaks');
 
-var overbreak = [];
+//default break time, in minutes
+var defaultBreak = 5;
+
+//max break time, in minutes
+const maxBreak = 120;
+
+//how long to wait between reminders to log back in, in seconds
+var remindTime = 2;
+
+//don't touch this
+//var defaultBreak = _defaultBreak;
 
 module.exports = {
 	expr: /^!brb/,
 	run: function (data) {
-		brb(data);
+	    brb(data);
 	}
 };
 
 function brb(data) {
-	var arg;
+    var username = slack.dataStore.getUserById(data.user).name;
+    var arg = data.text.split(' ')[1];
+
     var breakTime;
 
-    arg = data.text.split(" ")[1];
-	//default break time is 5 minutes
-    breakTime = parseInt(arg) ? parseInt(arg).toString() : "5";
+    //check if already on break
+    if (breaks.onbreak[username] || breaks.overbreak[username]) {
+        slack.sendMessage("already on break", data.channel);
+    } else {
+        //default break time is 5 minutes
+        //max break time is 120 minutes
+        breakTime = !parseInt(arg) ? defaultBreak : (parseInt(arg) > maxBreak ? defaultBreak : parseInt(arg));
 
-    //checks agent state
-    requests.getState(slack.dataStore.getUserById(data.user).name);
+        //sets state to "not accepting chats"
+        setBreak(username, breakTime, data);
+        slack.sendMessage("Set break for " + username + " for " + breakTime.toString() + " minutes.", data.channel);
+    }
+}
 
-    //sets state to "not accepting chats"
-    requests.changeState(slack.dataStore.getUserById(data.user).name, "not accepting chats", function() {
-    	setTimeout(function breakUp() {
+function setBreak(user, time, data) {
 
-            slack.sendMessage(slack.dataStore.getUserById(data.user).name + ": your break is up. Please use *!back* to log back into chats", data.channel);
+    requests.changeStatus(
+        user,
+        "not accepting chats",
+        //callback
+        function () {
+            breaks.onbreak[user] = setTimeout(
+                //callback
+                function () {
+                    breakUp(user, data);
+                },
+                time * 60 * 1000);
+        });
+}
 
-            //TODO
-			//setInterval("reminder")
+function breakUp(user, data) {
+    delete breaks.onbreak[user];
 
-    	}, breakTime * 60 * 1000);
+    slack.sendMessage(user +
+        ": your break is up. Please use *!back* to log back into chats",
+        data.channel);
 
-        slack.sendMessage("Set break for " + slack.dataStore.getUserById(data.user).name + " for " + breakTime + " minutes.", data.channel);
-	});
+    breaks.overbreak[user] = setInterval(
+        //callback
+        function () {
+            sendReminder(user, data);
+        },
+        remindTime * 1000);
 
+    return 1;
+}
+
+function sendReminder(user, data) {
+    console.log(breaks.onbreak[user]);
+    console.log(breaks.overbreak[user]);
+    slack.sendMessage(user +
+        ": you need to log back into chats with *!back*",
+        data.channel);
+
+    return 1;
 }
