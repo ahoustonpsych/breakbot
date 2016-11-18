@@ -1,21 +1,21 @@
 var slack = require('../../lib/slack');
 
 var helpMsg =
-`commands:
-*!brb* [min] - take break for [min] minutes (from auto-assign queue)
-	* does not automatically log you back in, but you'll get pinged
-*!back* - log back into the queue
-*!out* [user] - log out of the queue for an indefinite period of time
-	* if given, logs out [user]
-*!help* - show this help message`
+"commands:\n\
+*!brb* [min] - take break for [min] minutes (from auto-assign queue)\n\
+	* does not automatically log you back in, but you'll get pinged\n\
+*!back* - log back into the queue\n\
+*!out* [user] - log out of the queue for an indefinite period of time\n\
+	* if given, logs out [user]\n\
+*!help* - show this help message";
 
 module.exports = {
 	expr: /^!help/,
 	run: function (data) {
-		brb(data);
+		help(data);
 	}
 };
 
-function brb(data) {
+function help(data) {
 	slack.sendMessage(helpMsg, data.channel);
 }
