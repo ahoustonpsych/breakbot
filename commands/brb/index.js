@@ -13,11 +13,10 @@ const maxBreak = 120;
 var remindTime = 2;
 
 
-/*
- * USAGE:
+/* USAGE:
  * !brb [time]
- * sets break timer for [time] minutes
- * sets user to "not accepting chats"
+ * sets timer for [time] minutes
+ * and sets user to "not accepting chats"
  * sends reminder every remindTime seconds when the break expires
  */
 module.exports = {
@@ -34,7 +33,7 @@ function brb(data) {
     var breakTime;
 
     //check if already on break
-    if (breaks.onbreak[username] || breaks.overbreak[username]) {
+    if (breaks.onbreak[username] || breaks.overbreak[username] || breaks.out[username]) {
         slack.sendMessage("already on break", data.channel);
     }
     else {
