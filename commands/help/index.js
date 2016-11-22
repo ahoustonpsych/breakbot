@@ -9,6 +9,11 @@ var helpMsg =
 	* if given, logs out [user]\n\
 *!help* - show this help message";
 
+/*
+ * USAGE:
+ * !help
+ * sends help message
+ */
 module.exports = {
 	expr: /^!help/,
 	run: function (data) {
