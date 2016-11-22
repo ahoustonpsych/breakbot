@@ -9,9 +9,9 @@ module.exports = {
 };
 
 function list(data) {
-    console.log(Object.keys(breaks.onbreak).length);
-    console.log(Object.keys(breaks.overbreak).length);
-    console.log(breaks.out);
+    //console.log(Object.keys(breaks.onbreak).length);
+    //console.log(Object.keys(breaks.overbreak).length);
+    //console.log(breaks.out);
 
     if (Object.keys(breaks.onbreak).length != 0 ||
         Object.keys(breaks.overbreak).length != 0 ||
