@@ -7,6 +7,7 @@ var helpMsg =
 *!back* - log back into the queue\n\
 *!out* [user] - log out of the queue for an indefinite period of time\n\
 	* if given, logs out [user]\n\
+*!list* - list users on break\n\
 *!help* - show this help message";
 
 /*
