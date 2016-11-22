@@ -12,9 +12,14 @@ const maxBreak = 120;
 //how long to wait between reminders to log back in, in seconds
 var remindTime = 2;
 
-//don't touch this
-//var defaultBreak = _defaultBreak;
 
+/*
+ * USAGE:
+ * !brb [time]
+ * sets break timer for [time] minutes
+ * sets user to "not accepting chats"
+ * sends reminder every remindTime seconds when the break expires
+ */
 module.exports = {
 	expr: /^!brb/,
 	run: function (data) {
@@ -31,56 +36,58 @@ function brb(data) {
     //check if already on break
     if (breaks.onbreak[username] || breaks.overbreak[username]) {
         slack.sendMessage("already on break", data.channel);
-    } else {
+    }
+    else {
+
         //default break time is 5 minutes
         //max break time is 120 minutes
         breakTime = !parseInt(arg) ? defaultBreak : (parseInt(arg) > maxBreak ? defaultBreak : parseInt(arg));
 
-        //sets state to "not accepting chats"
+        //sets agent status to "not accepting chats"
         setBreak(username, breakTime, data);
         slack.sendMessage("Set break for " + username + " for " + breakTime.toString() + " minutes.", data.channel);
     }
 }
 
-function setBreak(user, time, data) {
-
+/*
+ * sets break timer for [time] minutes
+ */
+function setBreak(username, time, data) {
     requests.changeStatus(
-        user,
+        username,
         "not accepting chats",
         //callback
         function () {
-            breaks.onbreak[user] = setTimeout(
+            breaks.onbreak[username] = setTimeout(
                 //callback
                 function () {
-                    breakUp(user, data);
+                    breakUp(username, data);
                 },
                 time * 60 * 1000);
         });
 }
 
-function breakUp(user, data) {
-    delete breaks.onbreak[user];
+/*
+ * this function removes the onbreak timer when it expires naturally,
+ * and sets the overbreak timer
+ * which sends reminders to log back in
+ */
+function breakUp(username, data) {
+    delete breaks.onbreak[username];
 
-    slack.sendMessage(user +
+    slack.sendMessage(username +
         ": your break is up. Please use *!back* to log back into chats",
         data.channel);
 
-    breaks.overbreak[user] = setInterval(
+    breaks.overbreak[username] = setInterval(
         //callback
-        function () {
-            sendReminder(user, data);
+        //sends reminder to log back in when break is up
+        function sendReminder() {
+            slack.sendMessage(username +
+                ": you need to log back into chats with *!back*",
+                data.channel);
         },
         remindTime * 1000);
-
-    return 1;
-}
-
-function sendReminder(user, data) {
-    console.log(breaks.onbreak[user]);
-    console.log(breaks.overbreak[user]);
-    slack.sendMessage(user +
-        ": you need to log back into chats with *!back*",
-        data.channel);
 
     return 1;
 }
