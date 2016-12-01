@@ -10,7 +10,7 @@ var defaultBreak = 5;
 const maxBreak = 120;
 
 //how long to wait between reminders to log back in, in seconds
-var remindTime = 2;
+var remindTime = 90;
 
 
 /* USAGE:
