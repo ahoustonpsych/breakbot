@@ -1,4 +1,4 @@
-var slack = require('../../lib/slack');
+var slack = require('../../lib/slack').rtm;
 
 var helpMsg =
 "commands:\n\

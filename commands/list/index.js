@@ -1,4 +1,4 @@
-var slack = require('../../lib/slack');
+var slack = require('../../lib/slack').rtm;
 var breaks = require('../breaks');
 
 module.exports = {
@@ -12,6 +12,8 @@ function list(data) {
     //console.log(Object.keys(breaks.onbreak).length);
     //console.log(Object.keys(breaks.overbreak).length);
     //console.log(breaks.out);
+
+    //console.log(breaks.onbreak['ahouston']);
 
     if (Object.keys(breaks.onbreak).length != 0 ||
         Object.keys(breaks.overbreak).length != 0 ||
