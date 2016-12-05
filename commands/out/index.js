@@ -1,4 +1,4 @@
-var slack = require('../../lib/slack');
+var slack = require('../../lib/slack').rtm;
 var requests = require('../lc_requests');
 var breaks = require('../breaks');
 
@@ -23,12 +23,12 @@ function out(data) {
 
     //logs out [user] if given
 	//otherwise, logs out user that used !out
-    var username = arg != undefined ? arg : user;
+    var username = arg != undefined ? arg : user; // TODO: validate this info
 
-    logOut(user,
+    logOut(username,
 		function(response) {
             slack.sendMessage(
-                'Logged out ' + user +
+                'Logged out ' + username +
                 '. Please use *!back* to log back in when you are ready',
                 data.channel);
             breaks.clearBreaks(username);
