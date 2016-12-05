@@ -1,4 +1,4 @@
-var slack = require('../../lib/slack');
+var slack = require('../../lib/slack').rtm;
 var requests = require('../lc_requests');
 
 var breaks = require('../breaks');
@@ -10,7 +10,7 @@ var defaultBreak = 5;
 const maxBreak = 120;
 
 //how long to wait between reminders to log back in, in seconds
-var remindTime = 90;
+var remindTime = 4;
 
 
 /* USAGE:
@@ -62,7 +62,7 @@ function setBreak(username, time, data) {
                 function () {
                     breakUp(username, data);
                 },
-                time * 60 * 1000);
+                time * 1000);
         });
 }
 
@@ -70,23 +70,39 @@ function setBreak(username, time, data) {
  * this function removes the onbreak timer when it expires naturally,
  * and sets the overbreak timer
  * which sends reminders to log back in
+ * but only if that user hasn't already logged back in manually yet (without the bot)
  */
 function breakUp(username, data) {
     delete breaks.onbreak[username];
 
-    slack.sendMessage(username +
-        ": your break is up. Please use *!back* to log back into chats",
-        data.channel);
-
-    breaks.overbreak[username] = setInterval(
-        //callback
-        //sends reminder to log back in when break is up
-        function sendReminder() {
+    requests.getAgentStatus(username, function (status) {
+        if (status == "not accepting chats") {
             slack.sendMessage(username +
-                ": you need to log back into chats with *!back*",
+                ": your break is up. Please use *!back* to log back into chats",
                 data.channel);
-        },
-        remindTime * 1000);
+
+            breaks.overbreak[username] = setInterval(
+                //callback
+                //sends reminder to log back in when break is up
+                //if not already logged back in
+                function sendReminder() {
+                    requests.getAgentStatus(username, function (status) {
+                        if (status == "not accepting chats") {
+                            slack.sendMessage(username +
+                                ": you need to log back into chats with *!back*",
+                                data.channel);
+                        }
+                        else {
+                            clearInterval(breaks.overbreak[username]);
+                            delete breaks.overbreak[username];
+                        }
+                    });
+                }, remindTime * 1000);
+        }
+        else {
+            console.log(status);
+        }
+    });
 
     return 1;
 }
