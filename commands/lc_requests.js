@@ -55,7 +55,8 @@ exports.changeStatus = function changeStatus(user, status, callback) {
         path: '/agents/' + user + '@liquidweb.com',
         headers: {
             'X-API-VERSION': '2',
-            'Content-type': 'application/json'
+            'Content-type': 'application/json',
+            'Content-length': JSON.stringify(data).length
         }
     });
 
