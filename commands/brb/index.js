@@ -27,10 +27,10 @@ module.exports = {
 };
 
 function brb(data) {
-    var username = slack.dataStore.getUserById(data.user).name;
-    var arg = data.text.split(' ')[1];
-
     var breakTime;
+
+    var username = slack.dataStore.getUserById(data.user).profile.email.split('@')[0];
+    var arg = data.text.split(' ')[1];
 
     //check if already on break
     if (breaks.onbreak[username] || breaks.overbreak[username] || breaks.out[username]) {
@@ -44,7 +44,11 @@ function brb(data) {
 
         //sets agent status to "not accepting chats"
         setBreak(username, breakTime, data);
+
         slack.sendMessage("Set break for " + username + " for " + breakTime.toString() + " minutes.", data.channel);
+
+        //logging
+        console.log(new Date() + ': logged out ' + username + ' with !brb for ' + breakTime.toString() + ' minutes');
     }
 }
 
