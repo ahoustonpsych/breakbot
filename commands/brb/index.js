@@ -56,6 +56,7 @@ function brb(data) {
  * sets break timer for [time] minutes
  */
 function setBreak(username, time, data) {
+    breaks.onbreak[username] = 1;
     requests.changeStatus(
         username,
         "not accepting chats",
