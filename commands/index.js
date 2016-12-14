@@ -1,5 +1,5 @@
-var fs = require('fs'),
-	path = require('path');
+var fs = require('fs');
+var path = require('path');
 
 function getDirectories() {
 	return fs.readdirSync(__dirname).filter(function(file) {
@@ -8,7 +8,7 @@ function getDirectories() {
 }
 
 var dirs = getDirectories();
-	modules = [];
+var modules = [];
 
 dirs.forEach(function(dir) {
 	modules.push(require('./' + dir));
