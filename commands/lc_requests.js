@@ -1,7 +1,7 @@
 var https = require('https');
 
-var lc_user = require('../config').lcAPIUser;
-var lc_key = require('../config').lcAPIKey;
+var lc_user = require('../conf/config').lcAPIUser;
+var lc_key = require('../conf/config').lcAPIKey;
 
 
 function APICall(path, method, callback) {
@@ -16,22 +16,25 @@ function APICall(path, method, callback) {
         }
     });
 
-    //parses response and gets the agent's status
+    /* parses response and gets the agent's status */
     request.on('response', function (response) {
         var body = [];
         response.setEncoding('utf8');
 
-        //http responses come in "chunks" of a certain length
-        //this bit pushes all the "chunks" onto an array as they come in
+        /* http responses come in "chunks" of a certain length
+        this pushes all the "chunks" onto an array as they come in */
         response.on('data', function(chunk) {
             body.push(chunk);
         });
 
-        //once the response finishes, assemble all chunks and return the result.
+        /* once the response finishes, assemble all chunks and return the result */
         response.on('end', function () {
-            return callback(JSON.parse(body.join('')));
+            request.end();
+            return callback(null, JSON.parse(body.join('')));
         });
     });
+
+    request.on('error', function (err) { request.end(); console.error('CHANGE AGENT STATUS CALL FAILED', err); });
 
     request.end();
 }
@@ -40,68 +43,68 @@ function APICall(path, method, callback) {
 /*
  * changes an agent's status
  */
-exports.changeStatus = function changeStatus(user, status, callback) {
+exports.changeStatus = function changeStatus(user, status) {
 
-    //possible values:
-    //"accepting chats"
-    //"not accepting chats"
-    //"offline"
-    var data = {status: status};
+    return new Promise(function (fulfill, reject) {
+        /* possible values:
+           "accepting chats"
+           "not accepting chats"
+           "offline" */
+        var data = {status: status};
 
-    var request = https.request({
-        hostname: 'api.livechatinc.com',
-        auth: lc_user + ':' + lc_key,
-        method: 'PUT',
-        path: '/agents/' + user + '@liquidweb.com',
-        headers: {
-            'X-API-VERSION': '2',
-            'Content-type': 'application/json',
-            'Content-length': JSON.stringify(data).length
-        }
-    });
-
-    //make API call to change agent's state
-    request.write(JSON.stringify(data));
-
-    //start of http response
-    request.on('response', function (response) {
-        var body = [];
-        response.setEncoding('utf8');
-
-        //http responses come in "chunks" of a certain length
-        //this bit pushes all the "chunks" onto an array as they come in
-        response.on('data', function(chunk) {
-            body.push(chunk);
+        var request = https.request({
+            hostname: 'api.livechatinc.com',
+            auth: lc_user + ':' + lc_key,
+            method: 'PUT',
+            path: '/agents/' + user + '@liquidweb.com',
+            headers: {
+                'X-API-VERSION': '2',
+                'Content-type': 'application/json',
+                'Content-length': JSON.stringify(data).length
+            }
         });
 
-        //once the response finishes, assemble all chunks and return the result.
-        response.on('end', function () {
-            return callback(JSON.parse(body.join('')));
+        /* make the call to change agent's state */
+        request.write(JSON.stringify(data));
+
+        /* start of http response */
+        request.on('response', function (response) {
+            var body = [];
+            response.setEncoding('utf8');
+
+            /* http responses come in "chunks" of a certain length
+            this bit pushes all the "chunks" onto an array as they come in */
+            response.on('data', function(chunk) {
+                body.push(chunk);
+            });
+
+            /* once the response finishes, assemble all chunks and return the result. */
+            response.on('end', function () {
+                request.end();
+                fulfill(JSON.parse(body.join('')));
+            });
         });
-    });
 
-    request.end();
-};
-
-exports.getAgentStatus = function getAgentStatus(agent, callback) {
-    APICall('/agents/' + agent + '@liquidweb.com', 'GET', function (data) {
-        return callback(data.status);
+        request.on('error', function (err) { reject(err); });
     });
 };
 
+/*
+ * retrieve's agent's current status
+ */
+exports.getAgentStatus = function getAgentStatus(agent) {
+    return new Promise(function (fulfill, reject) {
+        APICall('/agents/' + agent + '@liquidweb.com', 'GET',
+            function(err, res) {
+                if(err) reject(err);
+                else fulfill(res.status);
+        });
+    });
+};
 
-//return list of agents
+
+/* return list of agents */
 exports.getAgents = function getAgents(status, callback) {
-    APICall('/agents?status=' + encodeURIComponent(status), 'GET', function(data) {
-        return callback(data);
-    });
-};
-
-//returns group "status"
-//either "accepting chats", "not accepting chats", or "offline"
-exports.getLCStatus = function getLCStatus(callback) {
-    APICall('/groups/11', 'GET', function (data) {
-        //online or offline
-        return callback(data.status);
-    });
+    APICall('/agents?status=' + encodeURIComponent(status), 'GET',
+        function(data) { return callback(data); });
 };

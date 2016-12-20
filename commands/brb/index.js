@@ -1,16 +1,8 @@
 var slack = require('../../lib/slack').rtm;
+
+var conf = require('../../conf/breaks.config');
 var requests = require('../lc_requests');
-
 var breaks = require('../breaks');
-
-//default break time, in minutes
-var defaultBreak = 5;
-
-//max break time, in minutes
-const maxBreak = 120;
-
-//how long to wait between reminders to log back in, in seconds
-var remindTime = 4;
 
 
 /* USAGE:
@@ -27,87 +19,60 @@ module.exports = {
 };
 
 function brb(data) {
-    var breakTime;
 
     var username = slack.dataStore.getUserById(data.user).profile.email.split('@')[0];
     var arg = data.text.split(' ')[1];
 
-    //check if already on break
+    /* debug. allows you to do !brb [time] [user] to log someone else out */
+    if(data.text.split(' ')[2])
+        username = slack.dataStore.getUserByName(data.text.split(' ')[2]).profile.email.split('@')[0];
+
+    /* prevents users from logging out again if they're already logged out */
     if (breaks.onbreak[username] || breaks.overbreak[username] || breaks.out[username]) {
         slack.sendMessage("already on break", data.channel);
     }
     else {
+        parseBreakTime(arg)
+            .then(function (time) {
+                /* sets agent status to "not accepting chats" */
+                slack.sendMessage("Set break for " + username + " for " + time.toString() + " minutes.", data.channel);
+                setBreak(username, time, data.channel);
 
-        //default break time is 5 minutes
-        //max break time is 120 minutes
-        breakTime = !parseInt(arg) ? defaultBreak : (parseInt(arg) > maxBreak ? defaultBreak : parseInt(arg));
-
-        //sets agent status to "not accepting chats"
-        setBreak(username, breakTime, data);
-
-        slack.sendMessage("Set break for " + username + " for " + breakTime.toString() + " minutes.", data.channel);
-
-        //logging
-        console.log(new Date() + ': logged out ' + username + ' with !brb for ' + breakTime.toString() + ' minutes');
+                //logging
+                console.log(new Date() + ': logged out ' + username + ' with !brb for ' + time.toString() + ' minutes');
+            })
+            .catch(function (err) { console.error('ERROR PARSING BREAK TIME', err); });
     }
 }
 
 /*
  * sets break timer for [time] minutes
  */
-function setBreak(username, time, data) {
+function setBreak(username, time, channel) {
     breaks.onbreak[username] = 1;
-    requests.changeStatus(
-        username,
-        "not accepting chats",
-        //callback
-        function () {
-            breaks.onbreak[username] = setTimeout(
-                //callback
-                function () {
-                    breakUp(username, data);
-                },
-                time * 1000);
-        });
+    requests.changeStatus(username, "not accepting chats")
+        .then(function (res) {
+            breaks.onbreak[username] = {
+                outTime: new Date().getTime(),
+                duration: time,
+                channel: channel
+            };
+        })
+        .catch(function (err) { console.error('ERROR CHANGING STATUS', err); });
 }
 
-/*
- * this function removes the onbreak timer when it expires naturally,
- * and sets the overbreak timer
- * which sends reminders to log back in
- * but only if that user hasn't already logged back in manually yet (without the bot)
- */
-function breakUp(username, data) {
-    delete breaks.onbreak[username];
+function parseBreakTime(time) {
+    return new Promise(function (fulfill, reject) {
+        /* sets break time to the default if it's not provided */
+        if(!parseInt(time))
+            fulfill(conf.defaultBreak);
 
-    requests.getAgentStatus(username, function (status) {
-        if (status == "not accepting chats") {
-            slack.sendMessage(username +
-                ": your break is up. Please use *!back* to log back into chats",
-                data.channel);
+        /* prevents the break time from being negative, zero, or higher than the max time */
+        else if((parseInt(time) > conf.maxBreak) || (parseInt(time) <= 0))
+            fulfill(conf.defaultBreak);
 
-            breaks.overbreak[username] = setInterval(
-                //callback
-                //sends reminder to log back in when break is up
-                //if not already logged back in
-                function sendReminder() {
-                    requests.getAgentStatus(username, function (status) {
-                        if (status == "not accepting chats") {
-                            slack.sendMessage(username +
-                                ": you need to log back into chats with *!back*",
-                                data.channel);
-                        }
-                        else {
-                            clearInterval(breaks.overbreak[username]);
-                            delete breaks.overbreak[username];
-                        }
-                    });
-                }, remindTime * 1000);
-        }
-        else {
-            console.log(status);
-        }
+        /* if all else is good, set break time properly */
+        else
+            fulfill(parseInt(time));
     });
-
-    return 1;
 }
