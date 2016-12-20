@@ -9,20 +9,14 @@ module.exports = {
 };
 
 function list(data) {
-    //console.log(Object.keys(breaks.onbreak).length);
-    //console.log(Object.keys(breaks.overbreak).length);
-    //console.log(breaks.out);
-
-    //console.log(breaks.onbreak['ahouston']);
 
     if (Object.keys(breaks.onbreak).length != 0 ||
         Object.keys(breaks.overbreak).length != 0 ||
         Object.keys(breaks.out).length != 0) {
 
-        slack.sendMessage("On break: " +
-            Object.keys(breaks.onbreak).join(', ') +
-            Object.keys(breaks.overbreak).join(', ') +
-            Object.keys(breaks.out).join(', '),
+        slack.sendMessage("*On break:* " + Object.keys(breaks.onbreak).join(', ') + '\n'
+            + "*Over break:* " + Object.keys(breaks.overbreak).join(', ') + '\n'
+            + "*Out:* " + Object.keys(breaks.out).join(', '),
             data.channel);
     }
     else {
