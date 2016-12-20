@@ -19,6 +19,8 @@ module.exports = {
 function out(data) {
 
     var username = undefined;
+
+    /* allows you to use !out [name] to log someone else out */
     var user = slack.dataStore.getUserById(data.user).profile.email.split('@')[0];
     var arg = data.text.split(' ')[1];
 
@@ -37,27 +39,22 @@ function out(data) {
     else {
         username = user;
     }
-    logOut(username,
-        function (response) {
-            slack.sendMessage(
-                'Logged out ' + username +
-                '. Please use *!back* to log back in when you are ready',
-                data.channel);
 
-            //logging
-            console.log(new Date() + ': logged out ' + username + ' with !out');
-
-            breaks.clearBreaks(username);
-            breaks.out[username] = 1;
-        });
+    logOut(username, data);
 }
 
-function logOut(username, callback) {
-    requests.changeStatus(
-        username,
-        "not accepting chats",
-		//callback
-        function (response) {
-            callback(response);
+function logOut(username, data) {
+    slack.sendMessage('Logged out ' + username + '. Please use *!back* to log back in when you are ready', data.channel);
+
+    breaks.clearBreaks(username);
+    breaks.out[username] = 1;
+
+    requests.changeStatus(username, "not accepting chats")
+        .then(function (resp) {
+            //logging
+            console.log(new Date() + ': logged out ' + username + ' with !out');
+        })
+        .catch(function (err) {
+            console.error('ERROR CHANGING STATUS', err);
         });
 }
