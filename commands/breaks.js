@@ -13,8 +13,6 @@ module.exports = {
 };
 
 function clearBreaks(user) {
-    clearTimeout(onbreak[user]);
-    clearInterval(overbreak[user]);
     delete onbreak[user];
     delete overbreak[user];
 }
