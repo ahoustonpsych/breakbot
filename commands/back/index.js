@@ -2,6 +2,8 @@ var slack = require('../../lib/slack').rtm;
 var requests = require('../lc_requests');
 var breaks = require('../breaks');
 
+var db = require('../../database').db;
+
 /*
  * USAGE:
  * !back
@@ -32,7 +34,8 @@ function logIn(username, data) {
 		.then(function (res) {
 
 			//logging
-			console.log(new Date() + ': logged in ' + username + ' with !back');
+			//console.log(new Date() + ': logged in ' + username + ' with !back');
+            db.run("INSERT INTO command_history values(datetime('now'), '" + username + "', '!back', NULL)");
 		})
 		.catch(function (err) {
 			console.error('ERROR CHANGING STATUS', err);

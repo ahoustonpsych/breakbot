@@ -1,5 +1,7 @@
 var slack = require('../../lib/slack').rtm;
 
+var db = require('../../database').db;
+
 var helpMsg =
 "commands:\n\
 *!brb* [min] - take break for [min] minutes (from auto-assign queue)\n\
@@ -24,4 +26,5 @@ module.exports = {
 
 function help(data) {
 	slack.sendMessage(helpMsg, data.channel);
+    db.run("INSERT INTO command_history values(datetime('now'), NULL, '!help', NULL)");
 }

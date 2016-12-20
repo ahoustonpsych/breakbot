@@ -1,11 +1,13 @@
 var Promise = require('promise');
 
 var slack = require('./lib/slack').rtm;
-
 var messageController = require('./lib/messageController');
 var breaks = require('./commands/breaks');
+
 var conf = require('./conf/breaks.config');
 var requests = require('./commands/lc_requests');
+
+var db = require('./database').db;
 
 
 /* always listening */
@@ -146,6 +148,7 @@ function sendReminder(user) {
 
 function main() {
 
+    db.run("CREATE TABLE IF NOT EXISTS command_history(Time TEXT, User TEXT, Command TEXT, Duration INTEGER)");
 	/* runs upkeep every second */
 	setInterval(upkeep, 1000);
 }

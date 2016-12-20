@@ -6,5 +6,7 @@ module.exports = {
 	/* livechat api credentials */
 	lcAPIUser: "yourname@liquidweb.com",
 	lcAPIKey: '',
-	loglevel: "error"
+	/* path to the database containing command logs */
+    logfile: "./logs/logging.db",
+    loglevel: "error"
 };
