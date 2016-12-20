@@ -4,7 +4,8 @@
   "description": "slack bot that facilitates livechat agents taking breaks",
   "main": "index.js",
   "dependencies": {
-    "@slack/client": "^3.6.0"
+    "@slack/client": "^3.6.0",
+    "promise": "^7.1.1"
   },
   "devDependencies": {},
   "scripts": {

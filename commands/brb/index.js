@@ -1,4 +1,5 @@
 var slack = require('../../lib/slack').rtm;
+var Promise = require('promise');
 
 var conf = require('../../conf/breaks.config');
 var requests = require('../lc_requests');

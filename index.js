@@ -1,11 +1,10 @@
-var messageController = require('./lib/messageController');
+var Promise = require('promise');
 
 var slack = require('./lib/slack').rtm;
 
+var messageController = require('./lib/messageController');
 var breaks = require('./commands/breaks');
-
 var conf = require('./conf/breaks.config');
-
 var requests = require('./commands/lc_requests');
 
 

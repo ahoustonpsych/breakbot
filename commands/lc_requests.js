@@ -1,4 +1,5 @@
 var https = require('https');
+var Promise = require('promise');
 
 var lc_user = require('../conf/config').lcAPIUser;
 var lc_key = require('../conf/config').lcAPIKey;
