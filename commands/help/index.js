@@ -1,6 +1,6 @@
 var slack = require('../../lib/slack').rtm;
 
-var db = require('../../database').db;
+var db = require('../../database');
 
 var helpMsg =
 "commands:\n\
@@ -26,5 +26,6 @@ module.exports = {
 
 function help(data) {
 	slack.sendMessage(helpMsg, data.channel);
-    db.run("INSERT INTO command_history values(datetime('now'), NULL, '!help', NULL)");
+    db.logCommand(null, "!help", null)
+        .catch(function(err) { console.error("ERROR LOGGING COMMAND", err); });
 }

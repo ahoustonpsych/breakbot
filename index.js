@@ -149,6 +149,7 @@ function sendReminder(user) {
 function main() {
 
     db.run("CREATE TABLE IF NOT EXISTS command_history(Time TEXT, User TEXT, Command TEXT, Duration INTEGER)");
+
 	/* runs upkeep every second */
 	setInterval(upkeep, 1000);
 }

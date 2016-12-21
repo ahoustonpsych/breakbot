@@ -5,7 +5,7 @@ var conf = require('../../conf/breaks.config');
 var requests = require('../lc_requests');
 var breaks = require('../breaks');
 
-var db = require('../../database').db;
+var db = require('../../database');
 
 
 /* USAGE:
@@ -31,7 +31,10 @@ function brb(data) {
         username = slack.dataStore.getUserByName(data.text.split(' ')[2]).profile.email.split('@')[0];
 
     /* prevents users from logging out again if they're already logged out */
-    if (breaks.onbreak[username] || breaks.overbreak[username] || breaks.out[username]) {
+    if (breaks.onbreak[username] instanceof Object
+        || breaks.overbreak[username] instanceof Object
+        || typeof(breaks.out[username]) ===  'number') {
+
         slack.sendMessage("already on break", data.channel);
     }
     else {
@@ -43,7 +46,8 @@ function brb(data) {
 
                 //logging
                 //console.log(new Date() + ': logged out ' + username + ' with !brb for ' + time.toString() + ' minutes');
-                db.run("INSERT INTO command_history values(datetime('now'), '" + username + "', '!brb', " + time + ")");
+                db.logCommand(username, "!brb", time)
+                    .catch(function(err) { console.error("ERROR LOGGING COMMAND", err); });
             })
             .catch(function (err) { console.error('ERROR PARSING BREAK TIME', err); });
     }
@@ -53,15 +57,12 @@ function brb(data) {
  * sets break timer for [time] minutes
  */
 function setBreak(username, time, channel) {
-    breaks.onbreak[username] = 1;
+    breaks.onbreak[username] = {
+        outTime: new Date().getTime(),
+        duration: time,
+        channel: channel
+    };
     requests.changeStatus(username, "not accepting chats")
-        .then(function (res) {
-            breaks.onbreak[username] = {
-                outTime: new Date().getTime(),
-                duration: time,
-                channel: channel
-            };
-        })
         .catch(function (err) { console.error('ERROR CHANGING STATUS', err); });
 }
 
