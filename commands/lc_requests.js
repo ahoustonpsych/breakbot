@@ -44,7 +44,7 @@ function APICall(path, method, callback) {
 /*
  * changes an agent's status
  */
-exports.changeStatus = function changeStatus(user, status) {
+exports.changeStatus = function (user, status) {
 
     return new Promise(function (fulfill, reject) {
         /* possible values:
@@ -93,7 +93,7 @@ exports.changeStatus = function changeStatus(user, status) {
 /*
  * retrieve's agent's current status
  */
-exports.getAgentStatus = function getAgentStatus(agent) {
+exports.getAgentStatus = function (agent) {
     return new Promise(function (fulfill, reject) {
         APICall('/agents/' + agent + '@liquidweb.com', 'GET',
             function(err, res) {
@@ -104,8 +104,23 @@ exports.getAgentStatus = function getAgentStatus(agent) {
 };
 
 
+/*
+ * get chat data for the last 5 minutes
+ */
+exports.getChats = function () {
+    return new Promise(function (fulfill, reject) {
+        APICall('/chats?' +
+            'date_from=' + new Date().toJSON().split('T')[0] + '&' +
+            'include_pending=1' + '&' +
+            'group=1', 'GET', function (err, res) {
+                if (err) reject(err);
+                else fulfill(res.chats);
+        });
+    });
+};
+
 /* return list of agents */
-exports.getAgents = function getAgents(status, callback) {
+exports.getAgents = function (status, callback) {
     APICall('/agents?status=' + encodeURIComponent(status), 'GET',
         function(data) { return callback(data); });
 };

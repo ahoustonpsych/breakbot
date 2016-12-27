@@ -1,18 +1,22 @@
 var Promise = require('promise');
 
 var slack = require('./lib/slack').rtm;
+var web = require('./lib/slack').web;
 
 var messageController = require('./lib/messageController');
 var breaks = require('./commands/breaks');
 var conf = require('./conf/breaks.config');
 var requests = require('./commands/lc_requests');
+var db = require('./lib/database');
+var topic = require('./commands/topic');
 
+var channel = 'breakbot_test';
 
 /* always listening */
 slack.on('message', function(data) {
-	messageController.handle(data);
+    if (slack.dataStore.getChannelGroupOrDMById(data.channel).name === channel)
+	    messageController.handle(data);
 });
-
 
 /* runs every second */
 function upkeep() {
@@ -30,6 +34,12 @@ function upkeep() {
     /* handle users that are out */
     if(Math.floor(process.uptime()) % 30 == 0)
     	upkeepOut();
+
+    if(Math.floor(process.uptime()) % 10 == 0)
+        checkBounces();
+
+    if(Math.floor(process.uptime()) % 60 == 0)
+        notifyBounces();
 }
 
 function upkeepOnBreak() {
@@ -86,7 +96,7 @@ function upkeepOut() {
 	for(var user in breaks.out) {
 		requests.getAgentStatus(user)
         	.then(function (res) {
-        		console.log(res);
+        		//console.log(res);
 
             	/* checks if user already logged back in */
             	if (res == "accepting chats")
@@ -144,9 +154,58 @@ function sendReminder(user) {
         });
 }
 
+/* */
+function checkBounces() {
+    requests.getChats()
+        .then(function (data) {
+            if(data instanceof Array) {
+                data.forEach(function (chat) {
+                    chat.events.forEach(function (event) {
+                        if(event.type == "event")
+                            if(event.text.match(/The chat was transferred to .+?(?=because)because .+?(?=had)had not replied for 1 minute\./) != null) {
+                                db.logBounce(event.timestamp, event.date, event.agent_id)
+                                    .catch(function (err) {
+                                        if(err.code !== "SQLITE_CONSTRAINT")
+                                            console.error("ERROR LOGGING BOUNCES", err);
+                                    });
+                            }
+                    });
+                })
+            }
+        })
+        .catch(function (err) { console.error("ERROR GETTING RECENT CHATS", err); });
+}
+
+/*
+ * notifies chat captain when a chat bounces, within 1 minute of it happening
+ */
+function notifyBounces() {
+    var query = "SELECT date,user from bounces where timestamp > " +
+        parseInt(new Date(new Date() - 60000).getTime() / 1000);
+
+    /* logs bounced chat info to the "bounces" table */
+    db.db.each(query, function(err, res) {
+        if(err) console.error(err);
+        else {
+            web.im.open(slack.dataStore.getUserByName(topic.captain).id, function (err, profile) {
+                if (err) console.error('invalid slack user', err);
+                else {
+                    slack.sendMessage(res.date + ': ' + res.user + ' bounced a chat', profile.channel.id);
+                    console.log(res.date + ": " + res.user);
+                }
+            });
+        }
+    });
+
+}
+
+
 function main() {
 
-	/* runs upkeep every second */
+    db.db.run("CREATE TABLE IF NOT EXISTS command_history(Time TEXT, User TEXT, Command TEXT, Duration INTEGER)");
+    db.db.run("CREATE UNIQUE INDEX IF NOT EXISTS timeindex ON bounces (time)");
+
+    /* runs upkeep every second */
 	setInterval(upkeep, 1000);
 }
 

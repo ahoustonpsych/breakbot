@@ -1,3 +1,4 @@
 conf/config.js
 node_modules/
 .idea/*
+logs/*
