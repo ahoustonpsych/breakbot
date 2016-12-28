@@ -1,5 +1,4 @@
 var slack = require('../../lib/slack').rtm;
-
 var db = require('../../lib/database');
 
 var helpMsg =
@@ -18,7 +17,7 @@ var helpMsg =
  * sends help message
  */
 module.exports = {
-	expr: /^!help/,
+	expr: /^(!help)|(breakbot:? help)/i,
 	run: function (data) {
 		help(data);
 	}

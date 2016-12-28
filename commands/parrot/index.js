@@ -1,12 +1,10 @@
-var web = require('../../lib/slack').web;
 var fs = require('fs');
-
 var request = require('request');
-
+var web = require('../../lib/slack').web;
 var token = require('../../conf/config').slackAPIKey;
 
 module.exports = {
-    expr: /^!parrot/,
+    expr: /^(!parrot)|(breakbot:? parrot)/i,
     run: function (data) {
         parrot(data);
     }

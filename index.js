@@ -157,7 +157,7 @@ function sendReminder(user) {
         });
 }
 
-/* */
+/* checks for and logs chats that have bounced recently (in the last minute) */
 function checkBounces() {
     requests.getChats()
         .then(function (data) {

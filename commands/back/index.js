@@ -3,21 +3,33 @@ var requests = require('../lc_requests');
 var breaks = require('../breaks');
 var db = require('../../lib/database');
 
+/* argument offsets, used to allow multi-word commands */
+var offs = {"!back": 1, "breakbot": 2};
+
 /*
  * USAGE:
- * !back
+ * !back or breakbot back
  * sets user status to "accepting chats"
  */
 module.exports = {
-	expr: /^!back/,
+	expr: /^(!back)|(breakbot:? back)/i,
 	run: function (data) {
 		back(data);
 	}
 };
 
 function back(data) {
+
+    if(data.text.split(' ')[0].match(/!back/i) !== null)
+        off = offs["!back"];
+    else
+        off = offs["breakbot"];
+
 	var username = slack.dataStore.getUserById(data.user).profile.email.split('@')[0];
-    if(data.text.split(' ')[1]) username = slack.dataStore.getUserByName(data.text.split(' ')[1]).profile.email.split('@')[0];
+
+    if(data.text.split(' ')[off])
+    	username = slack.dataStore.getUserByName(data.text.split(' ')[off]).profile.email.split('@')[0];
+
 	/* change state to "accepting chats" */
     logIn(username, data);
 }

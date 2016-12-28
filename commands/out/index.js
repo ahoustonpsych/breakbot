@@ -3,6 +3,8 @@ var requests = require('../lc_requests');
 var breaks = require('../breaks');
 var db = require('../../lib/database');
 
+var offs = {"!out": 1, "breakbot": 2};
+
 /*
  * USAGE:
  * !out [user]
@@ -10,7 +12,7 @@ var db = require('../../lib/database');
  * [user] defaults to the user that sent the message, if not given
  */
 module.exports = {
-	expr: /^!out/,
+	expr: /^(!out)|(breakbot:? out)/i,
 	run: function (data) {
 		out(data);
 	}
@@ -18,11 +20,16 @@ module.exports = {
 
 function out(data) {
 
+    if(data.text.split(' ')[0].match(/!out/i) !== null)
+        off = offs["!out"];
+    else
+        off = offs["breakbot"];
+
     var username = undefined;
 
     /* allows you to use !out [name] to log someone else out */
     var user = slack.dataStore.getUserById(data.user).profile.email.split('@')[0];
-    var arg = data.text.split(' ')[1];
+    var arg = data.text.split(' ')[off];
 
     if (arg) {
         try {

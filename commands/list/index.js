@@ -2,13 +2,14 @@ var slack = require('../../lib/slack').rtm;
 var breaks = require('../breaks');
 
 module.exports = {
-    expr: /^!list/,
+    expr: /^(!list)|(breakbot:? list)/i,
     run: function (data) {
         list(data);
     }
 };
 
 function list(data) {
+
     var onbreak_list = '*On break:* ';
 
     /* populates list of users currently on break, paired with the amount of time left on their break */

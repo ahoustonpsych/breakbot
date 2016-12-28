@@ -2,11 +2,11 @@ var slack = require('../../lib/slack').rtm;
 var Promise = require('promise');
 
 var conf = require('../../conf/breaks.config');
+var db = require('../../lib/database');
 var requests = require('../lc_requests');
 var breaks = require('../breaks');
 
-var db = require('../../lib/database');
-
+var offs = {"!brb": 1, "breakbot": 2};
 
 /* USAGE:
  * !brb [time]
@@ -15,20 +15,24 @@ var db = require('../../lib/database');
  * sends reminder every remindTime seconds when the break expires
  */
 module.exports = {
-	expr: /^!brb/,
+	expr: /^(!brb)|(breakbot:? brb)/i,
 	run: function (data) {
 	    brb(data);
 	}
 };
 
 function brb(data) {
+    if(data.text.split(' ')[0].match(/!brb/i) !== null)
+        off = offs["!brb"];
+    else
+        off = offs["breakbot"];
 
     var username = slack.dataStore.getUserById(data.user).profile.email.split('@')[0];
-    var arg = data.text.split(' ')[1];
+    var arg = data.text.split(' ')[off];
 
     /* debug. allows you to do !brb [time] [user] to log someone else out */
-    if(data.text.split(' ')[2])
-        username = slack.dataStore.getUserByName(data.text.split(' ')[2]).profile.email.split('@')[0];
+    if(data.text.split(' ')[off+1])
+        username = slack.dataStore.getUserByName(data.text.split(' ')[off+1]).profile.email.split('@')[0];
 
     /* prevents users from logging out again if they're already logged out */
     if (breaks.onbreak[username] || breaks.overbreak[username]) {

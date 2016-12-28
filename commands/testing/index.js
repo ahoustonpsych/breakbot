@@ -1,8 +1,9 @@
 var web = require('../../lib/slack').web;
-var topic = require('../topic');
-var slack = require('../../lib/slack').rtm;
-
 var requests = require('../lc_requests');
+var slack = require('../../lib/slack').rtm;
+var topic = require('../topic');
+
+var offs = {"!test": 1, "breakbot": 2};
 
 module.exports = {
 	expr: /^!test/,
