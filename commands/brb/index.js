@@ -5,6 +5,8 @@ var conf = require('../../conf/breaks.config');
 var requests = require('../lc_requests');
 var breaks = require('../breaks');
 
+var db = require('../../lib/database');
+
 
 /* USAGE:
  * !brb [time]
@@ -40,7 +42,9 @@ function brb(data) {
                 setBreak(username, time, data.channel);
 
                 //logging
-                console.log(new Date() + ': logged out ' + username + ' with !brb for ' + time.toString() + ' minutes');
+                //console.log(new Date() + ': logged out ' + username + ' with !brb for ' + time.toString() + ' minutes');
+                db.logCommand(username, "!brb", time)
+                    .catch(function(err) { console.error("ERROR LOGGING COMMAND", err); });
             })
             .catch(function (err) { console.error('ERROR PARSING BREAK TIME', err); });
     }

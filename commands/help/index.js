@@ -1,5 +1,7 @@
 var slack = require('../../lib/slack').rtm;
 
+var db = require('../../lib/database');
+
 var helpMsg =
 "commands:\n\
 *!brb* [min] - take break for [min] minutes (from auto-assign queue)\n\
@@ -24,4 +26,6 @@ module.exports = {
 
 function help(data) {
 	slack.sendMessage(helpMsg, data.channel);
+    db.logCommand(null, "!help", null)
+        .catch(function(err) { console.error("ERROR LOGGING COMMAND", err); });
 }

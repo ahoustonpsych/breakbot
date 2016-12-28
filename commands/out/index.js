@@ -1,7 +1,7 @@
 var slack = require('../../lib/slack').rtm;
 var requests = require('../lc_requests');
 var breaks = require('../breaks');
-
+var db = require('../../lib/database');
 
 /*
  * USAGE:
@@ -52,7 +52,9 @@ function logOut(username, data) {
     requests.changeStatus(username, "not accepting chats")
         .then(function (resp) {
             //logging
-            console.log(new Date() + ': logged out ' + username + ' with !out');
+            //console.log(new Date() + ': logged out ' + username + ' with !out');
+            db.logCommand(username, "!out", null)
+                .catch(function(err) { console.error("ERROR LOGGING COMMAND", err); });
         })
         .catch(function (err) {
             console.error('ERROR CHANGING STATUS', err);
