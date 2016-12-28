@@ -199,11 +199,11 @@ function notifyBounces() {
 
 }
 
-
 function main() {
 
     db.db.run("CREATE TABLE IF NOT EXISTS command_history(Time TEXT, User TEXT, Command TEXT, Duration INTEGER)");
-    db.db.run("CREATE UNIQUE INDEX IF NOT EXISTS timeindex ON bounces (time)");
+    db.db.run("CREATE TABLE IF NOT EXISTS bounces(Timestamp Number, Date TEXT, User TEXT)");
+    db.db.run("CREATE UNIQUE INDEX IF NOT EXISTS timeindex ON bounces (Timestamp)");
 
     /* runs upkeep every second */
 	setInterval(upkeep, 1000);
