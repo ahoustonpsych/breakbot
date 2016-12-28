@@ -59,7 +59,9 @@ function brb(data) {
 function setBreak(username, time, channel) {
     if(typeof(breaks.out[username]) === 'number')
         delete breaks.out[username];
+
     breaks.onbreak[username] = 1;
+
     requests.changeStatus(username, "not accepting chats")
         .then(function (res) {
             breaks.onbreak[username] = {
