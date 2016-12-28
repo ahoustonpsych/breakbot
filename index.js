@@ -3,24 +3,39 @@ var Promise = require('promise');
 var slack = require('./lib/slack').rtm;
 var web = require('./lib/slack').web;
 
+var conf = require('./conf/config');
+var conf_breaks = require('./conf/breaks.config');
+
 var messageController = require('./lib/messageController');
 var breaks = require('./commands/breaks');
-var conf = require('./conf/breaks.config');
 var requests = require('./commands/lc_requests');
 var db = require('./lib/database');
 var topic = require('./commands/topic');
 
-var channel = 'breakbot_test';
+slack.on('authenticated', function (data) {
+    data.channels.forEach(function (chan) {
+        if (chan.is_member === true) {
+            topic.topic = chan.topic.value;
+        }
+    });
+
+    //private channels
+    /*
+    data.groups.forEach(function (group) {
+        console.log("got " + group.name);
+    });
+    */
+});
 
 /* always listening */
 slack.on('message', function(data) {
-    if (slack.dataStore.getChannelGroupOrDMById(data.channel).name === channel)
+    if (slack.dataStore.getChannelGroupOrDMById(data.channel).name === conf.channel)
 	    messageController.handle(data);
 });
 
 /* runs every second */
 function upkeep() {
-
+    console.log("cap: " + topic.topic);
 	/* handle users on break */
     upkeepOnBreak()
         .then(function () {
@@ -89,8 +104,8 @@ function upkeepOverBreak() {
 
 		var delta = (now - (breaks.overbreak[user].outTime + (breaks.overbreak[user].duration * 1000))) / 1000;
 
-        /* send reminder every conf.remindTime seconds */
-        if (parseInt(delta) % conf.remindTime == 0) {
+        /* send reminder every conf_breaks.remindTime seconds */
+        if (parseInt(delta) % conf_breaks.remindTime == 0) {
 			sendReminder(user);
         }
     }

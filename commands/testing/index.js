@@ -9,27 +9,13 @@ module.exports = {
 	expr: /^!test/,
 	run: function(data) {
 		topic.getCaptain();
-        topic.setTopic(data.channel, "*Chat Captain:* agorzen *Chatters:*  aengler amayers blangenberg bsmith dhultin eanderson jzimmer ndumond skorber wgray");
+        //topic.setTopic(data.channel, "*Chat Captain:* agorzen *Chatters:*  aengler amayers blangenberg bsmith dhultin eanderson jzimmer ndumond skorber wgray");
         console.log("captain: " + topic.captain);
-        /*
-		requests.getChats()
-			.then(function (data) {
-				if (data instanceof Array) {
-                    data.forEach(function (chat) {
-                    	chat.events.forEach(function (event) {
-                    		if(event.type == "event")
-                    			if(event.text.match(/The chat was transferred to .+?(?=because)because .+?(?=had)had not replied for 1 minute\./) != null) {
-                                    web.im.open(slack.dataStore.getUserByName("ahouston").id, function (err, res) {
-                                    	if(err) console.error('invalid slack user', err);
-                                    	else slack.sendMessage(event.date + ': ' + event.agent_id + ' bounced a chat', res.channel.id)
-                                    });
-                                }
-						})
-					})
-                }
-			})
-			.catch(function (err) { console.error("ERROR GETTING RECENT CHATS", err); });
-		*/
+
+		//web.channels.info(data.channel)
+		//	.then(function (info) { console.log(info); });
+
+
 		/*
 		requests.getLCStatus(function (status) {
 			console.log(status);

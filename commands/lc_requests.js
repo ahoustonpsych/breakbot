@@ -119,7 +119,9 @@ exports.getChats = function () {
     });
 };
 
-/* return list of agents */
+/*
+ * return list of agents
+ */
 exports.getAgents = function (status, callback) {
     APICall('/agents?status=' + encodeURIComponent(status), 'GET',
         function(data) { return callback(data); });

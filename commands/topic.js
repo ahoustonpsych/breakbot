@@ -17,7 +17,7 @@ module.exports = {
         this.captain = this.topic.split(' ')[2];
     },
     setTopic: function (channel, newtopic) {
-        web.groups.setTopic(channel, newtopic);
+        web.channels.setTopic(channel, newtopic);
         this.topic = newtopic;
     }
 };
