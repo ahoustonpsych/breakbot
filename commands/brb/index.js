@@ -37,6 +37,9 @@ function brb(data) {
     else {
         parseBreakTime(arg)
             .then(function (time) {
+
+                breaks.onbreak[username] = { remaining: time };
+
                 /* sets agent status to "not accepting chats" */
                 slack.sendMessage("Set break for " + username + " for " + time.toString() + " minutes.", data.channel);
                 setBreak(username, time, data.channel);
@@ -62,7 +65,8 @@ function setBreak(username, time, channel) {
             breaks.onbreak[username] = {
                 outTime: new Date().getTime(),
                 duration: time,
-                channel: channel
+                channel: channel,
+                remaining: time
             };
         })
         .catch(function (err) { console.error('ERROR CHANGING STATUS', err); });

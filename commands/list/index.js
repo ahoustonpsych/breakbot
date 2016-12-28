@@ -9,14 +9,24 @@ module.exports = {
 };
 
 function list(data) {
+    var onbreak_list = '*On break:* ';
+
+    /* populates list of users currently on break, paired with the amount of time left on their break */
+    if(Object.keys(breaks.onbreak).length != 0)
+        Object.keys(breaks.onbreak).forEach(function (user) {
+            onbreak_list = onbreak_list + user + " (" + breaks.onbreak[user].remaining + "m), ";
+        });
+
+    /* strips trailing comma from the list */
+    onbreak_list = onbreak_list.replace(/, $/, '');
 
     if (Object.keys(breaks.onbreak).length != 0 ||
         Object.keys(breaks.overbreak).length != 0 ||
         Object.keys(breaks.out).length != 0) {
 
-        slack.sendMessage("*On break:* " + Object.keys(breaks.onbreak).join(', ') + '\n'
-            + "*Over break:* " + Object.keys(breaks.overbreak).join(', ') + '\n'
-            + "*Out:* " + Object.keys(breaks.out).join(', '),
+        slack.sendMessage(onbreak_list + '\n' +
+            "*Over break:* " + Object.keys(breaks.overbreak).join(', ') + '\n' +
+            "*Out:* " + Object.keys(breaks.out).join(', '),
             data.channel);
     }
     else {

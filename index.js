@@ -55,6 +55,10 @@ function upkeepOnBreak() {
             console.log('outTime: ' + breaks.onbreak[user].outTime);
             console.log('duration: ' + breaks.onbreak[user].duration);
             console.log('channel: ' + breaks.onbreak[user].channel);
+            console.log('remaining: ' + breaks.onbreak[user].remaining);
+
+            /* minutes remaining in break */
+            breaks.onbreak[user].remaining = Math.floor(Math.abs((now - (breaks.onbreak[user].outTime + (breaks.onbreak[user].duration * 1000))) / 1000));
 
             /* now - (time of break + duration of break) in seconds */
             var delta = (now - (breaks.onbreak[user].outTime + (breaks.onbreak[user].duration * 1000))) / 1000;
@@ -96,10 +100,9 @@ function upkeepOut() {
 	for(var user in breaks.out) {
 		requests.getAgentStatus(user)
         	.then(function (res) {
-        		//console.log(res);
 
-            	/* checks if user already logged back in */
-            	if (res == "accepting chats")
+            	/* checks if user already logged back in (or logged out altogether) */
+            	if (res == "accepting chats" || res == "offline")
 					delete breaks.out[user];
 
 			})
@@ -140,8 +143,8 @@ function sendReminder(user) {
     requests.getAgentStatus(user)
         .then(function (res) {
             if (res == "not accepting chats") {
-                console.log("CHAN: " + breaks.overbreak[user].channel);
-                console.log("USER: " + user);
+                // console.log("CHAN: " + breaks.overbreak[user].channel);
+                // console.log("USER: " + user);
                 slack.sendMessage(user + ': you need to log back into chats with *!back*', breaks.overbreak[user].channel);
             }
             else {
