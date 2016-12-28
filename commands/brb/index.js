@@ -31,7 +31,7 @@ function brb(data) {
         username = slack.dataStore.getUserByName(data.text.split(' ')[2]).profile.email.split('@')[0];
 
     /* prevents users from logging out again if they're already logged out */
-    if (breaks.onbreak[username] || breaks.overbreak[username] || breaks.out[username]) {
+    if (breaks.onbreak[username] || breaks.overbreak[username]) {
         slack.sendMessage("already on break", data.channel);
     }
     else {
@@ -54,6 +54,8 @@ function brb(data) {
  * sets break timer for [time] minutes
  */
 function setBreak(username, time, channel) {
+    if(typeof(breaks.out[username]) === 'number')
+        delete breaks.out[username];
     breaks.onbreak[username] = 1;
     requests.changeStatus(username, "not accepting chats")
         .then(function (res) {
