@@ -35,7 +35,7 @@ slack.on('message', function(data) {
 
 /* runs every second */
 function upkeep() {
-    console.log("cap: " + topic.topic);
+
 	/* handle users on break */
     upkeepOnBreak()
         .then(function () {
