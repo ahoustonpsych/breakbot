@@ -17,12 +17,12 @@ function parrot(data) {
         formData: {
             token: token,
             title: 'parrot',
-            filename: "parrot.gif",
+            filename: 'parrot.gif',
             channels: data.channel,
-            file: fs.createReadStream("lib/parrot.gif")
+            file: fs.createReadStream('lib/parrot.gif')
         }
-    }, function (err,res) {
-        if(err) console.error(err.body);
+    }, function (err, res) {
+        if (err) console.error(err.body);
         //if(res) console.log(res.body);
     })
 }

@@ -1,4 +1,3 @@
-
 module.exports = {
     /* default break time, in minutes */
     defaultBreak: 5,

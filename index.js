@@ -21,25 +21,25 @@ slack.on('authenticated', function (data) {
 
     //private channels
     /*
-    data.groups.forEach(function (group) {
-        console.log("got " + group.name);
-    });
-    */
+     data.groups.forEach(function (group) {
+     console.log("got " + group.name);
+     });
+     */
 });
 
 /* always listening */
-slack.on('message', function(data) {
+slack.on('message', function (data) {
     if (slack.dataStore.getChannelGroupOrDMById(data.channel).name === conf.channel)
-	    messageController.handle(data);
+        messageController.handle(data);
 });
 
 /* runs every second */
 function upkeep() {
 
-	/* handle users on break */
+    /* handle users on break */
     upkeepOnBreak()
         .then(function () {
-        	/* handle users over break */
+            /* handle users over break */
             upkeepOverBreak();
         })
         .catch(function (err) {
@@ -47,23 +47,23 @@ function upkeep() {
         });
 
     /* handle users that are out */
-    if(Math.floor(process.uptime()) % 30 == 0)
-    	upkeepOut();
+    if (Math.floor(process.uptime()) % 30 === 0)
+        upkeepOut();
 
-    if(Math.floor(process.uptime()) % 10 == 0)
+    if (Math.floor(process.uptime()) % 10 === 0)
         checkBounces();
 
-    if(Math.floor(process.uptime()) % 60 == 0)
+    if (Math.floor(process.uptime()) % 60 === 0)
         notifyBounces();
 }
 
 function upkeepOnBreak() {
-	return new Promise(function (fulfill, reject) {
+    return new Promise(function (fulfill, reject) {
 
         var now = new Date().getTime();
 
-		/* current users on break */
-        for(var user in breaks.onbreak) {
+        /* current users on break */
+        for (var user in breaks.onbreak) {
 
             console.log('user: ' + user);
             console.log('now: ' + now);
@@ -79,50 +79,52 @@ function upkeepOnBreak() {
             var delta = (now - (breaks.onbreak[user].outTime + (breaks.onbreak[user].duration * 1000))) / 1000;
 
             /* break expired */
-            if(delta > 0) {
-				breakExpired(user);
+            if (delta > 0) {
+                breakExpired(user);
             }
             else {
                 console.log(user + '\'s break expires in ' + delta + ' seconds.');
             }
         }
         fulfill();
-	});
+    });
 }
 
 function upkeepOverBreak() {
 
     var now = new Date().getTime();
 
-    for(var user in breaks.overbreak) {
+    for (var user in breaks.overbreak) {
 
-    	/* removes user from being "on break" if it hasn't finished already */
-		if(breaks.onbreak[user] instanceof Object) {
-			delete breaks.onbreak[user];
+        /* removes user from being "on break" if it hasn't finished already */
+        if (breaks.onbreak[user] instanceof Object) {
+            delete breaks.onbreak[user];
             continue;
         }
 
-		var delta = (now - (breaks.overbreak[user].outTime + (breaks.overbreak[user].duration * 1000))) / 1000;
+        var delta = (now - (breaks.overbreak[user].outTime + (breaks.overbreak[user].duration * 1000))) / 1000;
 
         /* send reminder every conf_breaks.remindTime seconds */
-        if (parseInt(delta) % conf_breaks.remindTime == 0) {
-			sendReminder(user);
+        if (parseInt(delta) % conf_breaks.remindTime === 0) {
+            sendReminder(user);
         }
     }
 }
 
 function upkeepOut() {
-	for(var user in breaks.out) {
-		requests.getAgentStatus(user)
-        	.then(function (res) {
+    for (var user in breaks.out) {
+        requests.getAgentStatus(user)
+            .then(function (res) {
 
-            	/* checks if user already logged back in (or logged out altogether) */
-            	if (res == "accepting chats" || res == "offline")
-					delete breaks.out[user];
+                /* checks if user already logged back in (or logged out altogether) */
+                if (res === 'accepting chats' || res === 'offline')
+                    delete breaks.out[user];
 
-			})
-			.catch(function (err) { console.error(err); });
-	}
+            })
+            .catch(function (err) {
+                console.error(err);
+            });
+    }
 }
 
 /*
@@ -130,7 +132,7 @@ function upkeepOut() {
  */
 function breakExpired(user) {
 
-	/* switches user from "on break" to "over break" */
+    /* switches user from "on break" to "over break" */
     breaks.overbreak[user] = breaks.onbreak[user];
 
     requests.getAgentStatus(user)
@@ -138,7 +140,7 @@ function breakExpired(user) {
             console.log(res);
 
             /* checks if user already logged back in */
-            if (res == "not accepting chats") {
+            if (res === 'not accepting chats') {
                 slack.sendMessage(user + ': your break has expired.', breaks.overbreak[user].channel);
                 delete breaks.onbreak[user];
             }
@@ -147,17 +149,19 @@ function breakExpired(user) {
                 console.log(user + ' silently logged back in. Deleting metadata.');
             }
         })
-        .catch(function (err) { console.error(err); });
+        .catch(function (err) {
+            console.error(err);
+        });
 }
 
 /*
  * sends message reminding agent to log back in, if they haven't already
  */
 function sendReminder(user) {
-    console.log('checking status of ' + user);
+    //console.log('checking status of ' + user);
     requests.getAgentStatus(user)
         .then(function (res) {
-            if (res == "not accepting chats") {
+            if (res === 'not accepting chats') {
                 // console.log("CHAN: " + breaks.overbreak[user].channel);
                 // console.log("USER: " + user);
                 slack.sendMessage(user + ': you need to log back into chats with *!back*', breaks.overbreak[user].channel);
@@ -176,40 +180,42 @@ function sendReminder(user) {
 function checkBounces() {
     requests.getChats()
         .then(function (data) {
-            if(data instanceof Array) {
+            if (data instanceof Array) {
                 data.forEach(function (chat) {
                     chat.events.forEach(function (event) {
-                        if(event.type == "event")
-                            if(event.text.match(/The chat was transferred to .+?(?=because)because .+?(?=had)had not replied for 1 minute\./) != null) {
+                        if (event.type === 'event')
+                            if (event.text.match(/The chat was transferred to .+?(?=because)because .+?(?=had)had not replied for 1 minute\./) != null) {
                                 db.logBounce(event.timestamp, event.date, event.agent_id)
                                     .catch(function (err) {
-                                        if(err.code !== "SQLITE_CONSTRAINT")
-                                            console.error("ERROR LOGGING BOUNCES", err);
+                                        if (err.code !== 'SQLITE_CONSTRAINT')
+                                            console.error('ERROR LOGGING BOUNCES', err);
                                     });
                             }
                     });
                 })
             }
         })
-        .catch(function (err) { console.error("ERROR GETTING RECENT CHATS", err); });
+        .catch(function (err) {
+            console.error('ERROR GETTING RECENT CHATS', err);
+        });
 }
 
 /*
  * notifies chat captain when a chat bounces, within 1 minute of it happening
  */
 function notifyBounces() {
-    var query = "SELECT date,user from bounces where timestamp > " +
+    var query = 'SELECT date,user from bounces where timestamp > ' +
         parseInt(new Date(new Date() - 60000).getTime() / 1000);
 
     /* logs bounced chat info to the "bounces" table */
-    db.db.each(query, function(err, res) {
-        if(err) console.error(err);
+    db.db.each(query, function (err, res) {
+        if (err) console.error(err);
         else {
             web.im.open(slack.dataStore.getUserByName(topic.captain).id, function (err, profile) {
                 if (err) console.error('invalid slack user', err);
                 else {
                     slack.sendMessage(res.date + ': ' + res.user + ' bounced a chat', profile.channel.id);
-                    console.log(res.date + ": " + res.user);
+                    console.log(res.date + ': ' + res.user);
                 }
             });
         }
@@ -219,14 +225,14 @@ function notifyBounces() {
 
 function main() {
 
-    db.db.run("CREATE TABLE IF NOT EXISTS command_history(Time TEXT, User TEXT, Command TEXT, Duration INTEGER)");
-    db.db.run("CREATE TABLE IF NOT EXISTS bounces(Timestamp Number, Date TEXT, User TEXT)");
-    db.db.run("CREATE UNIQUE INDEX IF NOT EXISTS timeindex ON bounces (Timestamp)");
+    db.db.run('CREATE TABLE IF NOT EXISTS command_history(Time TEXT, User TEXT, Command TEXT, Duration INTEGER)');
+    db.db.run('CREATE TABLE IF NOT EXISTS bounces(Timestamp Number, Date TEXT, User TEXT)');
+    db.db.run('CREATE UNIQUE INDEX IF NOT EXISTS timeindex ON bounces (Timestamp)');
 
     /* runs upkeep every second */
-	setInterval(upkeep, 1000);
+    setInterval(upkeep, 1000);
 }
 
 /* run */
-if(require.main === module)
-	main();
+if (require.main === module)
+    main();

@@ -23,8 +23,8 @@ function APICall(path, method, callback) {
         response.setEncoding('utf8');
 
         /* http responses come in "chunks" of a certain length
-        this pushes all the "chunks" onto an array as they come in */
-        response.on('data', function(chunk) {
+         this pushes all the "chunks" onto an array as they come in */
+        response.on('data', function (chunk) {
             body.push(chunk);
         });
 
@@ -35,7 +35,10 @@ function APICall(path, method, callback) {
         });
     });
 
-    request.on('error', function (err) { request.end(); console.error('CHANGE AGENT STATUS CALL FAILED', err); });
+    request.on('error', function (err) {
+        request.end();
+        console.error('CHANGE AGENT STATUS CALL FAILED', err);
+    });
 
     request.end();
 }
@@ -48,9 +51,9 @@ exports.changeStatus = function (user, status) {
 
     return new Promise(function (fulfill, reject) {
         /* possible values:
-           "accepting chats"
-           "not accepting chats"
-           "offline" */
+         "accepting chats"
+         "not accepting chats"
+         "offline" */
         var data = {status: status};
 
         var request = https.request({
@@ -69,24 +72,28 @@ exports.changeStatus = function (user, status) {
         request.write(JSON.stringify(data));
 
         /* start of http response */
-        request.on('response', function (response) {
+        request.on('response', function (res) {
             var body = [];
-            response.setEncoding('utf8');
+            res.setEncoding('utf8');
 
             /* http responses come in "chunks" of a certain length
-            this bit pushes all the "chunks" onto an array as they come in */
-            response.on('data', function(chunk) {
+             this bit pushes all the "chunks" onto an array as they come in */
+            res.on('data', function (chunk) {
                 body.push(chunk);
             });
 
             /* once the response finishes, assemble all chunks and return the result. */
-            response.on('end', function () {
+            res.on('end', function (err) {
                 request.end();
-                fulfill(JSON.parse(body.join('')));
+
+                if (err) reject(err);
+                else fulfill(JSON.parse(body.join('')));
             });
         });
 
-        request.on('error', function (err) { reject(err); });
+        request.on('error', function (err) {
+            reject(err);
+        });
     });
 };
 
@@ -96,10 +103,10 @@ exports.changeStatus = function (user, status) {
 exports.getAgentStatus = function (agent) {
     return new Promise(function (fulfill, reject) {
         APICall('/agents/' + agent + '@liquidweb.com', 'GET',
-            function(err, res) {
-                if(err) reject(err);
+            function (err, res) {
+                if (err) reject(err);
                 else fulfill(res.status);
-        });
+            });
     });
 };
 
@@ -112,10 +119,11 @@ exports.getChats = function () {
         APICall('/chats?' +
             'date_from=' + new Date().toJSON().split('T')[0] + '&' +
             'include_pending=1' + '&' +
-            'group=1', 'GET', function (err, res) {
+            'group=1', 'GET',
+            function (err, res) {
                 if (err) reject(err);
                 else fulfill(res.chats);
-        });
+            });
     });
 };
 
@@ -124,5 +132,7 @@ exports.getChats = function () {
  */
 exports.getAgents = function (status, callback) {
     APICall('/agents?status=' + encodeURIComponent(status), 'GET',
-        function(data) { return callback(data); });
+        function (data) {
+            return callback(data);
+        });
 };

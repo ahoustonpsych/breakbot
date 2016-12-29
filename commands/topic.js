@@ -1,4 +1,3 @@
-
 var web = require('../lib/slack').web;
 
 /*

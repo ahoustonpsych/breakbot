@@ -1,4 +1,3 @@
-
 var slack = require('../../lib/slack').rtm;
 
 module.exports = {
@@ -9,7 +8,7 @@ module.exports = {
 };
 
 function restart(data) {
-    slack.sendMessage("Restarting...", data.channel);
+    slack.sendMessage('Restarting...', data.channel);
 
     process.nextTick(function () {
         process.exit();

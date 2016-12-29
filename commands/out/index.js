@@ -3,7 +3,7 @@ var requests = require('../lc_requests');
 var breaks = require('../breaks');
 var db = require('../../lib/database');
 
-var offs = {"!out": 1, "breakbot": 2};
+var offs = {'!out': 1, 'breakbot': 2};
 
 /*
  * USAGE:
@@ -12,18 +12,18 @@ var offs = {"!out": 1, "breakbot": 2};
  * [user] defaults to the user that sent the message, if not given
  */
 module.exports = {
-	expr: /^(!out)|(breakbot:? out)/i,
-	run: function (data) {
-		out(data);
-	}
+    expr: /^(!out)|(breakbot:? out)/i,
+    run: function (data) {
+        out(data);
+    }
 };
 
 function out(data) {
 
-    if(data.text.split(' ')[0].match(/!out/i) !== null)
-        off = offs["!out"];
+    if (data.text.split(' ')[0].match(/!out/i) !== null)
+        off = offs['!out'];
     else
-        off = offs["breakbot"];
+        off = offs['breakbot'];
 
     var username = undefined;
 
@@ -36,7 +36,7 @@ function out(data) {
             username = slack.dataStore.getUserByName(arg).profile.email.split('@')[0];
         }
         catch (e) {
-            slack.sendMessage("Invalid user: " + arg, data.channel);
+            slack.sendMessage('Invalid user: ' + arg, data.channel);
 
             //logging
             console.error(new Date() + ': ' + user + ' used !out with invalid user "' + arg + '"');
@@ -56,12 +56,14 @@ function logOut(username, data) {
     breaks.clearBreaks(username);
     breaks.out[username] = 1;
 
-    requests.changeStatus(username, "not accepting chats")
-        .then(function (resp) {
+    requests.changeStatus(username, 'not accepting chats')
+        .then(function (res) {
             //logging
             //console.log(new Date() + ': logged out ' + username + ' with !out');
-            db.logCommand(username, "!out", null)
-                .catch(function(err) { console.error("ERROR LOGGING COMMAND", err); });
+            db.logCommand(username, '!out', null)
+                .catch(function (err) {
+                    console.error('ERROR LOGGING COMMAND', err);
+                });
         })
         .catch(function (err) {
             console.error('ERROR CHANGING STATUS', err);
