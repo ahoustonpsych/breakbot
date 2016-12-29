@@ -5,9 +5,7 @@ var token = require('../../conf/config').slackAPIKey;
 
 module.exports = {
     expr: /^(!parrot)|(breakbot:? parrot)/i,
-    run: function (data) {
-        parrot(data);
-    }
+    run: parrot
 };
 
 function parrot(data) {

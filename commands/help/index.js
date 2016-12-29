@@ -18,9 +18,7 @@ var helpMsg =
  */
 module.exports = {
     expr: /^(!help)|(breakbot:? help)/i,
-    run: function (data) {
-        help(data);
-    }
+    run: help
 };
 
 function help(data) {

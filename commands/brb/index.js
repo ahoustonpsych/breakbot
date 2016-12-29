@@ -16,9 +16,7 @@ var offs = {'!brb': 1, 'breakbot': 2};
  */
 module.exports = {
     expr: /^(!brb)|(breakbot:? brb)/i,
-    run: function (data) {
-        brb(data);
-    }
+    run: brb
 };
 
 function brb(data) {

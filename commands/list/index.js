@@ -3,9 +3,7 @@ var breaks = require('../breaks');
 
 module.exports = {
     expr: /^(!list)|(breakbot:? list)/i,
-    run: function (data) {
-        list(data);
-    }
+    run: list
 };
 
 function list(data) {
