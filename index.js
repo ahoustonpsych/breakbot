@@ -1,3 +1,4 @@
+
 var Promise = require('promise');
 
 var slack = require('./lib/slack').rtm;
@@ -29,7 +30,7 @@ slack.on('authenticated', function (data) {
 
 /* always listening */
 slack.on('message', function (data) {
-    if (slack.dataStore.getChannelGroupOrDMById(data.channel).name === conf.channel)
+    if (slack.dataStore.getChannelGroupOrDMById(data.channel).name === conf.channel[conf.ENV])
         messageController.handle(data);
 });
 
@@ -225,9 +226,7 @@ function notifyBounces() {
 
 function main() {
 
-    db.db.run('CREATE TABLE IF NOT EXISTS command_history(Time TEXT, User TEXT, Command TEXT, Duration INTEGER)');
-    db.db.run('CREATE TABLE IF NOT EXISTS bounces(Timestamp Number, Date TEXT, User TEXT)');
-    db.db.run('CREATE UNIQUE INDEX IF NOT EXISTS timeindex ON bounces (Timestamp)');
+    db.initdb();
 
     /* runs upkeep every second */
     setInterval(upkeep, 1000);

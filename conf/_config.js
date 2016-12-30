@@ -8,9 +8,19 @@ module.exports = {
     lcAPIUser: 'yourname@liquidweb.com',
     lcAPIKey: '',
 
-    channel: 'breakbot_stage',
+    ENV: (function () { return process.env.NODE_ENV ? process.env.NODE_ENV : 'dev'; }()),
+
+    channel: {
+        test: 'breakbot_test',
+        dev: 'breakbot_test',
+        stage: 'breakbot_stage'
+    },
 
     /* path to the database containing command logs */
-    logfile: './logs/logging.db',
+    logfile: {
+        test: './test/logging.db',
+        dev: './logs/logging.db',
+        stage: './logs/logging.db'
+    },
     loglevel: 'error'
 };
