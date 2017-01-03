@@ -212,6 +212,9 @@ function notifyBounces() {
     db.db.each(query, function (err, res) {
         if (err) console.error(err);
         else {
+            slack.sendMessage(res.date + ': ' + res.user + ' bounced a chat', slack.dataStore.getChannelOrGroupByName(conf.notifychannel[conf.ENV]).id);
+            console.log(res.date + ': ' + res.user);
+            /*
             web.im.open(slack.dataStore.getUserByName(topic.captain).id, function (err, profile) {
                 if (err) console.error('invalid slack user', err);
                 else {
@@ -219,6 +222,7 @@ function notifyBounces() {
                     console.log(res.date + ': ' + res.user);
                 }
             });
+            */
         }
     });
 

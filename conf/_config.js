@@ -16,6 +16,13 @@ module.exports = {
         stage: 'breakbot_stage'
     },
 
+    /* channel to send bounce notifications to */
+    notifychannel: {
+        test: 'breakbot_test',
+        dev: 'breakbot_test',
+        stage: 'breakbot_stage'
+    },
+
     /* path to the database containing command logs */
     logfile: {
         test: './test/logging.db',
