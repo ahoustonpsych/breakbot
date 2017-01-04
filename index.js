@@ -51,11 +51,11 @@ function upkeep() {
     if (Math.floor(process.uptime()) % 30 === 0)
         upkeepOut();
 
-    if (Math.floor(process.uptime()) % 10 === 0)
+    if (Math.floor(process.uptime()) % 60 === 0)
         checkBounces();
 
-    if (Math.floor(process.uptime()) % 60 === 0)
-        notifyBounces();
+    //if (Math.floor(process.uptime()) % 60 === 0)
+    //    notifyBounces();
 }
 
 function upkeepOnBreak() {
@@ -187,6 +187,9 @@ function checkBounces() {
                         if (event.type === 'event')
                             if (event.text.match(/The chat was transferred to .+?(?=because)because .+?(?=had)had not replied for 1 minute\./) != null) {
                                 db.logBounce(event.timestamp, event.date, event.agent_id)
+                                    .then(function () {
+                                        slack.sendMessage(event.date + ': ' + event.agent_id + ' bounced a chat', slack.dataStore.getChannelOrGroupByName(conf.notifychannel[conf.ENV]).id);
+                                    })
                                     .catch(function (err) {
                                         if (err.code !== 'SQLITE_CONSTRAINT')
                                             console.error('ERROR LOGGING BOUNCES', err);
@@ -225,7 +228,6 @@ function notifyBounces() {
             */
         }
     });
-
 }
 
 function main() {
