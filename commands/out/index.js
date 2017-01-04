@@ -18,7 +18,7 @@ module.exports = {
 
 function out(data) {
 
-    if (data.text.split(' ')[0].match(/!out/i) !== null)
+    if (data.text.split(' ')[0].match(/^!out/i) !== null)
         off = offs['!out'];
     else
         off = offs['breakbot'];
@@ -29,7 +29,7 @@ function out(data) {
     var user = slack.dataStore.getUserById(data.user).profile.email.split('@')[0];
     var arg = data.text.split(' ')[off];
 
-    if (arg) {
+    if (arg && arg.match(/me/i) === null) {
         try {
             username = slack.dataStore.getUserByName(arg).profile.email.split('@')[0];
         }

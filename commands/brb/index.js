@@ -28,9 +28,12 @@ function brb(data) {
     var username = slack.dataStore.getUserById(data.user).profile.email.split('@')[0];
     var arg = data.text.split(' ')[off];
 
+    if (arg && arg.match(/me/i) !== null)
+        arg = data.text.split(' ')[off + 1];
+
     /* debug. allows you to do !brb [time] [user] to log someone else out */
-    if (data.text.split(' ')[off + 1])
-        username = slack.dataStore.getUserByName(data.text.split(' ')[off + 1]).profile.email.split('@')[0];
+    //if (data.text.split(' ')[off + 1])
+    //    username = slack.dataStore.getUserByName(data.text.split(' ')[off + 1]).profile.email.split('@')[0];
 
     /* prevents users from logging out again if they're already logged out */
     if (breaks.onbreak[username] || breaks.overbreak[username]) {
