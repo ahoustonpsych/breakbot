@@ -26,8 +26,8 @@ function back(data) {
 
     var username = slack.dataStore.getUserById(data.user).profile.email.split('@')[0];
 
-    if (data.text.split(' ')[off])
-        username = slack.dataStore.getUserByName(data.text.split(' ')[off]).profile.email.split('@')[0];
+    //if (data.text.split(' ')[off])
+    //    username = slack.dataStore.getUserByName(data.text.split(' ')[off]).profile.email.split('@')[0];
 
     /* change state to "accepting chats" */
     logIn(username, data);
