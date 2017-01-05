@@ -21,12 +21,12 @@ var topic = require('./commands/topic');
  * mostly current employees, but sadly some former employees are mixed in as well
  * does not include users that don't have an @liquidweb.com email (cloudsites, wiredtree, etc.)
  */
-app.get('/users', (req,res) => {
+app.get('/users', function (req,res) {
 
     var list = [];
     var user = undefined;
 
-    Object.keys(slack.dataStore.users).forEach(id => {
+    Object.keys(slack.dataStore.users).forEach(function (id) {
 
         user = slack.dataStore.users[id];
 
@@ -58,7 +58,7 @@ slack.on('authenticated', function (data) {
 });
 
 /* always listening */
-slack.on('message', data => {
+slack.on('message', function (data) {
     if (slack.dataStore.getChannelGroupOrDMById(data.channel).name === conf.channel[conf.ENV])
         messageController.handle(data);
 });
@@ -263,7 +263,7 @@ function main() {
 
     db.initdb();
 
-    var server = app.listen(1337, () => {
+    var server = app.listen(1337, function () {
         var host = server.address().address;
         var port = server.address().port;
 
