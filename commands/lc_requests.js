@@ -1,14 +1,12 @@
 var https = require('https');
 var Promise = require('promise');
 
-var lc_user = require('../conf/config').lcAPIUser;
-var lc_key = require('../conf/config').lcAPIKey;
-
+var conf = require('../conf/config');
 
 function APICall(path, method, callback) {
     var request = https.request({
         hostname: 'api.livechatinc.com',
-        auth: lc_user + ':' + lc_key,
+        auth: conf.lcAPIUser + ':' + conf.lcAPIKey,
         method: method,
         path: path,
         headers: {
@@ -58,9 +56,9 @@ exports.changeStatus = function (user, status) {
 
         var request = https.request({
             hostname: 'api.livechatinc.com',
-            auth: lc_user + ':' + lc_key,
+            auth: conf.lcAPIUser + ':' + conf.lcAPIKey,
             method: 'PUT',
-            path: '/agents/' + user + '@liquidweb.com',
+            path: '/agents/' + user + conf.userdomain[conf.ENV],
             headers: {
                 'X-API-VERSION': '2',
                 'Content-type': 'application/json',
@@ -102,7 +100,7 @@ exports.changeStatus = function (user, status) {
  */
 exports.getAgentStatus = function (agent) {
     return new Promise(function (fulfill, reject) {
-        APICall('/agents/' + agent + '@liquidweb.com', 'GET',
+        APICall('/agents/' + agent + conf.userdomain[conf.ENV], 'GET',
             function (err, res) {
                 if (err) reject(err);
                 else fulfill(res.status);

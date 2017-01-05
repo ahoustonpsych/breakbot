@@ -10,6 +10,7 @@ module.exports = {
 
     ENV: (function () { return process.env.NODE_ENV ? process.env.NODE_ENV : 'dev'; }()),
 
+    /* chat channel to operate in */
     channel: {
         test: 'breakbot_test',
         dev: 'breakbot_test',
@@ -29,5 +30,13 @@ module.exports = {
         dev: './logs/logging.db',
         stage: './logs/logging.db'
     },
+
+    /* temporary. domain associated with livechatinc user accounts */
+    userdomain: {
+        test: '@bnewman.fail',
+        dev: '@bnewman.fail',
+        stage: '@liquidweb.com'
+    },
+
     loglevel: 'error'
 };
