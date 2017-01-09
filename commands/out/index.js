@@ -52,7 +52,7 @@ function logOut(username, data) {
     slack.sendMessage('Logged out ' + username + '. Please use *!back* to log back in when you are ready', data.channel);
 
     breaks.clearBreaks(username);
-    breaks.out[username] = 1;
+    breaks.out[username] = new Date().getTime();
 
     requests.changeStatus(username, 'not accepting chats')
         .then(function (res) {

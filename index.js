@@ -142,7 +142,14 @@ function upkeepOverBreak() {
 }
 
 function upkeepOut() {
+    var now = new Date().getTime();
     for (var user in breaks.out) {
+
+        /* expire users on break > 4 hours */
+        if ((breaks.out[user] + 4 * 60 * 1000) > now) {
+            delete breaks.out[user];
+            continue;
+        }
         requests.getAgentStatus(user)
             .then(function (res) {
 
