@@ -16,7 +16,12 @@ module.exports = {
         this.captain = this.topic.split(' ')[2];
     },
     setTopic: function (channel, newtopic) {
-        web.groups.setTopic(channel, newtopic);
+        /* private channels */
+        if (channel[0] === 'G')
+            web.groups.setTopic(channel, newtopic);
+        /* public channels */
+        else
+            web.channels.setTopic(channel, newtopic);
         this.topic = newtopic;
     },
     getChatters: function () {
