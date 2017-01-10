@@ -21,7 +21,8 @@ module.exports = {
     },
     getChatters: function () {
         return cleanTopic(this.topic);
-    }
+    },
+    removeSpecial: removeSpecial
 };
 
 /*
