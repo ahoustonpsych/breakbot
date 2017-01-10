@@ -1,6 +1,7 @@
 conf/config.js
 node_modules/
-.idea/*
-logs/*
-coverage/*
-test/*
+.idea/
+logs/
+coverage/
+test/
+commands/testing/
