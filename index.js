@@ -273,7 +273,7 @@ function main() {
 
     db.initdb();
 
-    var server = app.listen(1337, function () {
+    var server = app.listen(7254, function () {
         var host = server.address().address;
         var port = server.address().port;
 
