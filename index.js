@@ -43,18 +43,21 @@ app.get('/users', function (req,res) {
 
 
 slack.on('authenticated', function (data) {
-    data.channels.forEach(function (chan) {
-        if (chan.is_member === true) {
-            topic.topic = chan.topic.value;
-        }
-    });
 
-    //private channels
-    /*
-     data.groups.forEach(function (group) {
-     console.log("got " + group.name);
-     });
-     */
+    //dumb slack stuff
+    if (conf.ENV === 'dev')
+        //private channels
+        data.groups.forEach(function (chan) {
+            if (chan.name === conf.channel[conf.ENV])
+                topic.topic = chan.topic.value;
+        });
+
+    else
+        //public channels
+        data.channels.forEach(function (chan) {
+            if (chan.name === conf.channel[conf.ENV])
+                topic.topic = chan.topic.value;
+        });
 });
 
 /* always listening */

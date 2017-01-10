@@ -16,7 +16,24 @@ module.exports = {
         this.captain = this.topic.split(' ')[2];
     },
     setTopic: function (channel, newtopic) {
-        web.channels.setTopic(channel, newtopic);
+        web.groups.setTopic(channel, newtopic);
         this.topic = newtopic;
+    },
+    getChatters: function () {
+        return cleanTopic(this.topic);
     }
 };
+
+/*
+ * removes special characters from a string
+ */
+function removeSpecial(str) {
+    return str.replace(/[!@#$%^&?*(){}<>\[\]\/\\|_+-=.,`~;:]+/g, '');
+}
+
+function cleanTopic(topic) {
+    return removeSpecial(topic)
+        .replace(/chat(ters)?|cap(('|'n)?|tain)?|back(up)?|lead(er)?/ig, '')
+        .split(' ')
+        .filter(function (el) { return el !== ''; });
+}
