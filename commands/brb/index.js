@@ -36,7 +36,7 @@ function brb(data) {
     //    username = slack.dataStore.getUserByName(data.text.split(' ')[off + 1]).profile.email.split('@')[0];
 
     /* prevents users from logging out again if they're already logged out */
-    if (breaks.onbreak[username] || breaks.overbreak[username] || breaks.lunch[username]) {
+    if (breaks.onbreak[username] || breaks.overbreak[username] || breaks.lunch[username] || breaks.bio[username]) {
         slack.sendMessage('already on break', data.channel);
     }
     else {
