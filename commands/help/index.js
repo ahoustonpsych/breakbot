@@ -2,6 +2,10 @@ var slack = require('../../lib/slack').rtm;
 var db = require('../../lib/database');
 
 var helpMsg =
+    'Command list: https://git.liquidweb.com/ahouston/breakbot/wikis/home';
+
+/*
+var helpMsg =
     'commands:\n' +
     '*!brb* [min] - take break for [min] minutes (from auto-assign queue)\n' +
     '	* does not automatically log you back in, but you\'ll get pinged\n' +
@@ -10,6 +14,7 @@ var helpMsg =
     '	* if given, logs out [user]\n' +
     '*!list* - list users on break\n' +
     '*!help* - show this help message';
+*/
 
 /*
  * USAGE:
