@@ -39,33 +39,6 @@ slack.on('message', function (data) {
         messageController.handle(data);
 });
 
-
-/*
- * notifies chat captain when a chat bounces, within 1 minute of it happening
- */
-function notifyBounces() {
-    var query = 'SELECT date,user from bounces where timestamp > ' +
-        parseInt(new Date(new Date() - 60000).getTime() / 1000);
-
-    /* logs bounced chat info to the "bounces" table */
-    db.db.each(query, function (err, res) {
-        if (err) console.error(err);
-        else {
-            slack.sendMessage(res.date + ': ' + res.user + ' bounced a chat', slack.dataStore.getChannelOrGroupByName(conf.notifychannel[conf.ENV]).id);
-            console.log(res.date + ': ' + res.user);
-            /*
-            web.im.open(slack.dataStore.getUserByName(topic.captain).id, function (err, profile) {
-                if (err) console.error('invalid slack user', err);
-                else {
-                    slack.sendMessage(res.date + ': ' + res.user + ' bounced a chat', profile.channel.id);
-                    console.log(res.date + ': ' + res.user);
-                }
-            });
-            */
-        }
-    });
-}
-
 function main() {
 
     db.initdb();
