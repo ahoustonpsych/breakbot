@@ -37,7 +37,15 @@ function lunch(data) {
 
     setBreak(username, time, data.channel);
 
-    db.logCommand(username, '!lunch', time)
+    /* logging */
+    var logdata = {
+        username: username,
+        command: '!lunch',
+        duration: time,
+        date: 'now'
+    };
+
+    db.log('command_history', logdata)
         .catch(function (err) {
             console.error('ERROR LOGGING COMMAND', err);
         });

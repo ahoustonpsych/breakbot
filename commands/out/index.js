@@ -56,9 +56,15 @@ function logOut(username, data) {
 
     requests.changeStatus(username, 'not accepting chats')
         .then(function (res) {
-            //logging
-            //console.log(new Date() + ': logged out ' + username + ' with !out');
-            db.logCommand(username, '!out', null)
+
+            /* logging */
+            var logdata = {
+                username: username,
+                command: '!out',
+                date: 'now'
+            };
+
+            db.log('command_history', logdata)
                 .catch(function (err) {
                     console.error('ERROR LOGGING COMMAND', err);
                 });

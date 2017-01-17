@@ -37,7 +37,15 @@ function bio(data) {
 
     setBreak(username, time, data.channel);
 
-    db.logCommand(username, '!bio', time)
+    /* logging */
+    var logdata = {
+        username: username,
+        command: '!bio',
+        duration: time,
+        date: 'now'
+    };
+
+    db.log('command_history', logdata)
         .catch(function (err) {
             console.error('ERROR LOGGING COMMAND', err);
         });

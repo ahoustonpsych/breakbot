@@ -31,6 +31,7 @@ function list(data) {
     /* strips trailing comma from the list */
     onbreak_list = onbreak_list.replace(/, $/, '');
     lunch_list = lunch_list.replace(/, $/, '');
+    bio_list = bio_list.replace(/, $/, '');
 
     if (Object.keys(breaks.onbreak).length !== 0 ||
         Object.keys(breaks.overbreak).length !== 0 ||

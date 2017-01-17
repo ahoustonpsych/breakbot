@@ -1,32 +1,30 @@
 
 var slack = require('./lib/slack').rtm;
-var web = require('./lib/slack').web;
 
 var conf = require('./conf/config');
 
 var messageController = require('./lib/messageController');
 var db = require('./lib/database');
-var topic = require('./commands/topic');
+var server = require('./lib/api');
+var upkeep = require('./lib/upkeep').upkeep;
 
+var topic = require('./commands/topic');
 var breaks = require('./commands/breaks');
 
-var server = require('./lib/api');
-
-var upkeep = require('./lib/upkeep').upkeep;
 
 
 slack.on('authenticated', function (data) {
 
-    //dumb slack stuff
+    /* dumb slack stuff. commands are different for public and private channels */
     if (conf.ENV === 'dev')
-        //private channels
+        /* private channels */
         data.groups.forEach(function (chan) {
             if (chan.name === conf.channel[conf.ENV])
                 topic.topic = chan.topic.value;
         });
 
     else
-        //public channels
+        /* public channels */
         data.channels.forEach(function (chan) {
             if (chan.name === conf.channel[conf.ENV])
                 topic.topic = chan.topic.value;

@@ -20,6 +20,7 @@ module.exports = {
 };
 
 function brb(data) {
+
     if (data.text.split(' ')[0].match(/!brb/i) !== null)
         off = offs['!brb'];
     else
@@ -50,12 +51,15 @@ function brb(data) {
 
                 setBreak(username, time, data.channel);
 
-                //logging
-                //console.log(new Date() + ': logged out ' + username + ' with !brb for ' + time.toString() + ' minutes');
-                db.logCommand(username, '!brb', time)
-                    .catch(function (err) {
-                        console.error('ERROR LOGGING COMMAND', err);
-                    });
+                /* logging */
+                var logdata = {
+                    username: username,
+                    command: '!brb',
+                    duration: time,
+                    date: 'now'
+                };
+
+                db.log('command_history', logdata);
             })
             .catch(function (err) {
                 console.error('ERROR PARSING BREAK TIME', err);

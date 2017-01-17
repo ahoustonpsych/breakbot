@@ -43,9 +43,13 @@ function logIn(username, data) {
     requests.changeStatus(username, 'accepting chats')
         .then(function (res) {
 
-            //logging
-            //console.log(new Date() + ': logged in ' + username + ' with !back');
-            db.logCommand(username, '!back', null)
+            /* logging */
+            var logdata = {
+                username: username,
+                date: 'now',
+                command: '!back'
+            };
+            db.log('command_history', logdata)
                 .catch(function (err) {
                     console.error('ERROR LOGGING COMMAND', err);
                 });
