@@ -33,6 +33,24 @@ function list(data) {
     lunch_list = lunch_list.replace(/, $/, '');
     bio_list = bio_list.replace(/, $/, '');
 
+    /*
+    var list = '';
+    if (Object.keys(breaks.onbreak).length !== 0)
+        list += onbreak_list + '\n';
+
+    if (Object.keys(breaks.overbreak).length !== 0)
+        list += '*Over break:* ' +  Object.keys(breaks.overbreak).join(', ') + '\n';
+
+    if (Object.keys(breaks.out).length !== 0)
+        list += '*Out:* ' + Object.keys(breaks.out).join(', ') + '\n';
+
+    if (Object.keys(breaks.lunch).length !== 0)
+        list += lunch_list + '\n';
+
+    if (Object.keys(breaks.bio).length !== 0)
+        list += bio_list + '\n';
+    */
+
     if (Object.keys(breaks.onbreak).length !== 0 ||
         Object.keys(breaks.overbreak).length !== 0 ||
         Object.keys(breaks.out).length !== 0 ||
@@ -48,4 +66,13 @@ function list(data) {
     else {
         slack.sendMessage('Nobody on break', data.channel);
     }
+
+    /*
+    if (list) {
+        slack.sendMessage(list, data.channel);
+    }
+    else {
+        slack.sendMessage('Nobody on break', data.channel);
+    }
+    */
 }
