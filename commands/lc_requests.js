@@ -85,7 +85,16 @@ exports.changeStatus = function (user, status) {
                 request.end();
 
                 if (err) reject(err);
-                else fulfill(JSON.parse(body.join('')));
+                else {
+                    try {
+                        fulfill(JSON.parse(body.join('')));
+                    }
+                    catch (e) {
+                        console.error('BAD RESPONSE, COULDN\'T PARSE');
+                        console.error('RESPONSE BODY: ' + body.join(''));
+                        reject(e);
+                    }
+                }
             });
         });
 
