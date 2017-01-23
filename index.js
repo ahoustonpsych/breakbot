@@ -44,7 +44,7 @@ function main() {
     server.initserver();
 
     /* runs upkeep every second */
-    setInterval(upkeep, 1000);
+    setInterval(upkeep, 60000);
 }
 
 /* run */
