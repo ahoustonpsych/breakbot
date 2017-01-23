@@ -2,7 +2,7 @@ var slack = require('../../lib/slack').rtm;
 var db = require('../../lib/database');
 
 var helpMsg =
-    'Command list: https://git.liquidweb.com/ahouston/breakbot/wikis/home';
+    'Command list: https://wiki.int.liquidweb.com/articles/breakbot';
 
 /*
  * USAGE:
