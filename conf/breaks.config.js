@@ -4,5 +4,5 @@ module.exports = {
     /* max break time, in minutes */
     maxBreak: 120,
     /* how long to wait between reminders to log back in, in seconds */
-    remindTime: 15
+    remindTime: 120
 };
