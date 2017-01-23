@@ -12,7 +12,6 @@ var topic = require('./commands/topic');
 var breaks = require('./commands/breaks');
 
 
-
 slack.on('authenticated', function (data) {
 
     /* dumb slack stuff. commands are different for public and private channels */
@@ -44,7 +43,7 @@ function main() {
     server.initserver();
 
     /* runs upkeep every second */
-    setInterval(upkeep, 60000);
+    setInterval(upkeep, 1000);
 }
 
 /* run */
