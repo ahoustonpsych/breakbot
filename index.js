@@ -32,7 +32,8 @@ slack.on('authenticated', function (data) {
 
 /* always listening */
 slack.on('message', function (data) {
-    if (slack.dataStore.getChannelGroupOrDMById(data.channel).name === conf.channel[conf.ENV])
+    if (slack.dataStore.getChannelGroupOrDMById(data.channel).name === conf.channel[conf.ENV] ||
+        slack.dataStore.getChannelGroupOrDMById(data.channel).name === conf.notifychannel[conf.ENV])
         messageController.handle(data);
 });
 
