@@ -27,9 +27,22 @@ function APICall(path, method, callback) {
         });
 
         /* once the response finishes, assemble all chunks and return the result */
-        response.on('end', function () {
+        response.on('end', function (err, res) {
             request.end();
-            return callback(null, JSON.parse(body.join('')));
+
+            if (err) console.error('ERROR MAKING API CALL', err);
+            else {
+                try {
+                    return callback(null, JSON.parse(body.join('')));
+                }
+                catch (e) {
+                    console.error('ERROR PARSING API CALL RESPONSE');
+                    console.error('RESPONSE BODY: ' + body);
+                    console.error('RESPONSE: ' + res);
+                    console.error(e);
+                    return callback(e, null);
+                }
+            }
         });
     });
 
@@ -139,7 +152,78 @@ exports.getChats = function () {
  */
 exports.getAgents = function (status, callback) {
     APICall('/agents?status=' + encodeURIComponent(status), 'GET',
-        function (data) {
-            return callback(data);
+        function (err, res) {
+            if (err) console.error('ERROR GETTING AGENTS', err);
+            else {
+                try {
+                    return callback(null, res);
+                }
+                catch (e) {
+                    console.error('ERROR PARSING AGENTS');
+                    console.error('RESPONSE BODY: ' + res);
+                    console.error(e);
+                    return callback(e, null);
+                }
+            }
         });
+};
+
+exports.changeCount = function (user, count) {
+
+    return new Promise(function (fulfill, reject) {
+        /* possible values:
+         "accepting chats"
+         "not accepting chats"
+         "offline" */
+        var data = {max_chats_count: count};
+
+        var request = https.request({
+            hostname: 'api.livechatinc.com',
+            auth: conf.lcAPIUser + ':' + conf.lcAPIKey,
+            method: 'PUT',
+            path: '/agents/' + user + conf.userdomain[conf.ENV],
+            headers: {
+                'X-API-VERSION': '2',
+                'Content-type': 'application/json',
+                'Content-length': JSON.stringify(data).length
+            }
+        });
+
+        /* make the call to change agent's state */
+        request.write(JSON.stringify(data));
+
+        /* start of http response */
+        request.on('response', function (res) {
+            var body = [];
+            res.setEncoding('utf8');
+
+            /* http responses come in "chunks" of a certain length
+             this bit pushes all the "chunks" onto an array as they come in */
+            res.on('data', function (chunk) {
+                body.push(chunk);
+            });
+
+            /* once the response finishes, assemble all chunks and return the result. */
+            res.on('end', function (err) {
+                request.end();
+
+                if (err) reject(err);
+                else {
+                    try {
+                        console.log(body);
+                        fulfill(JSON.parse(body.join('')));
+                    }
+                    catch (e) {
+                        console.error('BAD RESPONSE, COULDN\'T PARSE');
+                        console.error('RESPONSE BODY: ' + body);
+                        reject(e);
+                    }
+                }
+            });
+        });
+
+        request.on('error', function (err) {
+            reject(err);
+        });
+    });
 };
