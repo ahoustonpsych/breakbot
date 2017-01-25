@@ -23,53 +23,98 @@ function out(data) {
     else
         off = offs['breakbot'];
 
-    var username = undefined;
+    /* list of users passed into !out */
+    var users = undefined;
 
-    /* allows you to use !out [name] to log someone else out */
+    /* user who sent the !out message */
     var user = slack.dataStore.getUserById(data.user).profile.email.split('@')[0];
-    var arg = data.text.split(' ')[off];
 
-    if (arg && arg.match(/me/i) === null) {
-        try {
-            username = slack.dataStore.getUserByName(arg).profile.email.split('@')[0];
-        }
-        catch (e) {
-            slack.sendMessage('Invalid user: ' + arg, data.channel);
+    /* split up the list of users, discarding 'invalid' ones except for 'me' */
+    users = data.text.split(' ')
+        .slice(off)
+        .filter(function (el) {
 
-            //logging
-            console.error(new Date() + ': ' + user + ' used !out with invalid user "' + arg + '"');
-            return;
+            /* match 'me' for later use */
+            if (el.match(/^me$/i) !== null)
+                return true;
+
+            /* match usernames if given, and discard the rest */
+            else
+                return (slack.dataStore.getUserByName(el) instanceof Object);
+
+        })
+        .map(function (el) {
+
+            /* replace 'me' with your username if given */
+            if (el.match(/^me$/i) !== null)
+                return slack.dataStore.getUserById(data.user).name;
+
+            /* otherwise, don't do anything */
+            return el;
+
+        });
+
+    /* if we have an invalid array somehow, just default to the user that sent the message*/
+    if (users instanceof Array) {
+        if (users.length === 0) {
+            users = [slack.dataStore.getUserById(data.user).name];
         }
     }
-    else {
-        username = user;
-    }
 
-    logOut(username, data);
+    else
+        users = [user];
+
+    /* log out users */
+    if (users instanceof Array)
+        logOut(users, data);
+
+    else
+        console.error('INVALID LIST OF USERS FOR !out: ' + users);
+
 }
 
-function logOut(username, data) {
-    slack.sendMessage('Logged out ' + username + '. Please use *!back* to log back in when you are ready', data.channel);
+function logOut(users, data) {
 
-    breaks.clearBreaks(username);
-    breaks.out[username] = new Date().getTime();
+    if (users.length > 1)
+        slack.sendMessage('Logged out: ' + users.join(' ') + '. Please use *!back* to log back in when you are ready',
+            data.channel);
 
-    requests.changeStatus(username, 'not accepting chats')
-        .then(function (res) {
+    else if (users.length == 1)
+        slack.sendMessage('Logged out ' + users + '. Please use *!back* to log back in when you are ready',
+            data.channel);
 
-            /* logging */
-            var logdata = {
-                username: username,
-                command: '!out',
-                date: 'now'
-            };
+    else
+        console.error('invalid user list for !out somehow: ' + users);
 
-            db.log('command_history', logdata)
-                .catch(function (err) {
-                    console.error('ERROR LOGGING COMMAND', err);
-                });
-        })
+    /* log out each user */
+    users.forEach(function (user) {
+
+        /* nuke existing breaks */
+        breaks.clearBreaks(user);
+        breaks.out[user] = new Date().getTime();
+
+        requests.changeStatus(user, 'not accepting chats')
+            .then(function (res) {
+                /* TODO logging goes here maybe */
+
+            })
+            .catch(function (err) {
+                console.error('ERROR CHANGING STATUS FOR: ' + user, err);
+            });
+    });
+
+    /* logging */
+    /* TODO adjust logging to account for logging out multiple people at once */
+    /*
+    var logdata = {
+        username: user,
+        command: '!out',
+        date: 'now'
+    };
+
+    db.log('command_history', logdata)
         .catch(function (err) {
-            console.error('ERROR CHANGING STATUS', err);
+            console.error('ERROR LOGGING COMMAND', err);
         });
+    */
 }
