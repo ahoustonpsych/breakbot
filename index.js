@@ -42,6 +42,8 @@ function main() {
 
     server.initserver();
 
+    breaks.restoreBreaks();
+
     /* runs upkeep every second */
     setInterval(upkeep, 1000);
 }
