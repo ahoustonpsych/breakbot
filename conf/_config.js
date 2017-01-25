@@ -10,6 +10,9 @@ module.exports = {
 
     ENV: (function () { return process.env.NODE_ENV ? process.env.NODE_ENV : 'dev'; }()),
 
+    /* file to store break data if a restart occurs */
+    savefile: 'var/breaks.save',
+
     /* chat channel to operate in */
     channel: {
         test: 'breakbot_test',
