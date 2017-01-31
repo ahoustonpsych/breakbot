@@ -78,6 +78,8 @@ function listLunch() {
         return (new Date(first.time)).getTime() - (new Date(second.time)).getTime();
     });
 
+    //console.log(list.shift());
+
     while (list.length > 0) {
 
         var user = list.shift();

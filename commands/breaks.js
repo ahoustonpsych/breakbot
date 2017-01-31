@@ -3,6 +3,7 @@ var fs = require('fs');
 var Promise = require('promise');
 
 var conf = require('../conf/config');
+var luncher = require('./luncher');
 
 var onbreak = {};
 var overbreak = {};
@@ -39,7 +40,8 @@ function saveBreaks() {
             JSON.stringify(that.overbreak) + '\n' +
             JSON.stringify(that.out) + '\n' +
             JSON.stringify(that.lunch) + '\n' +
-            JSON.stringify(that.bio);
+            JSON.stringify(that.bio) + '\n' +
+            JSON.stringify(luncher.schedule);
 
         if (breakdata !== undefined) {
             fs.writeFileSync(conf.savefile, breakdata);
@@ -72,6 +74,17 @@ function restoreBreaks() {
             that.out = JSON.parse(rawbreaks[2]);
             that.lunch = JSON.parse(rawbreaks[3]);
             that.bio = JSON.parse(rawbreaks[4]);
+
+            luncher.schedule = JSON.parse(rawbreaks[5]);
+
+            //return if lunch schedule is empty
+            if (luncher === {})
+                return;
+
+            //restore lunch times to date objects
+            Object.keys(luncher.schedule).forEach(function (user) {
+                luncher.schedule[user].time = new Date(luncher.schedule[user].time);
+            })
 
         }
     });
