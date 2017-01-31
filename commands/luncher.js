@@ -20,7 +20,7 @@ function addLunch(user, time, channel) {
             channel: channel,
             notified: 0
         };
-        console.log('time: ' + time);
+        //console.log('time: ' + time);
         return true;
     }
     else
@@ -38,8 +38,6 @@ function clearLunch(user) {
 
 }
 
-//TODO: finish this
-//checks to see if a lunch slot is already taken
 function checkDupe(time) {
 
     for (var user in this.schedule) {

@@ -218,8 +218,12 @@ function parseTime(time) {
     if (typeof(hour) !== 'number' || typeof(minute) !== 'number')
         return false;
 
-    console.log('hour: ' + hour);
-    console.log('minute: ' + minute);
+    //console.log('hour: ' + hour);
+    //console.log('minute: ' + minute);
+
+    //only allow lunches at 15m intervals
+    if (minute % 15 !== 0)
+        return false;
 
     //fail if out of bounds
     if (hour > 23 || hour < 0 || minute > 59 || minute < 0)
