@@ -168,13 +168,14 @@ exports.getAgents = function (status, callback) {
         });
 };
 
-exports.changeCount = function (user, count) {
+/*
+ * change chatter's limit
+ */
+
+exports.changeLimit = function (user, count) {
 
     return new Promise(function (fulfill, reject) {
-        /* possible values:
-         "accepting chats"
-         "not accepting chats"
-         "offline" */
+
         var data = {max_chats_count: count};
 
         var request = https.request({
@@ -189,7 +190,7 @@ exports.changeCount = function (user, count) {
             }
         });
 
-        /* make the call to change agent's state */
+        /* make the call to change agent's limit */
         request.write(JSON.stringify(data));
 
         /* start of http response */
@@ -210,7 +211,7 @@ exports.changeCount = function (user, count) {
                 if (err) reject(err);
                 else {
                     try {
-                        console.log(body);
+                        //console.log(body);
                         fulfill(JSON.parse(body.join('')));
                     }
                     catch (e) {

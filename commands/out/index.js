@@ -25,27 +25,25 @@ function out(data) {
 
     var username = undefined;
 
-    /* allows you to use !out [name] to log someone else out */
     var user = slack.dataStore.getUserById(data.user).profile.email.split('@')[0];
     var arg = data.text.split(' ')[off];
 
-    if (arg && arg.match(/me/i) === null) {
+    /* allows you to use !out [name] to log someone else out */
+    if (arg && arg.match(/^me$/i) === null) {
         try {
             username = slack.dataStore.getUserByName(arg).profile.email.split('@')[0];
         }
-        catch (e) {
-            slack.sendMessage('Invalid user: ' + arg, data.channel);
 
-            //logging
-            console.error(new Date() + ': ' + user + ' used !out with invalid user "' + arg + '"');
-            return;
+        catch (e) {
+            username = user;
         }
     }
-    else {
+
+    if (typeof(username) !== 'string')
         username = user;
-    }
 
     logOut(username, data);
+
 }
 
 function logOut(username, data) {
