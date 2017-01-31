@@ -39,7 +39,7 @@ function rm(data) {
 
     /* remove user(s) from topic */
     replaceChatter(newtopic, arg, function (top) {
-
+        //callback
         if (!(top instanceof Array))
             topic.setTopic(data.channel, top);
 

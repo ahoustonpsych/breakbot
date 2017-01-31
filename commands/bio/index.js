@@ -29,7 +29,7 @@ function bio(data) {
         return;
     }
 
-    delete breaks.bio[username];
+    delete breaks.out[username];
     breaks.clearBreaks(username);
 
     /* sets agent status to "not accepting chats" */
