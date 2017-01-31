@@ -96,7 +96,7 @@ function scheduler(data) {
         list = luncher.listLunch();
 
         if (!list) {
-            slack.sendMessage('nobody on lunch', data.channel);
+            slack.sendMessage('nobody scheduled for lunch', data.channel);
             return false;
         }
 
