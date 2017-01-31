@@ -50,28 +50,50 @@ function checkDupe(time) {
 }
 
 function listLunch() {
+
+    var list = [];
+
     var lunch_list = '*Lunch times:* ';
 
     var that = this;
 
-    if (Object.keys(this.schedule).length !== 0)
+    if (Object.keys(this.schedule).length !== 0) {
         Object.keys(this.schedule).forEach(function (user) {
 
-            hour = that.schedule[user].time.getHours();
-            minute = that.schedule[user].time.getMinutes();
-
-            if (minute.toString().length < 2)
-                minute = '0' + minute;
-
-            lunch_list = lunch_list + user + ' (' + hour + ':' + minute + '), ';
+            list.push({
+                'user': that.schedule[user].name,
+                'time': that.schedule[user].time
+            });
 
         });
+    }
 
+    //return if nobody is scheduled for lunch
     else {
         return false;
+    }
+
+    list = list.sort(function (first, second) {
+        //sorts by lunch time
+        return (new Date(first.time)).getTime() - (new Date(second.time)).getTime();
+    });
+
+    while (list.length > 0) {
+
+        var user = list.shift();
+
+        hour = user.time.getHours();
+        minute = user.time.getMinutes();
+
+        if (minute.toString().length < 2)
+            minute = '0' + minute;
+
+        lunch_list = lunch_list + user.user + ' (' + hour + ':' + minute + '), ';
+
     }
 
     lunch_list = lunch_list.replace(/, $/, '');
 
     return lunch_list;
+
 }
