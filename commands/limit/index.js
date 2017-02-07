@@ -91,7 +91,7 @@ function limit(data) {
         })
         .catch(function (err) {
             console.error(err);
-            console.error('ERROR CHANGING CHAT limit');
+            console.error('ERROR CHANGING CHAT LIMIT');
         })
 
 }
