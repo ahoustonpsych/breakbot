@@ -1,6 +1,8 @@
 var https = require('https');
 var Promise = require('promise');
 
+var slack = require('../lib/slack').rtm;
+
 var conf = require('../conf/config');
 
 function APICall(path, method, callback) {
@@ -132,20 +134,121 @@ exports.getAgentStatus = function (agent) {
 
 
 /*
- * get chat data for the last 5 minutes
+ * all chats for today, including active ones
  */
-exports.getChats = function () {
+exports.getRecentChats = function () {
     return new Promise(function (fulfill, reject) {
-        APICall('/chats?' +
-            'date_from=' + new Date().toJSON().split('T')[0] + '&' +
-            'include_pending=1' + '&' +
-            'group=1', 'GET',
-            function (err, res) {
-                if (err) reject(err);
-                else fulfill(res.chats);
+
+        retrieveAll(1, [])
+            .then(function (chats) {
+                fulfill(chats);
+            })
+            .catch(function (err) {
+                reject(err);
             });
     });
 };
+
+//grabs the last few pages of chats, and returns them
+function retrieveAll(page, chatlist) {
+    return new Promise(function (fulfill, reject) {
+
+        var fullchats = chatlist;
+
+        //uri to get all chats, minus the page number (url + page)
+        var url = '/chats?' +
+            'date_from=' + new Date(new Date().toDateString()).toJSON().split('T')[0] + '&' +
+            'include_pending=1' + '&' +
+            'group=1' + '&' +
+            'page=';
+
+        console.log(url + page);
+
+        APICall(url + page, 'GET',
+            function (err, res) {
+                if (err) reject(err);
+                else {
+                    if (res.hasOwnProperty('chats')) {
+                        fullchats.push(res.chats);
+
+                        if (page >= res.pages || page >= 6) {
+                            flattened = [].concat.apply([], fullchats);
+                            //console.log('done, returning');
+                            fulfill(flattened);
+                        }
+
+                        //recurse for new pages
+                        else {
+                            retrieveAll(page + 1, fullchats)
+                                .then(function (result) {
+                                    fulfill(result);
+                                })
+                                .catch(function (err) {
+                                    //neither should this
+                                    reject(err);
+                                });
+                        }
+                    }
+
+                    //retrieveAll(page+1);
+                }
+            });
+    });
+}
+
+//TODO
+//finish this
+exports.getChatDurations = function () {
+    i = 0
+    this.getRecentChats()
+        .then(function (chats) {
+            //console.log(chats);
+
+            console.log(chats.length);
+
+            if (!(chats instanceof Array))
+                return false;
+
+            chats.forEach(function (chat) {
+
+                //only get active chats
+                if (!chat.pending)
+                    return false;
+
+                //i += 1;
+                //console.log(i);
+
+                chatter = chat.agents[0].email.split('@')[0];
+                duration = chat.duration;
+                id = chat.id;
+                visitor = chat.visitor_name;
+
+                if (typeof(duration) !== 'number')
+                    return false;
+
+                if (duration/60 > 60) {
+
+                    notice = 'long chat notice: *' +
+                        chatter +
+                        '* has been chatting with *' +
+                        visitor +
+                        '* for over an hour. id: `' +
+                        id + '`';
+
+                    slack.sendMessage(notice, slack.dataStore.getChannelOrGroupByName(conf.notifychannel[conf.ENV]).id);
+
+                }
+
+                console.log('agent: ' + chatter + '\ttime: ' + duration/60 + '\tvisitor: ' + visitor + ' id: ' + id);
+
+            });
+
+        })
+        .catch(function (err) {
+            console.error(err);
+        });
+};
+
 
 /*
  * return list of agents
@@ -169,9 +272,8 @@ exports.getAgents = function (status, callback) {
 };
 
 /*
- * change chatter's limit
+ * change chatter's chat limit
  */
-
 exports.changeLimit = function (user, count) {
 
     return new Promise(function (fulfill, reject) {
