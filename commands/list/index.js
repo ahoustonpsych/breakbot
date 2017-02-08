@@ -1,12 +1,55 @@
 var slack = require('../../lib/slack').rtm;
 var breaks = require('../breaks');
 
+var offs = {'!list': 1, 'breakbot': 2};
+
+
 module.exports = {
     expr: /^(!list)|(breakbot:? list)/i,
     run: list
 };
 
 function list(data) {
+
+    if (data.text.split(' ')[0].match(/^!list/i) !== null)
+        off = offs['!list'];
+    else
+        off = offs['breakbot'];
+
+    var username = slack.dataStore.getUserById(data.user).profile.email.split('@')[0];
+    var arg = data.text.split(' ')[off];
+    var name = data.text.split(' ')[off+1];
+
+    //!list rm handling
+    //removes user from the break lists
+    if (typeof(arg) === 'string' && typeof(name) === 'string') {
+        if (arg.match(/^rm$/ig) !== null) {
+
+            if (name.match(/^me$/ig) !== null)
+                name = username;
+
+            if (breaks.onbreak.hasOwnProperty(name) ||
+                breaks.overbreak.hasOwnProperty(name) ||
+                breaks.out.hasOwnProperty(name) ||
+                breaks.lunch.hasOwnProperty(name) ||
+                breaks.bio.hasOwnProperty(name)) {
+
+                //TODO
+                //log this
+                delete breaks.out[name];
+                breaks.clearBreaks(name);
+                slack.sendMessage('removed from break list: ' + name, data.channel);
+                return true;
+
+            }
+            else {
+
+                slack.sendMessage('not in any list: ' + name, data.channel);
+                return false;
+
+            }
+        }
+    }
 
     var onbreak_list = '*On break:* ';
     var lunch_list = '*On lunch:* ';
@@ -34,6 +77,9 @@ function list(data) {
     bio_list = bio_list.replace(/, $/, '');
 
     /*
+    //shelved for now
+    //changes !list to only show break types that have any data
+    //e.g. it won't show the "on break" list if nobody is on break
     var list = '';
     if (Object.keys(breaks.onbreak).length !== 0)
         list += onbreak_list + '\n';
@@ -67,12 +113,4 @@ function list(data) {
         slack.sendMessage('Nobody on break', data.channel);
     }
 
-    /*
-    if (list) {
-        slack.sendMessage(list, data.channel);
-    }
-    else {
-        slack.sendMessage('Nobody on break', data.channel);
-    }
-    */
 }
