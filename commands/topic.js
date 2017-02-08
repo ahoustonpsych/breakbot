@@ -4,28 +4,55 @@ var web = require('../lib/slack').web;
  * global var used to represent the current topic
  */
 var topic = '';
-var captain = '';
+var _notifytopic = '';
+var captains = [];
 
 /*
  * topic handler
  */
 module.exports = {
     topic: topic,
-    captain: captain,
-    getCaptain: function () {
-        this.captain = this.topic.split(' ')[2];
+    _notifytopic: _notifytopic,
+    captains: captains,
+    setCaptains: function () {
+
+        console.log('setting topic: ' + this._notifytopic);
+
+        if (typeof(this._notifytopic) !== 'string')
+            return false;
+
+        else
+            this.captains = cleanTopic(this._notifytopic)
+                .map(function (name) {
+                    return name.toLowerCase();
+                })
+
+    },
+    getCaptains: function () {
+
+        if (!(this.captains instanceof Array))
+            return false;
+
+        return this.captains;
+
     },
     setTopic: function (channel, newtopic) {
+
         /* private channels */
         if (channel[0] === 'G')
             web.groups.setTopic(channel, newtopic);
+
         /* public channels */
         else
             web.channels.setTopic(channel, newtopic);
+
         this.topic = newtopic;
+
     },
     getChatters: function () {
+
         return cleanTopic(this.topic);
+
     },
     removeSpecial: removeSpecial
 };
