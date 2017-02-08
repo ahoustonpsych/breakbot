@@ -162,7 +162,7 @@ function retrieveAll(page, chatlist) {
             'group=1' + '&' +
             'page=';
 
-        console.log(url + page);
+        //console.log(url + page);
 
         APICall(url + page, 'GET',
             function (err, res) {
@@ -184,13 +184,10 @@ function retrieveAll(page, chatlist) {
                                     fulfill(result);
                                 })
                                 .catch(function (err) {
-                                    //neither should this
                                     reject(err);
                                 });
                         }
                     }
-
-                    //retrieveAll(page+1);
                 }
             });
     });
