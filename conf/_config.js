@@ -13,6 +13,9 @@ module.exports = {
     /* file to store break data if a restart occurs */
     savefile: 'var/breaks.save',
 
+    /* file to store wrapup data if a restart occurs */
+    wrapupfile: 'var/wrapup.save',
+
     /* chat channel to operate in */
     channel: {
         test: 'breakbot_test',
