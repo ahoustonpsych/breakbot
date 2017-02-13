@@ -2,6 +2,7 @@ var slack = require('../../lib/slack').rtm;
 var db = require('../../lib/database');
 
 var breaks = require('../breaks');
+var wrapup = require('../wrapup');
 
 module.exports = {
     expr: /^(!restart)|(breakbot:? restart)/i,
@@ -14,6 +15,8 @@ function restart(data) {
         .then(function () {
 
             console.log('saved breaks successfully');
+
+            wrapup.saveWrapup();
 
             var logdata = {
                 username: slack.dataStore.getUserById(data.user).name,
