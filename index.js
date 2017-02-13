@@ -10,6 +10,7 @@ var upkeep = require('./lib/upkeep').upkeep;
 
 var topic = require('./commands/topic');
 var breaks = require('./commands/breaks');
+var wrapup = require('./commands/wrapup');
 
 
 slack.on('authenticated', function (data) {
@@ -44,6 +45,8 @@ function main() {
     server.initserver();
 
     breaks.restoreBreaks();
+
+    wrapup.restoreWrapup();
 
     /* runs upkeep every second */
     setInterval(upkeep, 1000);
