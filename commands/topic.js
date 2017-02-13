@@ -16,7 +16,8 @@ module.exports = {
     captains: captains,
     setCaptains: function () {
 
-        console.log('setting topic: ' + this._notifytopic);
+        if (conf.ENV === 'dev')
+            console.log('setting topic: ' + this._notifytopic);
 
         if (typeof(this._notifytopic) !== 'string')
             return false;
