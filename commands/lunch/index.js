@@ -110,7 +110,7 @@ function scheduler(data) {
     else if (arg.match(/rm/i) !== null) {
         name = data.text.split(' ')[off+1];
 
-        if (!name || name.match(/me/i) !== null)
+        if (!name || name.match(/^me$/i) !== null)
             name = user;
 
         //fail if invalid user
