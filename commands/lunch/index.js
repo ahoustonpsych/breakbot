@@ -92,7 +92,7 @@ function scheduler(data) {
         return false;
 
     //list command
-    if (arg.match(/list/i) !== null) {
+    if (arg.match(/^list$/i) !== null) {
         list = luncher.listLunch();
 
         if (!list) {
@@ -107,7 +107,7 @@ function scheduler(data) {
     }
 
     //rm command
-    else if (arg.match(/rm/i) !== null) {
+    else if (arg.match(/^rm$/i) !== null) {
         name = data.text.split(' ')[off+1];
 
         if (!name || name.match(/^me$/i) !== null)
@@ -139,7 +139,7 @@ function scheduler(data) {
     }
 
     //match 'me'
-    else if (arg.match(/me/i) !== null) {
+    else if (arg.match(/^me$/i) !== null) {
         time = data.text.split(' ')[off + 1];
     }
 
