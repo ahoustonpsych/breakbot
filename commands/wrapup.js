@@ -37,6 +37,8 @@ function restoreWrapup() {
 
     fs.readFile(conf.wrapupfile, 'utf8', function (err,res) {
 
+        var breakdata = '{}'
+
         if (err) console.error('not found');
 
         else if (!res) {
@@ -58,5 +60,10 @@ function restoreWrapup() {
             });
 
         }
+
+        if (breakdata !== undefined) {
+            fs.writeFileSync(conf.wrapupfile, breakdata);
+        }
+
     });
 }

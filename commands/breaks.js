@@ -69,6 +69,8 @@ function restoreBreaks() {
 
             var rawbreaks = res.split('\n');
 
+            breakdata = '{}\n{}\n{}\n{}\n{}\n{}';
+
             that.onbreak = JSON.parse(rawbreaks[0]);
             that.overbreak = JSON.parse(rawbreaks[1]);
             that.out = JSON.parse(rawbreaks[2]);
@@ -84,7 +86,11 @@ function restoreBreaks() {
             //restore lunch times to date objects
             Object.keys(luncher.schedule).forEach(function (user) {
                 luncher.schedule[user].time = new Date(luncher.schedule[user].time);
-            })
+            });
+
+            if (breakdata !== undefined) {
+                fs.writeFileSync(conf.savefile, breakdata);
+            }
 
         }
     });
