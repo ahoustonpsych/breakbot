@@ -157,12 +157,14 @@ function retrieveAll(page, chatlist) {
 
         //uri to get all chats, minus the page number (url + page)
         var url = '/chats?' +
-            'date_from=' + new Date(new Date().toDateString()).toJSON().split('T')[0] + '&' +
+            //'date_from=' + new Date(new Date().toDateString()).toJSON().split('T')[0] + '&' +
+            //yesterday
+            'date_from=' + new Date(new Date().getTime() - 24 * 60 * 60 * 1000).toJSON().split('T')[0] + '&' +
             'include_pending=1' + '&' +
             'group=1' + '&' +
             'page=';
 
-        //console.log(url + page);
+        console.log(url + page);
 
         APICall(url + page, 'GET',
             function (err, res) {
