@@ -164,7 +164,7 @@ function retrieveAll(page, chatlist) {
             'group=1' + '&' +
             'page=';
 
-        console.log(url + page);
+        //console.log(url + page);
 
         APICall(url + page, 'GET',
             function (err, res) {
