@@ -1,6 +1,6 @@
 # breakbot
 
-Commands here: https://git.liquidweb.com/ahouston/breakbot/wikis/home
+Commands here: https://wiki.int.liquidweb.com/articles/Breakbot
 
 # installation
 "forever" keeps the process running forever (like systemd with services):
@@ -37,5 +37,10 @@ stdout goes to `logs/general.log`
 
 stderr goes to `logs/error.log`
 
-# contact
+# issues/features
+https://git.liquidweb.com/ahouston/breakbot/issues
+
+you can also just poke me (ahouston) directly
+
+# questions/hate/everything else
 ahouston@liquidweb.com, or ahouston in slack
