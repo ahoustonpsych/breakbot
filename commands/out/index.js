@@ -95,26 +95,22 @@ function logOut(users, data) {
 
         requests.changeStatus(user, 'not accepting chats')
             .then(function (res) {
-                /* TODO logging goes here maybe */
+
+                /* logging */
+                var logdata = {
+                    username: user,
+                    command: '!out',
+                    date: 'now'
+                };
+
+                db.log('command_history', logdata)
+                    .catch(function (err) {
+                        console.error('ERROR LOGGING COMMAND', err);
+                    });
 
             })
             .catch(function (err) {
                 console.error('ERROR CHANGING STATUS FOR: ' + user, err);
             });
     });
-
-    /* logging */
-    /* TODO adjust logging to account for logging out multiple people at once */
-    /*
-    var logdata = {
-        username: user,
-        command: '!out',
-        date: 'now'
-    };
-
-    db.log('command_history', logdata)
-        .catch(function (err) {
-            console.error('ERROR LOGGING COMMAND', err);
-        });
-    */
 }
