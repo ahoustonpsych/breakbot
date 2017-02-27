@@ -215,7 +215,7 @@ function parseTime(time) {
         minute = 0;
     }
 
-    if (typeof(hour) !== 'number' || typeof(minute) !== 'number')
+    if (typeof(hour) !== 'number' || typeof(minute) !== 'number' || isNaN(hour) || isNaN(minute))
         return false;
 
     //console.log('hour: ' + hour);
