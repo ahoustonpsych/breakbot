@@ -127,7 +127,7 @@ exports.getAgentStatus = function (agent) {
         APICall('/agents/' + agent + conf.userdomain[conf.ENV], 'GET',
             function (err, res) {
                 if (err) reject(err);
-                else fulfill(res.status);
+                else fulfill(res);
             });
     });
 };
