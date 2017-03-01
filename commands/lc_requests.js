@@ -120,7 +120,7 @@ exports.changeStatus = function (user, status) {
 };
 
 /*
- * retrieve's agent object
+ * retrieves agent object
  */
 exports.getAgent = function (agent) {
     return new Promise(function (fulfill, reject) {
