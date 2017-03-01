@@ -120,9 +120,9 @@ exports.changeStatus = function (user, status) {
 };
 
 /*
- * retrieve's agent's current status
+ * retrieve's agent object
  */
-exports.getAgentStatus = function (agent) {
+exports.getAgent = function (agent) {
     return new Promise(function (fulfill, reject) {
         APICall('/agents/' + agent + conf.userdomain[conf.ENV], 'GET',
             function (err, res) {
