@@ -101,6 +101,7 @@ exports.changeStatus = function (user, status) {
 
                 if (err) reject(err);
                 else {
+                    console.log(new Date().toLocaleString() + ' changed ' + user + ' to ' + status + '. (FROM: changeStatus)');
                     try {
                         fulfill(JSON.parse(body.join('')));
                     }
@@ -127,7 +128,10 @@ exports.getAgent = function (agent) {
         APICall('/agents/' + agent + conf.userdomain[conf.ENV], 'GET',
             function (err, res) {
                 if (err) reject(err);
-                else fulfill(res);
+                else {
+                    console.log(new Date().toLocaleString() + ' retrieved data for ' + agent + '. (FROM: getAgent)');
+                    fulfill(res);
+                }
             });
     });
 };
@@ -141,6 +145,7 @@ exports.getRecentChats = function () {
 
         retrieveAll(1, [])
             .then(function (chats) {
+                console.log(new Date().toLocaleString() + ' fetched recent chats. (FROM: getRecentChats)');
                 fulfill(chats);
             })
             .catch(function (err) {
@@ -312,7 +317,7 @@ exports.changeLimit = function (user, count) {
                 if (err) reject(err);
                 else {
                     try {
-                        //console.log(body);
+                        console.log(new Date().toLocaleString() + ' changed limit for ' + user + ' to ' + count + '. (FROM: changeLimit)');
                         fulfill(JSON.parse(body.join('')));
                     }
                     catch (e) {
