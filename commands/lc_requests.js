@@ -6,6 +6,7 @@ var slack = require('../lib/slack').rtm;
 var conf = require('../conf/config');
 
 function APICall(path, method, callback) {
+    console.error("WARNING: USING LIVECHAT METHOD **APICall**");
     var request = https.request({
         hostname: 'api.livechatinc.com',
         auth: conf.lcAPIUser + ':' + conf.lcAPIKey,
@@ -61,6 +62,7 @@ function APICall(path, method, callback) {
  * changes an agent's status
  */
 exports.changeStatus = function (user, status) {
+    console.error("WARNING: USING LIVECHAT METHOD **changeStatus**");
 
     return new Promise(function (fulfill, reject) {
         /* possible values:
@@ -124,6 +126,7 @@ exports.changeStatus = function (user, status) {
  * retrieves agent object
  */
 exports.getAgent = function (agent) {
+    console.error("WARNING: USING LIVECHAT METHOD **getAgent**");
     return new Promise(function (fulfill, reject) {
         APICall('/agents/' + agent + conf.userdomain[conf.ENV], 'GET',
             function (err, res) {
@@ -141,6 +144,7 @@ exports.getAgent = function (agent) {
  * all chats for today, including active ones
  */
 exports.getRecentChats = function () {
+    console.error("WARNING: USING LIVECHAT METHOD **getRecentChats**");
     return new Promise(function (fulfill, reject) {
 
         retrieveAll(1, [])
@@ -156,6 +160,7 @@ exports.getRecentChats = function () {
 
 //grabs the last few pages of chats, and returns them
 function retrieveAll(page, chatlist) {
+    console.error("WARNING: USING LIVECHAT METHOD **retrieveAll**");
     return new Promise(function (fulfill, reject) {
 
         var fullchats = chatlist;
@@ -203,6 +208,7 @@ function retrieveAll(page, chatlist) {
 //TODO
 //finish this
 exports.getChatDurations = function () {
+    console.error("WARNING: USING LIVECHAT METHOD **getChatDurations**");
     i = 0
     this.getRecentChats()
         .then(function (chats) {
@@ -258,6 +264,8 @@ exports.getChatDurations = function () {
  * return list of agents
  */
 exports.getAgents = function (status, callback) {
+    console.error("WARNING: USING LIVECHAT METHOD **getAgents**");
+
     APICall('/agents?status=' + encodeURIComponent(status), 'GET',
         function (err, res) {
             if (err) console.error('ERROR GETTING AGENTS', err);
@@ -279,6 +287,7 @@ exports.getAgents = function (status, callback) {
  * change chatter's chat limit
  */
 exports.changeLimit = function (user, count) {
+    console.error("WARNING: USING LIVECHAT METHOD **changeLimit**");
 
     return new Promise(function (fulfill, reject) {
 
