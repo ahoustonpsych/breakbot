@@ -22,7 +22,7 @@ function saveWrapup() {
         var wrapupdata = JSON.stringify(that.concurrent);
 
         if (wrapupdata !== undefined) {
-            fs.writeFileSync(conf.wrapupfile, wrapupdata);
+            fs.writeFileSync(conf.restore.wrapupfile, wrapupdata);
             fulfill('success');
         }
 
@@ -35,7 +35,7 @@ function restoreWrapup() {
 
     var that = this;
 
-    fs.readFile(conf.wrapupfile, 'utf8', function (err,res) {
+    fs.readFile(conf.restore.wrapupfile, 'utf8', function (err,res) {
 
         var breakdata = '{}'
 
@@ -62,7 +62,7 @@ function restoreWrapup() {
         }
 
         if (breakdata !== undefined) {
-            fs.writeFileSync(conf.wrapupfile, breakdata);
+            fs.writeFileSync(conf.restore.wrapupfile, breakdata);
         }
 
     });
