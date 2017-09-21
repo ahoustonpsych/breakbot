@@ -1,10 +1,8 @@
 
 var slack = require('../lib/slack').rtm;
-
-var schedule = {};
+let globals = require('../conf/config.globals');
 
 module.exports = {
-    schedule: schedule,
     addLunch: addLunch,
     clearLunch: clearLunch,
     checkDupe: checkDupe,
@@ -13,35 +11,48 @@ module.exports = {
 
 function addLunch(user, time, channel) {
 
-    if (!(this.schedule[user] instanceof Object)) {
-        this.schedule[user] = {
-            name: user,
-            time: time,
-            channel: channel,
-            notified: 0
-        };
-        //console.log('time: ' + time);
-        return true;
-    }
-    else
+    if (!(globals.hasOwnProperty(channel))) {
+        console.log('NO SCHEDULE: ' + Object.keys(globals))
         return false;
+    }
+
+    let schedule = globals[channel].schedule;
+
+    if (schedule.hasOwnProperty(user)) {
+        console.log('ALREADY SCHEDULED: ' + Object.keys(globals[channel]))
+        return false;
+    }
+
+    schedule[user] = {
+        name: user,
+        time: time,
+        notified: 0
+    };
+
+    console.log('SCHEDULE: ')
+    console.log(schedule[user])
+
+    return true;
 }
 
-function clearLunch(user) {
+function clearLunch(user, channel) {
+    let schedule = globals[channel].schedule;
 
-    if (this.schedule[user] instanceof Object) {
-        delete this.schedule[user];
+    if (schedule[user] instanceof Object) {
+        delete schedule[user];
         return true;
     }
+
     else
         return false;
 
 }
 
-function checkDupe(time) {
+function checkDupe(time, channel) {
+    let schedule = globals[channel].schedule;
 
     for (var user in this.schedule) {
-        if ((this.schedule[user].time.getHours() === time.getHours()) && (this.schedule[user].time.getMinutes() === time.getMinutes())) {
+        if ((schedule[user].time.getHours() === time.getHours()) && (schedule[user].time.getMinutes() === time.getMinutes())) {
             return false;
         }
     }
@@ -49,21 +60,39 @@ function checkDupe(time) {
     return true;
 }
 
-function listLunch() {
+function listLunch(channel) {
 
-    var list = [];
+    //console.log(globals[channel].schedule)
+
+    let list = [];
 
     var lunch_list = '*Lunch times:* ';
 
-    var that = this;
+    if (!(globals.hasOwnProperty(channel)))
+        return false;
 
-    if (Object.keys(this.schedule).length !== 0) {
-        Object.keys(this.schedule).forEach(function (user) {
+    let schedule = globals[channel].schedule;
+
+    // console.log('sched:')!
+    // console.log(schedule.length)
+
+    //loop through lunch schedule to build a list
+    if (Object.keys(schedule).length !== 0) {
+        Object.keys(schedule).forEach(function (user) {
+            console.log(user);
+
+            // console.log('schedule: ' + Object.keys(globals[channel].schedule['ahouston']))
+            console.log('schedule: ' + schedule[user].name)
+
+            console.log('time: ' + schedule[user].time)
 
             list.push({
-                'user': that.schedule[user].name,
-                'time': that.schedule[user].time
+                user: schedule[user].name,
+                time: schedule[user].time
             });
+
+            console.log('after push: ')
+            console.log(list)
 
         });
     }
@@ -82,7 +111,9 @@ function listLunch() {
 
     while (list.length > 0) {
 
-        var user = list.shift();
+        console.log(list)
+
+        let user = list.shift();
 
         hour = user.time.getHours();
         minute = user.time.getMinutes();
