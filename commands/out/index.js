@@ -1,6 +1,7 @@
 var slack = require('../../lib/slack').rtm;
 var requests = require('../lc_requests');
-var breaks = require('../breaks');
+let globals = require('../../conf/config.globals');
+//var breaks = require('../breaks');
 var db = require('../../lib/database');
 
 var offs = {'!out': 1, 'breakbot': 2};
@@ -66,14 +67,16 @@ function out(data) {
 
     /* log out users */
     if (users instanceof Array)
-        logOut(users, data);
+        logOut(data, users);
 
     else
         console.error('INVALID LIST OF USERS FOR !out: ' + users);
 
 }
 
-function logOut(users, data) {
+function logOut(data, users) {
+
+    let breaks = globals[data.name].breaks;
 
     if (users.length > 1)
         slack.sendMessage('Logged out: ' + users.join(' ') + '. Please use *!back* to log back in when you are ready',
@@ -90,27 +93,39 @@ function logOut(users, data) {
     users.forEach(function (user) {
 
         /* nuke existing breaks */
-        breaks.clearBreaks(user);
+        breaks.clearBreaks(user, data.name);
         breaks.out[user] = new Date().getTime();
 
-        requests.changeStatus(user, 'not accepting chats')
-            .then(function (res) {
+        /* logging */
+        var logdata = {
+            username: user,
+            command: '!out',
+            date: 'now'
+        };
 
-                /* logging */
-                var logdata = {
-                    username: user,
-                    command: '!out',
-                    date: 'now'
-                };
-
-                db.log('command_history', logdata)
-                    .catch(function (err) {
-                        console.error('ERROR LOGGING COMMAND', err);
-                    });
-
-            })
+        db.log('command_history', logdata)
             .catch(function (err) {
-                console.error('ERROR CHANGING STATUS FOR: ' + user, err);
+                console.error('ERROR LOGGING COMMAND', err);
             });
+
+        // requests.changeStatus(user, 'not accepting chats')
+        //     .then(function (res) {
+        //
+        //         /* logging */
+        //         var logdata = {
+        //             username: user,
+        //             command: '!out',
+        //             date: 'now'
+        //         };
+        //
+        //         db.log('command_history', logdata)
+        //             .catch(function (err) {
+        //                 console.error('ERROR LOGGING COMMAND', err);
+        //             });
+        //
+        //     })
+        //     .catch(function (err) {
+        //         console.error('ERROR CHANGING STATUS FOR: ' + user, err);
+        //     });
     });
 }

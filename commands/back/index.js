@@ -2,7 +2,9 @@ var slack = require('../../lib/slack').rtm;
 
 var db = require('../../lib/database');
 var requests = require('../lc_requests');
-var breaks = require('../breaks');
+let globals = require('../../conf/config.globals');
+let breaks;
+//var breaks = require('../breaks');
 
 /* argument offsets, used to allow multi-word commands */
 var offs = {'!back': 1, 'breakbot': 2};
@@ -24,37 +26,50 @@ function back(data) {
     else
         off = offs['breakbot'];
 
-    var username = slack.dataStore.getUserById(data.user).profile.email.split('@')[0];
+    let username = slack.dataStore.getUserById(data.user).profile.email.split('@')[0];
 
     //if (data.text.split(' ')[off])
     //    username = slack.dataStore.getUserByName(data.text.split(' ')[off]).profile.email.split('@')[0];
+    logIn(data, username);
 
-    /* change state to "accepting chats" */
-    logIn(username, data);
 }
 
-function logIn(username, data) {
+/* log user in */
+function logIn(data, username) {
+
+    let breaks = globals[data.name].breaks;
 
     slack.sendMessage(username + ': you have been logged back in.', data.channel);
 
-    breaks.clearBreaks(username);
+    breaks.clearBreaks(username, data.name);
     delete breaks.out[username];
 
-    requests.changeStatus(username, 'accepting chats')
-        .then(function (res) {
-
-            /* logging */
-            var logdata = {
-                username: username,
-                date: 'now',
-                command: '!back'
-            };
-            db.log('command_history', logdata)
-                .catch(function (err) {
-                    console.error('ERROR LOGGING COMMAND', err);
-                });
-        })
+    /* logging */
+    let logdata = {
+        username: username,
+        date: 'now',
+        command: '!back'
+    };
+    db.log('command_history', logdata)
         .catch(function (err) {
-            console.error('ERROR CHANGING STATUS', err);
+            console.error('ERROR LOGGING COMMAND', err);
         });
+
+    // requests.changeStatus(username, 'accepting chats')
+    //     .then(function (res) {
+    //
+    //         /* logging */
+    //         var logdata = {
+    //             username: username,
+    //             date: 'now',
+    //             command: '!back'
+    //         };
+    //         db.log('command_history', logdata)
+    //             .catch(function (err) {
+    //                 console.error('ERROR LOGGING COMMAND', err);
+    //             });
+    //     })
+    //     .catch(function (err) {
+    //         console.error('ERROR CHANGING STATUS', err);
+    //     });
 }

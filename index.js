@@ -3,6 +3,8 @@ var slack = require('./lib/slack').rtm;
 
 var conf = require('./conf/config');
 
+var globals = require('./conf/config.globals');
+
 var messageController = require('./lib/messageController');
 var db = require('./lib/database');
 var server = require('./lib/api');
@@ -12,31 +14,124 @@ var topic = require('./commands/topic');
 var breaks = require('./commands/breaks');
 var wrapup = require('./commands/wrapup');
 
+module.exports = {
+    startProcessing: startProcessing
+}
+
 
 slack.on('authenticated', function (data) {
 
-    /* dumb slack stuff. commands are different for public and private channels */
-    if (conf.ENV === 'dev')
-        /* private channels */
-        data.groups.forEach(function (chan) {
-            if (chan.name === conf.channel[conf.ENV])
-                topic.topic = chan.topic.value;
-        });
+    //TODO
+    //set topics for all channels when joined
+    // if (isApprovedChannel(data))
+    //     //create channel objs
+    //     topic.topic = chan.topic.value;
 
-    else
-        /* public channels */
-        data.channels.forEach(function (chan) {
-            if (chan.name === conf.channel[conf.ENV])
-                topic.topic = chan.topic.value;
-        });
 });
 
 /* always listening */
 slack.on('message', function (data) {
-    if (slack.dataStore.getChannelGroupOrDMById(data.channel).name === conf.channel[conf.ENV] ||
-        slack.dataStore.getChannelGroupOrDMById(data.channel).name === conf.notifychannel[conf.ENV])
-        messageController.handle(data);
+
+
+
+    //ignore own messages
+    if (slack.dataStore.getUserById(data.user).name === 'breakbot.sftest')
+        return false;
+
+    if (globals.hasOwnProperty('breakbot-support'))
+        console.log('topic: ' + globals['breakbot-support'].topic)
+    //console.log(data)
+    startProcessing(data);
+
 });
+
+function startProcessing(data) {
+    //console.log('startProcessing data: ' + data)
+    let rawChannel = slack.dataStore.getChannelGroupOrDMById(data.channel);
+    //console.log(rawChannel);
+
+    //add plaintext channel name to message object, for reference later
+    data.name = rawChannel.name;
+
+    if (!isApprovedChannel(rawChannel.name))
+        return false;
+
+    updateChannelInfo(rawChannel);
+
+    //update topic
+    if (data.hasOwnProperty('subtype'))
+        if (data.subtype === 'group_topic' || data.subtype === 'channel_topic') {
+            //console.log(data)
+            globals[rawChannel.name].topic = data.topic;
+            // console.log('updating topic')
+            // console.log('data topic: ' + data.topic)
+        }
+
+    //console.log(globals[rawChannel.name]);
+
+    messageController.handle(data);
+}
+
+function updateChannelInfo(channel) {
+
+    //console.log('channel name: ' + channel.name);
+
+    if (globals.hasOwnProperty(channel.name)) {
+        //update topic if global channel object exists
+        //globals[channel.name].topic = channel.topic.value;
+        return false;
+    }
+
+    //global channel object
+    globals[channel.name] = {
+        name: channel.name,
+        id: channel.id,
+        topic: channel.topic.value,
+        //TODO
+        //make sure not to overwrite this data during restart
+        schedule: {},
+        breaks: {
+            active: {},
+            bio: {},
+            lunch: {},
+            out: {},
+            over: {},
+            meeting: {},
+            clearBreaks: clearBreaks
+        }
+
+    };
+}
+
+//delete all breaks for a user
+function clearBreaks(user, channel) {
+    delete globals[channel].breaks.active[user];
+    delete globals[channel].breaks.over[user];
+    delete globals[channel].breaks.lunch[user];
+    delete globals[channel].breaks.bio[user];
+}
+
+/*
+ * Returns true if we're in an approved channel
+ */
+function isApprovedChannel(channelName) {
+    /* dumb slack stuff. functions are different for public and private channels */
+
+    return conf.channels.indexOf(channelName) !== -1;
+        /* private channels */
+    // conf.channels.forEach(function (validChan) {
+    //     console.log(channelName, validChan);
+    //     if (channelName == validChan)
+    //         return true;
+    // });
+
+    // if (conf.ENV === 'dev')
+    //     return conf.channels.indexOf(channelName) !== -1;
+    //     /* public channels */
+    // else
+    //     return conf.channels.indexOf(channelName) !== -1;
+
+}
 
 function main() {
 
@@ -44,9 +139,9 @@ function main() {
 
     server.initserver();
 
-    breaks.restoreBreaks();
+    //breaks.restoreBreaks();
 
-    wrapup.restoreWrapup();
+    //wrapup.restoreWrapup();
 
     /* runs upkeep every second */
     setInterval(upkeep, 1000);

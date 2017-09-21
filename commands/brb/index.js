@@ -1,10 +1,12 @@
 var slack = require('../../lib/slack').rtm;
 var Promise = require('promise');
 
-var conf = require('../../conf/breaks.config');
+var conf = require('../../conf/config.breaks');
+let globals = require('../../conf/config.globals');
+
 var db = require('../../lib/database');
-var requests = require('../lc_requests');
-var breaks = require('../breaks');
+//var requests = require('../lc_requests');
+//var breaks = require('../breaks');
 
 var offs = {'!brb': 1, 'breakbot': 2};
 
@@ -20,6 +22,8 @@ module.exports = {
 };
 
 function brb(data) {
+    //console.log(Object.keys(globals))
+    let breaks = globals[data.name].breaks;
 
     if (data.text.split(' ')[0].match(/!brb/i) !== null)
         off = offs['!brb'];
@@ -37,19 +41,31 @@ function brb(data) {
     //    username = slack.dataStore.getUserByName(data.text.split(' ')[off + 1]).profile.email.split('@')[0];
 
     /* prevents users from logging out again if they're already logged out */
-    if (breaks.onbreak[username] || breaks.overbreak[username] || breaks.lunch[username] || breaks.bio[username]) {
+    if (breaks.active[username] || breaks.over[username] || breaks.lunch[username] || breaks.bio[username]) {
         slack.sendMessage('already on break', data.channel);
     }
     else {
         parseBreakTime(arg)
             .then(function (time) {
 
-                breaks.onbreak[username] = {remaining: time};
+                breaks.active[username] = {remaining: time};
 
                 /* sets agent status to "not accepting chats" */
                 slack.sendMessage('Set break for ' + username + ' for ' + time.toString() + ' minutes.', data.channel);
 
-                setBreak(username, time, data.channel);
+                // setBreak(username, time, data.channel);
+
+                if (typeof(breaks.out[username]) === 'number')
+                    delete breaks.out[username];
+
+                //breaks.active[username] = 1;
+
+                breaks.active[username] = {
+                    outTime: new Date().getTime(),
+                    duration: time,
+                    channel: data.channel,
+                    remaining: time
+                };
 
                 /* logging */
                 var logdata = {
@@ -74,11 +90,11 @@ function setBreak(username, time, channel) {
     if (typeof(breaks.out[username]) === 'number')
         delete breaks.out[username];
 
-    breaks.onbreak[username] = 1;
+    breaks.active[username] = 1;
 
     requests.changeStatus(username, 'not accepting chats')
         .then(function (res) {
-            breaks.onbreak[username] = {
+            breaks.active[username] = {
                 outTime: new Date().getTime(),
                 duration: time,
                 channel: channel,

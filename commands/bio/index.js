@@ -1,9 +1,10 @@
 var slack = require('../../lib/slack').rtm;
 
-var conf = require('../../conf/breaks.config');
+var conf = require('../../conf/config.breaks.js');
 var db = require('../../lib/database');
 var requests = require('../lc_requests');
-var breaks = require('../breaks');
+let globals = require('../../conf/config.globals');
+// var breaks = require('../breaks');
 
 var offs = {'!bio': 1, 'breakbot': 2};
 
@@ -16,6 +17,9 @@ module.exports = {
 };
 
 function bio(data) {
+
+    let breaks = globals[data.name].breaks;
+
     if (data.text.split(' ')[0].match(/!bio/i) !== null)
         off = offs['!bio'];
     else
@@ -30,15 +34,22 @@ function bio(data) {
     }
 
     delete breaks.out[username];
-    breaks.clearBreaks(username);
+    breaks.clearBreaks(username, data.name);
 
     /* sets agent status to "not accepting chats" */
     slack.sendMessage('Set ' + time.toString() + ' minute bio for ' + username + '.', data.channel);
 
-    setBreak(username, time, data.channel);
+    //setBreak(username, time, data.channel);
+
+    breaks.bio[username] = {
+        outTime: new Date().getTime(),
+        duration: time,
+        channel: data.channel,
+        remaining: time
+    };
 
     /* logging */
-    var logdata = {
+    let logdata = {
         username: username,
         command: '!bio',
         duration: time,

@@ -1,5 +1,7 @@
 var slack = require('../../lib/slack').rtm;
-var breaks = require('../breaks');
+
+let globals = require('../../conf/config.globals');
+//var breaks = require('../breaks');
 
 var offs = {'!list': 1, 'breakbot': 2};
 
@@ -10,6 +12,9 @@ module.exports = {
 };
 
 function list(data) {
+
+    let breaks = globals[data.name].breaks;
+    //console.log(breaks.active)
 
     if (data.text.split(' ')[0].match(/^!list/i) !== null)
         off = offs['!list'];
@@ -28,8 +33,9 @@ function list(data) {
             if (name.match(/^me$/ig) !== null)
                 name = username;
 
-            if (breaks.onbreak.hasOwnProperty(name) ||
-                breaks.overbreak.hasOwnProperty(name) ||
+            console.log(name);
+            if (breaks.active.hasOwnProperty(name) ||
+                breaks.over.hasOwnProperty(name) ||
                 breaks.out.hasOwnProperty(name) ||
                 breaks.lunch.hasOwnProperty(name) ||
                 breaks.bio.hasOwnProperty(name)) {
@@ -37,12 +43,14 @@ function list(data) {
                 //TODO
                 //log this
                 delete breaks.out[name];
-                breaks.clearBreaks(name);
+                breaks.clearBreaks(name, data.name);
                 slack.sendMessage('removed from break list: ' + name, data.channel);
+                console.log('removed breaks for: ' + name + ' in channel: ' + data.name);
                 return true;
 
             }
             else {
+                console.log(breaks.active.hasOwnProperty(name));
 
                 slack.sendMessage('not in any list: ' + name, data.channel);
                 return false;
@@ -56,9 +64,9 @@ function list(data) {
     var bio_list = '*Bathroom:* ';
 
     /* populates list of users currently on break, paired with the amount of time left on their break */
-    if (Object.keys(breaks.onbreak).length !== 0)
-        Object.keys(breaks.onbreak).forEach(function (user) {
-            onbreak_list = onbreak_list + user + ' (' + breaks.onbreak[user].remaining + 'm), ';
+    if (Object.keys(breaks.active).length !== 0)
+        Object.keys(breaks.active).forEach(function (user) {
+            onbreak_list = onbreak_list + user + ' (' + breaks.active[user].remaining + 'm), ';
         });
 
     if (Object.keys(breaks.lunch).length !== 0)
@@ -81,11 +89,11 @@ function list(data) {
     //changes !list to only show break types that have any data
     //e.g. it won't show the "on break" list if nobody is on break
     var list = '';
-    if (Object.keys(breaks.onbreak).length !== 0)
+    if (Object.keys(breaks.active).length !== 0)
         list += onbreak_list + '\n';
 
-    if (Object.keys(breaks.overbreak).length !== 0)
-        list += '*Over break:* ' +  Object.keys(breaks.overbreak).join(', ') + '\n';
+    if (Object.keys(breaks.over).length !== 0)
+        list += '*Over break:* ' +  Object.keys(breaks.over).join(', ') + '\n';
 
     if (Object.keys(breaks.out).length !== 0)
         list += '*Out:* ' + Object.keys(breaks.out).join(', ') + '\n';
@@ -97,14 +105,14 @@ function list(data) {
         list += bio_list + '\n';
     */
 
-    if (Object.keys(breaks.onbreak).length !== 0 ||
-        Object.keys(breaks.overbreak).length !== 0 ||
+    if (Object.keys(breaks.active).length !== 0 ||
+        Object.keys(breaks.over).length !== 0 ||
         Object.keys(breaks.out).length !== 0 ||
         Object.keys(breaks.lunch).length !== 0 ||
         Object.keys(breaks.bio).length !== 0) {
 
         slack.sendMessage(onbreak_list + '\n' +
-            '*Over break:* ' + Object.keys(breaks.overbreak).join(', ') + '\n' +
+            '*Over break:* ' + Object.keys(breaks.over).join(', ') + '\n' +
             '*Out:* ' + Object.keys(breaks.out).join(', ') + '\n' +
             lunch_list + '\n' +
             bio_list, data.channel);
