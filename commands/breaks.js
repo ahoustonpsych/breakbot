@@ -3,32 +3,30 @@ var fs = require('fs');
 var Promise = require('promise');
 
 var conf = require('../conf/config');
-var luncher = require('./luncher');
+let globals = require('../conf/config.globals');
+let luncher = require('./luncher');
 
-var onbreak = {};
+var active = {};
 var overbreak = {};
 var out = {};
 var lunch = {};
 var bio = {};
 
 module.exports = {
-    onbreak: onbreak,
-    overbreak: overbreak,
-    out: out,
-    lunch: lunch,
-    bio: bio,
     clearBreaks: clearBreaks,
     saveBreaks: saveBreaks,
     restoreBreaks: restoreBreaks
 };
 
-function clearBreaks(user) {
-    delete this.onbreak[user];
-    delete this.overbreak[user];
-    delete this.lunch[user];
-    delete this.bio[user];
+function clearBreaks(user, channel) {
+    delete globals[channel].breaks.active[user];
+    delete globals[channel].breaks.over[user];
+    delete globals[channel].breaks.lunch[user];
+    delete globals[channel].breaks.bio[user];
 }
 
+//TODO
+//fix break save/restore
 function saveBreaks() {
 
     var that = this;
@@ -36,15 +34,15 @@ function saveBreaks() {
     return new Promise(function (fulfill, reject) {
 
         /* all break data */
-        var breakdata = JSON.stringify(that.onbreak) + '\n' +
-            JSON.stringify(that.overbreak) + '\n' +
+        var breakdata = JSON.stringify(that.active) + '\n' +
+            JSON.stringify(that.over) + '\n' +
             JSON.stringify(that.out) + '\n' +
             JSON.stringify(that.lunch) + '\n' +
             JSON.stringify(that.bio) + '\n' +
             JSON.stringify(luncher.schedule);
 
         if (breakdata !== undefined) {
-            fs.writeFileSync(conf.savefile, breakdata);
+            fs.writeFileSync(conf.restore.savefile, breakdata);
             fulfill('success');
         }
 
@@ -57,7 +55,7 @@ function restoreBreaks() {
 
     var that = this;
 
-    fs.readFile(conf.savefile, 'utf8', function (err,res) {
+    fs.readFile(conf.restore.savefile, 'utf8', function (err,res) {
 
         if (err) console.error('not found');
 
@@ -71,8 +69,8 @@ function restoreBreaks() {
 
             breakdata = '{}\n{}\n{}\n{}\n{}\n{}';
 
-            that.onbreak = JSON.parse(rawbreaks[0]);
-            that.overbreak = JSON.parse(rawbreaks[1]);
+            that.active = JSON.parse(rawbreaks[0]);
+            that.over = JSON.parse(rawbreaks[1]);
             that.out = JSON.parse(rawbreaks[2]);
             that.lunch = JSON.parse(rawbreaks[3]);
             that.bio = JSON.parse(rawbreaks[4]);
@@ -89,7 +87,7 @@ function restoreBreaks() {
             });
 
             if (breakdata !== undefined) {
-                fs.writeFileSync(conf.savefile, breakdata);
+                fs.writeFileSync(conf.restore.savefile, breakdata);
             }
 
         }
