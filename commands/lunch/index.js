@@ -1,9 +1,10 @@
 var slack = require('../../lib/slack').rtm;
 
-var conf = require('../../conf/breaks.config');
+var conf = require('../../conf/config.breaks.js');
 var db = require('../../lib/database');
 var requests = require('../lc_requests');
-var breaks = require('../breaks');
+let globals = require('../../conf/config.globals');
+//var breaks = require('../breaks');
 var luncher = require('../luncher');
 
 var offs = {'!lunch': 1, 'breakbot': 2};
@@ -18,6 +19,8 @@ module.exports = {
 
 function lunch(data) {
 
+    let breaks = globals[data.name].breaks;
+
     if (data.text.split(' ')[0].match(/!lunch/i) !== null)
         off = offs['!lunch'];
     else
@@ -25,6 +28,8 @@ function lunch(data) {
 
     var username = slack.dataStore.getUserById(data.user).profile.email.split('@')[0];
     var arg = data.text.split(' ')[off];
+
+    console.log('USERNAME: ' + username)
 
     if (arg) {
         scheduler(data);
@@ -39,14 +44,22 @@ function lunch(data) {
             return;
         }
 
-        luncher.clearLunch(username);
+        luncher.clearLunch(username, data.name);
         delete breaks.out[username];
-        breaks.clearBreaks(username);
+        breaks.clearBreaks(username, data.name);
 
         /* sets agent status to "not accepting chats" */
         slack.sendMessage('Set lunch for ' + username + '. See you in 30 minutes!', data.channel);
 
-        setBreak(username, _time, data.channel);
+
+        breaks.lunch[username] = {
+            outTime: new Date().getTime(),
+            duration: _time,
+            channel: data.name,
+            remaining: _time
+        };
+
+        //setBreak(username, _time, data.channel);
 
         /* logging */
         var logdata = {
@@ -68,18 +81,25 @@ function lunch(data) {
  */
 function setBreak(username, time, channel) {
 
-    requests.changeStatus(username, 'not accepting chats')
-        .then(function (res) {
-            breaks.lunch[username] = {
-                outTime: new Date().getTime(),
-                duration: time,
-                channel: channel,
-                remaining: time
-            };
-        })
-        .catch(function (err) {
-            console.error('ERROR CHANGING STATUS', err);
-        });
+    breaks.lunch[username] = {
+        outTime: new Date().getTime(),
+        duration: time,
+        channel: channel,
+        remaining: time
+    };
+
+    // requests.changeStatus(username, 'not accepting chats')
+    //     .then(function (res) {
+    //         breaks.lunch[username] = {
+    //             outTime: new Date().getTime(),
+    //             duration: time,
+    //             channel: channel,
+    //             remaining: time
+    //         };
+    //     })
+    //     .catch(function (err) {
+    //         console.error('ERROR CHANGING STATUS', err);
+    //     });
 }
 
 
@@ -93,7 +113,10 @@ function scheduler(data) {
 
     //list command
     if (arg.match(/^list$/i) !== null) {
-        list = luncher.listLunch();
+        list = luncher.listLunch(data.name);
+
+        console.log('list: ')
+        console.log(list)
 
         if (!list) {
             slack.sendMessage('nobody scheduled for lunch', data.channel);
@@ -107,6 +130,7 @@ function scheduler(data) {
     }
 
     //rm command
+    //TODO split this into its own func
     else if (arg.match(/^rm$/i) !== null) {
         name = data.text.split(' ')[off+1];
 
@@ -120,7 +144,7 @@ function scheduler(data) {
         }
 
         //fail if lunch time doesn't exist
-        else if (!(luncher.clearLunch(name))) {
+        else if (!(luncher.clearLunch(name, data.name))) {
             slack.sendMessage('lunch not found for: ' + name, data.channel);
             return false;
         }
@@ -161,7 +185,7 @@ function scheduler(data) {
     }
 
     //fail if slot already taken
-    if (!(luncher.checkDupe(lunch))) {
+    if (!(luncher.checkDupe(lunch, data.name))) {
         slack.sendMessage('slot already taken: ' + time, data.channel);
         return false;
     }
@@ -169,7 +193,7 @@ function scheduler(data) {
     //add lunch if all else is good
     else {
         //but fail if they already have lunch scheduled
-        if (!(luncher.addLunch(user, lunch, data.channel)))
+        if (!(luncher.addLunch(user, lunch, data.name)))
             slack.sendMessage('already scheduled: ' + user, data.channel);
         else {
             //minute = (lunch.getMinutes().toString().length < 2) ? '0' + lunch.getMinutes() : lunch.getMinutes();
