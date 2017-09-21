@@ -1,6 +1,8 @@
 var slack = require('../../lib/slack').rtm;
 var topic = require('../topic');
 
+let globals = require('../../conf/config.globals');
+
 var offs = {'!add': 1, 'breakbot': 2};
 
 module.exports = {
@@ -30,5 +32,6 @@ function add(data) {
         if (arg.length === 0)
             arg = [slack.dataStore.getUserById(data.user).name];
 
-    topic.setTopic(data.channel, topic.topic + ' ' + arg.join(' '));
+    // topic.setTopic(data.channel, topic.topic + ' ' + arg.join(' '));
+    topic.setTopic(data, globals[data.name].topic + ' ' + arg.join(' '));
 }

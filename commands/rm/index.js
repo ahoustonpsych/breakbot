@@ -2,6 +2,8 @@ var slack = require('../../lib/slack').rtm;
 
 var topic = require('../topic');
 
+let globals = require('../../conf/config.globals');
+
 /* argument offsets, used to allow multi-word commands */
 var offs = {'!rm': 1, 'breakbot': 2};
 
@@ -11,7 +13,7 @@ module.exports = {
 };
 
 function rm(data) {
-    var newtopic = topic.topic;
+    let oldtopic = globals[data.name].topic;
 
     if (data.text.split(' ')[0].match(/!rm/i) !== null)
         off = offs['!rm'];
@@ -38,13 +40,14 @@ function rm(data) {
             arg = [slack.dataStore.getUserById(data.user).name];
 
     /* remove user(s) from topic */
-    replaceChatter(newtopic, arg, function (top) {
+    replaceChatter(oldtopic, arg, function (newtopic) {
         //callback
-        if (!(top instanceof Array))
-            topic.setTopic(data.channel, top);
+        console.log('newtopic: ' + newtopic)
+        if (!(newtopic instanceof Array))
+            topic.setTopic(data, newtopic);
 
         else
-            slack.sendMessage('not in topic: ' + top.join(' '), data.channel);
+            slack.sendMessage('not in topic: ' + newtopic.join(' '), data.channel);
 
     });
 }
@@ -62,7 +65,7 @@ function replaceChatter(top, arg, callback) {
 
         /* searches for a name in the topic and removes it */
         if (top.match(new RegExp(el, 'gi')) !== null) {
-            re = new RegExp('(,|, | )' + el, 'gi');
+            re = new RegExp('(,|, | |^)' + el, 'gi');
             top = top.replace(re, '');
         }
 
