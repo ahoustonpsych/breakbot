@@ -1,5 +1,7 @@
 var web = require('../lib/slack').web;
 
+let globals = require('../conf/config.globals');
+
 /*
  * global var used to represent the current topic
  */
@@ -37,17 +39,18 @@ module.exports = {
         return this.captains;
 
     },
-    setTopic: function (channel, newtopic) {
+    setTopic: function (chanObj, topic) {
 
+        //topic = globals[chanObj.name].topic + ' ' + newtopic;
         /* private channels */
-        if (channel[0] === 'G')
-            web.groups.setTopic(channel, newtopic);
+        if (chanObj.channel[0] === 'G')
+            web.groups.setTopic(chanObj.channel, topic);
 
         /* public channels */
         else
-            web.channels.setTopic(channel, newtopic);
+            web.channels.setTopic(chanObj.channel, topic);
 
-        this.topic = newtopic;
+        globals[chanObj.name].topic = topic;
 
     },
     getChatters: function () {
