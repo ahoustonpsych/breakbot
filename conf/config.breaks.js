@@ -1,4 +1,4 @@
-module.exports = {
+let config = {
     /* default break time, in minutes */
     defaultBreak: 5,
     /* max break time, in minutes */
@@ -10,3 +10,5 @@ module.exports = {
     /* how long to wait before expiring a lunch slot, in minutes */
     lunchExpire: 120
 };
+
+module.exports = config;
