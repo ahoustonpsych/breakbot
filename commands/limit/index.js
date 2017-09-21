@@ -19,6 +19,8 @@ module.exports = {
 };
 
 function limit(data) {
+    //disabling unless I need it
+    return false;
 
     //limit usage to captain channel
     if (slack.dataStore.getChannelGroupOrDMById(data.channel).name !== conf.notifychannel[conf.ENV]) {
@@ -85,13 +87,15 @@ function limit(data) {
         username = user;
     }
 
-    requests.changeLimit(username, newlimit)
-        .then(function (res) {
-            slack.sendMessage('Successfully changed chat limit for ' + username + ' (limit: ' + newlimit + ')', data.channel);
-        })
-        .catch(function (err) {
-            console.error(err);
-            console.error('ERROR CHANGING CHAT LIMIT');
-        })
+    slack.sendMessage('Successfully changed chat limit for ' + username + ' (limit: ' + newlimit + ')', data.channel);
+
+    // requests.changeLimit(username, newlimit)
+    //     .then(function (res) {
+    //         slack.sendMessage('Successfully changed chat limit for ' + username + ' (limit: ' + newlimit + ')', data.channel);
+    //     })
+    //     .catch(function (err) {
+    //         console.error(err);
+    //         console.error('ERROR CHANGING CHAT LIMIT');
+    //     })
 
 }
