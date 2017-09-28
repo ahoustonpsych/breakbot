@@ -1,3 +1,8 @@
+/*
+ * UNUSED
+ * should be deleted before rollout
+ */
+
 var https = require('https');
 var Promise = require('promise');
 
