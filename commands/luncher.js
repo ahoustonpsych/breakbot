@@ -1,5 +1,5 @@
 
-var slack = require('../lib/slack').rtm;
+let slack = require('../lib/slack').rtm;
 let globals = require('../conf/config.globals');
 
 module.exports = {
@@ -12,14 +12,14 @@ module.exports = {
 function addLunch(user, time, channel) {
 
     if (!(globals.hasOwnProperty(channel))) {
-        console.log('NO SCHEDULE: ' + Object.keys(globals))
+        console.log('NO SCHEDULE: ' + Object.keys(globals));
         return false;
     }
 
     let schedule = globals[channel].schedule;
 
     if (schedule.hasOwnProperty(user)) {
-        console.log('ALREADY SCHEDULED: ' + Object.keys(globals[channel]))
+        console.log('ALREADY SCHEDULED: ' + Object.keys(globals[channel]));
         return false;
     }
 
@@ -29,8 +29,8 @@ function addLunch(user, time, channel) {
         notified: 0
     };
 
-    console.log('SCHEDULE: ')
-    console.log(schedule[user])
+    console.log('SCHEDULE: ');
+    console.log(schedule[user]);
 
     return true;
 }
@@ -51,7 +51,7 @@ function clearLunch(user, channel) {
 function checkDupe(time, channel) {
     let schedule = globals[channel].schedule;
 
-    for (var user in this.schedule) {
+    for (let user in schedule) {
         if ((schedule[user].time.getHours() === time.getHours()) && (schedule[user].time.getMinutes() === time.getMinutes())) {
             return false;
         }
@@ -66,7 +66,7 @@ function listLunch(channel) {
 
     let list = [];
 
-    var lunch_list = '*Lunch times:* ';
+    let lunch_list = '*Lunch times:* ';
 
     if (!(globals.hasOwnProperty(channel)))
         return false;
