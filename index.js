@@ -12,11 +12,11 @@ var upkeep = require('./lib/upkeep').upkeep;
 
 var topic = require('./commands/topic');
 var breaks = require('./commands/breaks');
-var wrapup = require('./commands/wrapup');
+//var wrapup = require('./commands/wrapup');
 
 module.exports = {
     startProcessing: startProcessing
-}
+};
 
 
 slack.on('authenticated', function (data) {
@@ -33,16 +33,22 @@ slack.on('authenticated', function (data) {
 slack.on('message', function (data) {
 
 
-
     //ignore own messages
+    //TODO fix this
     if (slack.dataStore.getUserById(data.user).name === 'breakbot.sftest')
         return false;
 
-    if (globals.hasOwnProperty('breakbot-support'))
-        console.log('topic: ' + globals['breakbot-support'].topic)
     //console.log(data)
+
     startProcessing(data);
 
+});
+
+/* throw error if slack dies */
+slack.on('disconnect', data => {
+    console.error('**************SLACK DIED**************');
+    console.error(new Date());
+    throw new Error(data);
 });
 
 function startProcessing(data) {
@@ -115,9 +121,10 @@ function clearBreaks(user, channel) {
  * Returns true if we're in an approved channel
  */
 function isApprovedChannel(channelName) {
-    /* dumb slack stuff. functions are different for public and private channels */
 
     return conf.channels.indexOf(channelName) !== -1;
+
+    /* dumb slack stuff. functions are different for public and private channels */
         /* private channels */
     // conf.channels.forEach(function (validChan) {
     //     console.log(channelName, validChan);
