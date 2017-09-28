@@ -38,14 +38,14 @@ function lunch(data) {
 
     else {
 
-        /* prevents users from logging out again if they're already logged out */
+        /* prevents users from logging task again if they're already logged task */
         if (breaks.lunch[username] instanceof Object) {
             slack.sendMessage('already on lunch', data.channel);
             return;
         }
 
         luncher.clearLunch(username, data.name);
-        delete breaks.out[username];
+        delete breaks.task[username];
         breaks.clearBreaks(username, data.name);
 
         /* sets agent status to "not accepting chats" */
@@ -62,7 +62,7 @@ function lunch(data) {
         //setBreak(username, _time, data.channel);
 
         /* logging */
-        var logdata = {
+        let logdata = {
             username: username,
             command: '!lunch',
             duration: _time,
@@ -249,7 +249,7 @@ function parseTime(time) {
     if (minute % 15 !== 0)
         return false;
 
-    //fail if out of bounds
+    //fail if task of bounds
     if (hour > 23 || hour < 0 || minute > 59 || minute < 0)
         return false;
 

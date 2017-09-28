@@ -1,9 +1,9 @@
-var slack = require('../../lib/slack').rtm;
+let slack = require('../../lib/slack').rtm;
 
 let globals = require('../../conf/config.globals');
 //var breaks = require('../breaks');
 
-var offs = {'!list': 1, 'breakbot': 2};
+let offs = {'!list': 1, 'breakbot': 2};
 
 
 module.exports = {
@@ -21,9 +21,9 @@ function list(data) {
     else
         off = offs['breakbot'];
 
-    var username = slack.dataStore.getUserById(data.user).profile.email.split('@')[0];
-    var arg = data.text.split(' ')[off];
-    var name = data.text.split(' ')[off+1];
+    let username = slack.dataStore.getUserById(data.user).profile.email.split('@')[0];
+    let arg = data.text.split(' ')[off];
+    let name = data.text.split(' ')[off+1];
 
     //!list rm handling
     //removes user from the break lists
@@ -36,13 +36,13 @@ function list(data) {
             console.log(name);
             if (breaks.active.hasOwnProperty(name) ||
                 breaks.over.hasOwnProperty(name) ||
-                breaks.out.hasOwnProperty(name) ||
+                breaks.task.hasOwnProperty(name) ||
                 breaks.lunch.hasOwnProperty(name) ||
                 breaks.bio.hasOwnProperty(name)) {
 
                 //TODO
                 //log this
-                delete breaks.out[name];
+                delete breaks.task[name];
                 breaks.clearBreaks(name, data.name);
                 slack.sendMessage('removed from break list: ' + name, data.channel);
                 console.log('removed breaks for: ' + name + ' in channel: ' + data.name);
@@ -54,14 +54,13 @@ function list(data) {
 
                 slack.sendMessage('not in any list: ' + name, data.channel);
                 return false;
-
             }
         }
     }
 
-    var onbreak_list = '*On break:* ';
-    var lunch_list = '*On lunch:* ';
-    var bio_list = '*Bathroom:* ';
+    let onbreak_list = '*On break:* ';
+    let lunch_list = '*On lunch:* ';
+    let bio_list = '*Bathroom:* ';
 
     /* populates list of users currently on break, paired with the amount of time left on their break */
     if (Object.keys(breaks.active).length !== 0)
@@ -95,8 +94,8 @@ function list(data) {
     if (Object.keys(breaks.over).length !== 0)
         list += '*Over break:* ' +  Object.keys(breaks.over).join(', ') + '\n';
 
-    if (Object.keys(breaks.out).length !== 0)
-        list += '*Out:* ' + Object.keys(breaks.out).join(', ') + '\n';
+    if (Object.keys(breaks.task).length !== 0)
+        list += '*Out:* ' + Object.keys(breaks.task).join(', ') + '\n';
 
     if (Object.keys(breaks.lunch).length !== 0)
         list += lunch_list + '\n';
@@ -107,13 +106,13 @@ function list(data) {
 
     if (Object.keys(breaks.active).length !== 0 ||
         Object.keys(breaks.over).length !== 0 ||
-        Object.keys(breaks.out).length !== 0 ||
+        Object.keys(breaks.task).length !== 0 ||
         Object.keys(breaks.lunch).length !== 0 ||
         Object.keys(breaks.bio).length !== 0) {
 
         slack.sendMessage(onbreak_list + '\n' +
             '*Over break:* ' + Object.keys(breaks.over).join(', ') + '\n' +
-            '*Out:* ' + Object.keys(breaks.out).join(', ') + '\n' +
+            '*On task:* ' + Object.keys(breaks.task).join(', ') + '\n' +
             lunch_list + '\n' +
             bio_list, data.channel);
     }

@@ -27,13 +27,13 @@ function bio(data) {
 
     var username = slack.dataStore.getUserById(data.user).profile.email.split('@')[0];
 
-    /* prevents users from logging out again if they're already logged out */
+    /* prevents users from logging task again if they're already logged task */
     if (breaks.bio[username] instanceof Object) {
         slack.sendMessage('already on bio', data.channel);
         return;
     }
 
-    delete breaks.out[username];
+    delete breaks.task[username];
     breaks.clearBreaks(username, data.name);
 
     /* sets agent status to "not accepting chats" */

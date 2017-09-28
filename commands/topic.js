@@ -1,13 +1,13 @@
-var web = require('../lib/slack').web;
+let web = require('../lib/slack').web;
 
 let globals = require('../conf/config.globals');
 
 /*
  * global var used to represent the current topic
  */
-var topic = '';
-var _notifytopic = '';
-var captains = [];
+let topic = '';
+let _notifytopic = '';
+let captains = [];
 
 /*
  * topic handler
@@ -16,6 +16,7 @@ module.exports = {
     topic: topic,
     _notifytopic: _notifytopic,
     captains: captains,
+    //maybe remove
     setCaptains: function () {
 
         if (conf.ENV === 'dev')
@@ -31,6 +32,7 @@ module.exports = {
                 })
 
     },
+    //maybe remove
     getCaptains: function () {
 
         if (!(this.captains instanceof Array))

@@ -9,7 +9,7 @@ var offs = {'!limit': 1, 'breakbot': 2};
 
 /*
  * USAGE:
- * !out [user]
+ * !task [user]
  * sets [user] to "not accepting chats" indefinitely
  * [user] defaults to the user that sent the message, if not given
  */

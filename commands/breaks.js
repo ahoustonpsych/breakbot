@@ -1,16 +1,16 @@
-var fs = require('fs');
+let fs = require('fs');
 
-var Promise = require('promise');
+let Promise = require('promise');
 
-var conf = require('../conf/config');
+let conf = require('../conf/config');
 let globals = require('../conf/config.globals');
 let luncher = require('./luncher');
 
-var active = {};
-var overbreak = {};
-var out = {};
-var lunch = {};
-var bio = {};
+let active = {};
+let overbreak = {};
+let out = {};
+let lunch = {};
+let bio = {};
 
 module.exports = {
     clearBreaks: clearBreaks,
@@ -29,14 +29,14 @@ function clearBreaks(user, channel) {
 //fix break save/restore
 function saveBreaks() {
 
-    var that = this;
+    let that = this;
 
     return new Promise(function (fulfill, reject) {
 
         /* all break data */
-        var breakdata = JSON.stringify(that.active) + '\n' +
+        let breakdata = JSON.stringify(that.active) + '\n' +
             JSON.stringify(that.over) + '\n' +
-            JSON.stringify(that.out) + '\n' +
+            JSON.stringify(that.task) + '\n' +
             JSON.stringify(that.lunch) + '\n' +
             JSON.stringify(that.bio) + '\n' +
             JSON.stringify(luncher.schedule);
@@ -53,7 +53,7 @@ function saveBreaks() {
 
 function restoreBreaks() {
 
-    var that = this;
+    let that = this;
 
     fs.readFile(conf.restore.savefile, 'utf8', function (err,res) {
 
@@ -65,13 +65,13 @@ function restoreBreaks() {
 
         else {
 
-            var rawbreaks = res.split('\n');
+            let rawbreaks = res.split('\n');
 
             breakdata = '{}\n{}\n{}\n{}\n{}\n{}';
 
             that.active = JSON.parse(rawbreaks[0]);
             that.over = JSON.parse(rawbreaks[1]);
-            that.out = JSON.parse(rawbreaks[2]);
+            that.task = JSON.parse(rawbreaks[2]);
             that.lunch = JSON.parse(rawbreaks[3]);
             that.bio = JSON.parse(rawbreaks[4]);
 

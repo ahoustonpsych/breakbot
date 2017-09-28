@@ -1,14 +1,14 @@
-var slack = require('../../lib/slack').rtm;
-var Promise = require('promise');
+let slack = require('../../lib/slack').rtm;
+let Promise = require('promise');
 
-var conf = require('../../conf/config.breaks');
+let conf = require('../../conf/config.breaks');
 let globals = require('../../conf/config.globals');
 
-var db = require('../../lib/database');
+let db = require('../../lib/database');
 //var requests = require('../lc_requests');
 //var breaks = require('../breaks');
 
-var offs = {'!brb': 1, 'breakbot': 2};
+let offs = {'!brb': 1, 'breakbot': 2};
 
 /* USAGE:
  * !brb [time]
@@ -30,17 +30,17 @@ function brb(data) {
     else
         off = offs['breakbot'];
 
-    var username = slack.dataStore.getUserById(data.user).profile.email.split('@')[0];
-    var arg = data.text.split(' ')[off];
+    let username = slack.dataStore.getUserById(data.user).profile.email.split('@')[0];
+    let arg = data.text.split(' ')[off];
 
     if (arg && arg.match(/me/i) !== null)
         arg = data.text.split(' ')[off + 1];
 
-    /* debug. allows you to do !brb [time] [user] to log someone else out */
+    /* debug. allows you to do !brb [time] [user] to log someone else task */
     //if (data.text.split(' ')[off + 1])
     //    username = slack.dataStore.getUserByName(data.text.split(' ')[off + 1]).profile.email.split('@')[0];
 
-    /* prevents users from logging out again if they're already logged out */
+    /* prevents users from logging task again if they're already logged task */
     if (breaks.active[username] || breaks.over[username] || breaks.lunch[username] || breaks.bio[username]) {
         slack.sendMessage('already on break', data.channel);
     }
@@ -55,8 +55,8 @@ function brb(data) {
 
                 // setBreak(username, time, data.channel);
 
-                if (typeof(breaks.out[username]) === 'number')
-                    delete breaks.out[username];
+                if (breaks.task.hasOwnProperty(username))
+                    delete breaks.task[username];
 
                 //breaks.active[username] = 1;
 
@@ -68,7 +68,7 @@ function brb(data) {
                 };
 
                 /* logging */
-                var logdata = {
+                let logdata = {
                     username: username,
                     command: '!brb',
                     duration: time,
@@ -87,8 +87,8 @@ function brb(data) {
  * sets break timer for [time] minutes
  */
 function setBreak(username, time, channel) {
-    if (typeof(breaks.out[username]) === 'number')
-        delete breaks.out[username];
+    if (typeof(breaks.task[username]) === 'number')
+        delete breaks.task[username];
 
     breaks.active[username] = 1;
 

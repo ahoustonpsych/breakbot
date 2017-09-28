@@ -42,7 +42,7 @@ function logIn(data, username) {
     slack.sendMessage(username + ': you have been logged back in.', data.channel);
 
     breaks.clearBreaks(username, data.name);
-    delete breaks.out[username];
+    delete breaks.task[username];
 
     /* logging */
     let logdata = {

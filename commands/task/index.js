@@ -4,30 +4,30 @@ let globals = require('../../conf/config.globals');
 //var breaks = require('../breaks');
 var db = require('../../lib/database');
 
-var offs = {'!out': 1, 'breakbot': 2};
+var offs = {'!task': 1, 'breakbot': 2};
 
 /*
  * USAGE:
- * !out [user]
+ * !task [user]
  * sets [user] to "not accepting chats" indefinitely
  * [user] defaults to the user that sent the message, if not given
  */
 module.exports = {
-    expr: /^(!out)|(breakbot:? out)/i,
-    run: out
+    expr: /^(!task)|(breakbot:? task)/i,
+    run: task
 };
 
-function out(data) {
+function task(data) {
 
-    if (data.text.split(' ')[0].match(/^!out/i) !== null)
-        off = offs['!out'];
+    if (data.text.split(' ')[0].match(/^!task/i) !== null)
+        off = offs['!task'];
     else
         off = offs['breakbot'];
 
-    /* list of users passed into !out */
+    /* list of users passed into !task */
     var users = undefined;
 
-    /* user who sent the !out message */
+    /* user who sent the !task message */
     var user = slack.dataStore.getUserById(data.user).profile.email.split('@')[0];
 
     /* split up the list of users, discarding 'invalid' ones except for 'me' */
@@ -65,41 +65,42 @@ function out(data) {
     else
         users = [user];
 
-    /* log out users */
+    /* log task users */
     if (users instanceof Array)
-        logOut(data, users);
+        putOnTask(data, users);
 
     else
-        console.error('INVALID LIST OF USERS FOR !out: ' + users);
+        console.error('INVALID LIST OF USERS FOR !task: ' + users);
 
 }
 
-function logOut(data, users) {
+function putOnTask(data, users) {
 
     let breaks = globals[data.name].breaks;
 
     if (users.length > 1)
-        slack.sendMessage('Logged out: ' + users.join(' ') + '. Please use *!back* to log back in when you are ready',
+        slack.sendMessage('Put on task: ' + users.join(' ') + '. Please use *!back* to log back in when you are done',
             data.channel);
 
     else if (users.length == 1)
-        slack.sendMessage('Logged out ' + users + '. Please use *!back* to log back in when you are ready',
+        slack.sendMessage('Put on task: ' + users + '. Please use *!back* to log back in when you are done',
             data.channel);
 
     else
-        console.error('invalid user list for !out somehow: ' + users);
+        console.error('invalid user list for !task somehow: ' + users);
 
-    /* log out each user */
+    /* log task each user */
     users.forEach(function (user) {
 
         /* nuke existing breaks */
         breaks.clearBreaks(user, data.name);
-        breaks.out[user] = new Date().getTime();
+        breaks.task[user] = new Date().getTime();
 
         /* logging */
-        var logdata = {
+        //TODO log reason
+        let logdata = {
             username: user,
-            command: '!out',
+            command: '!task',
             date: 'now'
         };
 
@@ -114,7 +115,7 @@ function logOut(data, users) {
         //         /* logging */
         //         var logdata = {
         //             username: user,
-        //             command: '!out',
+        //             command: '!task',
         //             date: 'now'
         //         };
         //

@@ -100,7 +100,7 @@ function updateChannelInfo(channel) {
             active: {},
             bio: {},
             lunch: {},
-            out: {},
+            task: {},
             over: {},
             meeting: {},
             clearBreaks: clearBreaks
