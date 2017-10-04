@@ -6,24 +6,11 @@ let conf = require('../conf/config');
 let globals = require('../conf/config.globals');
 let luncher = require('./luncher');
 
-let active = {};
-let overbreak = {};
-let out = {};
-let lunch = {};
-let bio = {};
 
 module.exports = {
-    clearBreaks: clearBreaks,
     saveBreaks: saveBreaks,
     restoreBreaks: restoreBreaks
 };
-
-function clearBreaks(user, channel) {
-    delete globals[channel].breaks.active[user];
-    delete globals[channel].breaks.over[user];
-    delete globals[channel].breaks.lunch[user];
-    delete globals[channel].breaks.bio[user];
-}
 
 //TODO
 //fix break save/restore
