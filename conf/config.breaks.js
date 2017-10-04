@@ -8,7 +8,9 @@ let config = {
     /* grace period after a chat ends, in seconds */
     wrapupTime: 45,
     /* how long to wait before expiring a lunch slot, in minutes */
-    lunchExpire: 120
+    lunchExpire: 120,
+    /* maximum number of breaks someone can take per day */
+    maxDailyBreaks: 5,
 };
 
 module.exports = config;

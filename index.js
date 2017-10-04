@@ -1,21 +1,23 @@
 
-var slack = require('./lib/slack').rtm;
+let slack = require('./lib/slack').rtm;
 
-var conf = require('./conf/config');
+let conf = require('./conf/config');
+let conf_breaks = require('./conf/config.breaks');
 
-var globals = require('./conf/config.globals');
+let globals = require('./conf/config.globals');
 
-var messageController = require('./lib/messageController');
-var db = require('./lib/database');
-var server = require('./lib/api');
-var upkeep = require('./lib/upkeep').upkeep;
+let messageController = require('./lib/messageController');
+let db = require('./lib/database');
+let server = require('./lib/api');
+let upkeep = require('./lib/upkeep').upkeep;
 
-var topic = require('./commands/topic');
-var breaks = require('./commands/breaks');
-//var wrapup = require('./commands/wrapup');
+let topic = require('./commands/topic');
+let breaks = require('./commands/breaks');
+//let wrapup = require('./commands/wrapup');
 
 module.exports = {
-    startProcessing: startProcessing
+    startProcessing: startProcessing,
+    updateChannelInfo: updateChannelInfo
 };
 
 
@@ -78,9 +80,8 @@ function startProcessing(data) {
     messageController.handle(data);
 }
 
+//TODO
 function updateChannelInfo(channel) {
-
-    //console.log('channel name: ' + channel.name);
 
     if (globals.hasOwnProperty(channel.name)) {
         //update topic if global channel object exists
@@ -103,6 +104,8 @@ function updateChannelInfo(channel) {
             task: {},
             over: {},
             meeting: {},
+            count: {},
+            increment: increaseBreakCount,
             clearBreaks: clearBreaks
         }
 
@@ -117,27 +120,34 @@ function clearBreaks(user, channel) {
     delete globals[channel].breaks.bio[user];
 }
 
+/* increments user's break count for the day */
+function increaseBreakCount(channel, user) {
+    if (globals.hasOwnProperty(channel)) {
+        if (!(globals[channel].breaks.count.hasOwnProperty(user))) {
+            globals[channel].breaks.count[user] = 1;
+            return true;
+        }
+        else if (globals[channel].breaks.count[user] < conf_breaks.maxDailyBreaks) {
+            globals[channel].breaks.count[user] += 1;
+            return true;
+        }
+        else if (globals[channel].breaks.count[user] === conf_breaks.maxDailyBreaks) {
+            console.log(new Date().toLocaleString() + ' ' + user + ' exceeded maximum daily breaks');
+            return false;
+        }
+        else {
+            console.error('BAD BREAK COUNT:');
+            console.error(globals[channel].breaks.count);
+        }
+    }
+
+}
+
 /*
  * Returns true if we're in an approved channel
  */
 function isApprovedChannel(channelName) {
-
     return conf.channels.indexOf(channelName) !== -1;
-
-    /* dumb slack stuff. functions are different for public and private channels */
-        /* private channels */
-    // conf.channels.forEach(function (validChan) {
-    //     console.log(channelName, validChan);
-    //     if (channelName == validChan)
-    //         return true;
-    // });
-
-    // if (conf.ENV === 'dev')
-    //     return conf.channels.indexOf(channelName) !== -1;
-    //     /* public channels */
-    // else
-    //     return conf.channels.indexOf(channelName) !== -1;
-
 }
 
 function main() {

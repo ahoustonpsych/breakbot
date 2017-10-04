@@ -1,15 +1,15 @@
-var slack = require('../../lib/slack').rtm;
+let slack = require('../../lib/slack').rtm;
 
-var conf = require('../../conf/config.breaks.js');
-var db = require('../../lib/database');
-var requests = require('../lc_requests');
+let conf = require('../../conf/config.breaks.js');
+let db = require('../../lib/database');
+let requests = require('../lc_requests');
 let globals = require('../../conf/config.globals');
 // var breaks = require('../breaks');
 
-var offs = {'!bio': 1, 'breakbot': 2};
+let offs = {'!bio': 1, 'breakbot': 2};
 
 /* bio time */
-var time = 5;
+let time = 5;
 
 module.exports = {
     expr: /^(!bio)|(breakbot:? bio)/i,
@@ -25,12 +25,17 @@ function bio(data) {
     else
         off = offs['breakbot'];
 
-    var username = slack.dataStore.getUserById(data.user).profile.email.split('@')[0];
+    let username = slack.dataStore.getUserById(data.user).profile.email.split('@')[0];
 
     /* prevents users from logging task again if they're already logged task */
     if (breaks.bio[username] instanceof Object) {
         slack.sendMessage('already on bio', data.channel);
-        return;
+        return false;
+    }
+
+    if (!(globals[data.name].breaks.increment(data.name, username))) {
+        slack.sendMessage('err: hit daily break limit (' + conf.maxDailyBreaks + ')', data.channel);
+        return false;
     }
 
     delete breaks.task[username];

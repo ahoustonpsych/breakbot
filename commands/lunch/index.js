@@ -1,13 +1,13 @@
-var slack = require('../../lib/slack').rtm;
+let slack = require('../../lib/slack').rtm;
 
-var conf = require('../../conf/config.breaks.js');
-var db = require('../../lib/database');
-var requests = require('../lc_requests');
+let conf = require('../../conf/config.breaks.js');
+let db = require('../../lib/database');
+//let requests = require('../lc_requests');
 let globals = require('../../conf/config.globals');
-//var breaks = require('../breaks');
-var luncher = require('../luncher');
+//let breaks = require('../breaks');
+let luncher = require('../luncher');
 
-var offs = {'!lunch': 1, 'breakbot': 2};
+let offs = {'!lunch': 1, 'breakbot': 2};
 
 /* lunch time */
 const _time = 30;
@@ -26,10 +26,10 @@ function lunch(data) {
     else
         off = offs['breakbot'];
 
-    var username = slack.dataStore.getUserById(data.user).profile.email.split('@')[0];
-    var arg = data.text.split(' ')[off];
+    let username = slack.dataStore.getUserById(data.user).profile.email.split('@')[0];
+    let arg = data.text.split(' ')[off];
 
-    console.log('USERNAME: ' + username)
+    //console.log('USERNAME: ' + username)
 
     if (arg) {
         scheduler(data);
@@ -38,7 +38,7 @@ function lunch(data) {
 
     else {
 
-        /* prevents users from logging task again if they're already logged task */
+        /* prevents users from logging out again if they're already logged out */
         if (breaks.lunch[username] instanceof Object) {
             slack.sendMessage('already on lunch', data.channel);
             return;
@@ -48,9 +48,13 @@ function lunch(data) {
         delete breaks.task[username];
         breaks.clearBreaks(username, data.name);
 
+        if (!(globals[data.name].breaks.increment(data.name, username))) {
+            slack.sendMessage('err: hit daily break limit (' + conf.maxDailyBreaks + ')', data.channel);
+            return false;
+        }
+
         /* sets agent status to "not accepting chats" */
         slack.sendMessage('Set lunch for ' + username + '. See you in 30 minutes!', data.channel);
-
 
         breaks.lunch[username] = {
             outTime: new Date().getTime(),
@@ -105,8 +109,8 @@ function setBreak(username, time, channel) {
 
 function scheduler(data) {
 
-    var user = slack.dataStore.getUserById(data.user).profile.email.split('@')[0];
-    var arg = data.text.split(' ')[off];
+    let user = slack.dataStore.getUserById(data.user).profile.email.split('@')[0];
+    let arg = data.text.split(' ')[off];
 
     if (!arg)
         return false;
@@ -115,8 +119,8 @@ function scheduler(data) {
     if (arg.match(/^list$/i) !== null) {
         list = luncher.listLunch(data.name);
 
-        console.log('list: ')
-        console.log(list)
+        // console.log('list: ')
+        // console.log(list)
 
         if (!list) {
             slack.sendMessage('nobody scheduled for lunch', data.channel);
@@ -205,12 +209,12 @@ function scheduler(data) {
 //returns date obj if time is valid, false otherwise
 function parseTime(time) {
 
-    var hour = -1;
-    var minute = -1;
+    let hour = -1;
+    let minute = -1;
 
-    var timeobj = new Date();
+    let timeobj = new Date();
 
-    var lunchtime = undefined;
+    let lunchtime = undefined;
 
     if (typeof(time) !== 'string')
         return false;

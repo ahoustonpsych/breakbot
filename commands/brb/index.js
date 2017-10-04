@@ -43,10 +43,16 @@ function brb(data) {
     /* prevents users from logging task again if they're already logged task */
     if (breaks.active[username] || breaks.over[username] || breaks.lunch[username] || breaks.bio[username]) {
         slack.sendMessage('already on break', data.channel);
+        return false;
     }
     else {
         parseBreakTime(arg)
             .then(function (time) {
+
+                if (!(globals[data.name].breaks.increment(data.name, username))) {
+                    slack.sendMessage('err: hit daily break limit (' + conf.maxDailyBreaks + ')', data.channel);
+                    return false;
+                }
 
                 breaks.active[username] = {remaining: time};
 
@@ -57,8 +63,6 @@ function brb(data) {
 
                 if (breaks.task.hasOwnProperty(username))
                     delete breaks.task[username];
-
-                //breaks.active[username] = 1;
 
                 breaks.active[username] = {
                     outTime: new Date().getTime(),
