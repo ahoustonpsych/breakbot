@@ -50,7 +50,7 @@ function list(data) {
 
             }
             else {
-                console.log(breaks.active.hasOwnProperty(name));
+                //console.log(breaks.active.hasOwnProperty(name));
 
                 slack.sendMessage('not in any list: ' + name, data.channel);
                 return false;
