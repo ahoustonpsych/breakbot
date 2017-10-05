@@ -1,7 +1,7 @@
-var slack = require('../../lib/slack').rtm;
-var db = require('../../lib/database');
+let slack = require('../../lib/slack').rtm;
+let db = require('../../lib/database');
 
-var helpMsg =
+let helpMsg =
     'Command list: https://wiki.int.liquidweb.com/articles/breakbot';
 
 /*
@@ -17,7 +17,7 @@ module.exports = {
 function help(data) {
     slack.sendMessage(helpMsg, data.channel);
     /* logging */
-    var logdata = {
+    let logdata = {
         date: 'now',
         command: '!help'
     };
