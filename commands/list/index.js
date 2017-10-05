@@ -45,13 +45,11 @@ function list(data) {
                 delete breaks.task[name];
                 breaks.clearBreaks(name, data.name);
                 slack.sendMessage('removed from break list: ' + name, data.channel);
-                console.log('removed breaks for: ' + name + ' in channel: ' + data.name);
+                console.log(new Date().toLocaleString() + ' removed breaks for: ' + name + ' in channel: ' + data.name);
                 return true;
-
             }
-            else {
-                //console.log(breaks.active.hasOwnProperty(name));
 
+            else {
                 slack.sendMessage('not in any list: ' + name, data.channel);
                 return false;
             }

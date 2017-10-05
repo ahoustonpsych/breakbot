@@ -11,6 +11,10 @@ let config = {
     lunchExpire: 120,
     /* maximum number of breaks someone can take per day */
     maxDailyBreaks: 5,
+    /* maximum number of people on break at a time */
+    maxOnBreak: 5,
+    /* minimum time required between two breaks, in minutes*/
+    breakCooldown: 30
 };
 
 module.exports = config;

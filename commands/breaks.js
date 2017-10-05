@@ -3,11 +3,17 @@ let fs = require('fs');
 let Promise = require('promise');
 
 let conf = require('../conf/config');
+let conf_breaks = require('../conf/config.breaks');
 let globals = require('../conf/config.globals');
 let luncher = require('./luncher');
 
+let slack = require('../lib/slack').rtm;
+
+let breaks;
 
 module.exports = {
+    isOnBreak: isOnBreak,
+    canTakeBreak: canTakeBreak,
     saveBreaks: saveBreaks,
     restoreBreaks: restoreBreaks
 };
@@ -79,4 +85,52 @@ function restoreBreaks() {
 
         }
     });
+}
+
+function isOnBreak(user, channel) {
+    return !!globals[channel].breaks.active[user]
+    || !!globals[channel].breaks.task[user]
+    || !!globals[channel].breaks.bio[user]
+    || !!globals[channel].breaks.over[user]
+    || !!globals[channel].breaks.lunch[user];
+}
+
+function canTakeBreak(user, channel) {
+    breaks = globals[channel].breaks;
+    let chanId = slack.dataStore.getChannelOrGroupByName(channel).id;
+
+    if (isOnBreak(user, channel)) {
+        slack.sendMessage('already on break', chanId);
+        return false;
+    }
+
+    if (breaks.cooldown.hasOwnProperty(user)) {
+        slack.sendMessage('too soon since last break', chanId);
+        return false;
+    }
+
+    if (!(globals[channel].breaks.increment(user, channel))) {
+        slack.sendMessage('err: hit daily break limit (' + conf_breaks.maxDailyBreaks + ')', chanId);
+        return false;
+    }
+
+    if (!slotAvailable(channel)) {
+        slack.sendMessage('err: too many people on break. check !list', chanId);
+        return false;
+    }
+
+    return true;
+}
+
+function slotAvailable(channel) {
+    let totalOut =
+        Object.keys(breaks.active).length +
+        Object.keys(breaks.bio).length +
+        Object.keys(breaks.lunch).length +
+        Object.keys(breaks.task).length +
+        Object.keys(breaks.over).length;
+
+    console.log(totalOut);
+
+    return totalOut < conf_breaks.maxOnBreak;
 }

@@ -1,13 +1,13 @@
-var slack = require('../../lib/slack').rtm;
+let slack = require('../../lib/slack').rtm;
 
-var db = require('../../lib/database');
-var requests = require('../lc_requests');
+let db = require('../../lib/database');
 let globals = require('../../conf/config.globals');
-let breaks;
-//var breaks = require('../breaks');
+let breakLib = require('../breaks');
+
+let conf_breaks = require('../../conf/config.breaks');
 
 /* argument offsets, used to allow multi-word commands */
-var offs = {'!back': 1, 'breakbot': 2};
+let offs = {'!back': 1, 'breakbot': 2};
 
 /*
  * USAGE:
@@ -28,12 +28,17 @@ function back(data) {
 
     let username = slack.dataStore.getUserById(data.user).profile.email.split('@')[0];
 
+    if (!breakLib.isOnBreak(username, data.name)) {
+        slack.sendMessage('not on break', data.channel);
+        return false;
+    }
+
     //if (data.text.split(' ')[off])
     //    username = slack.dataStore.getUserByName(data.text.split(' ')[off]).profile.email.split('@')[0];
     logIn(data, username);
 
 }
-
+let t;
 /* log user in */
 function logIn(data, username) {
 
@@ -44,32 +49,21 @@ function logIn(data, username) {
     breaks.clearBreaks(username, data.name);
     delete breaks.task[username];
 
+    breaks.cooldown[username] = setTimeout(() => {
+        delete breaks.cooldown[username];
+        console.log(new Date().toLocaleString() + ' break cooldown expired for ' + username);
+    }, 1000 * conf_breaks.breakCooldown);
+
     /* logging */
     let logdata = {
         username: username,
         date: 'now',
         command: '!back'
     };
+
     db.log('command_history', logdata)
         .catch(function (err) {
-            console.error('ERROR LOGGING COMMAND', err);
+            console.error(new Date().toLocaleString() + ' ERROR LOGGING COMMAND', err);
         });
 
-    // requests.changeStatus(username, 'accepting chats')
-    //     .then(function (res) {
-    //
-    //         /* logging */
-    //         var logdata = {
-    //             username: username,
-    //             date: 'now',
-    //             command: '!back'
-    //         };
-    //         db.log('command_history', logdata)
-    //             .catch(function (err) {
-    //                 console.error('ERROR LOGGING COMMAND', err);
-    //             });
-    //     })
-    //     .catch(function (err) {
-    //         console.error('ERROR CHANGING STATUS', err);
-    //     });
 }

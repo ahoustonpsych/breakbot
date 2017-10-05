@@ -6,7 +6,7 @@ let globals = require('../../conf/config.globals');
 
 let db = require('../../lib/database');
 //var requests = require('../lc_requests');
-//var breaks = require('../breaks');
+let breakLib = require('../breaks');
 
 let offs = {'!brb': 1, 'breakbot': 2};
 
@@ -40,51 +40,58 @@ function brb(data) {
     //if (data.text.split(' ')[off + 1])
     //    username = slack.dataStore.getUserByName(data.text.split(' ')[off + 1]).profile.email.split('@')[0];
 
-    /* prevents users from logging task again if they're already logged task */
-    if (breaks.active[username] || breaks.over[username] || breaks.lunch[username] || breaks.bio[username]) {
-        slack.sendMessage('already on break', data.channel);
+    if (!breakLib.canTakeBreak(username, data.name))
         return false;
-    }
-    else {
-        parseBreakTime(arg)
-            .then(function (time) {
 
-                if (!(globals[data.name].breaks.increment(data.name, username))) {
-                    slack.sendMessage('err: hit daily break limit (' + conf.maxDailyBreaks + ')', data.channel);
-                    return false;
-                }
+    /* prevents users from logging out again if they're already logged out */
+    // if (breakLib.isOnBreak(username, data.name)) {
+    //     slack.sendMessage('already on break', data.channel);
+    //     return false;
+    // }
+    //
+    // if (breaks.cooldown.hasOwnProperty(username)) {
+    //     slack.sendMessage('too soon since last break', data.channel);
+    //     return false;
+    // }
+    //
+    // if (!(globals[data.name].breaks.increment(data.name, username))) {
+    //     slack.sendMessage('err: hit daily break limit (' + conf.maxDailyBreaks + ')', data.channel);
+    //     return false;
+    // }
 
-                breaks.active[username] = {remaining: time};
+    parseBreakTime(arg)
+        .then(function (time) {
 
-                /* sets agent status to "not accepting chats" */
-                slack.sendMessage('Set break for ' + username + ' for ' + time.toString() + ' minutes.', data.channel);
+            breaks.active[username] = {remaining: time};
 
-                // setBreak(username, time, data.channel);
+            /* sets agent status to "not accepting chats" */
+            slack.sendMessage('Set break for ' + username + ' for ' + time.toString() + ' minutes.', data.channel);
 
-                if (breaks.task.hasOwnProperty(username))
-                    delete breaks.task[username];
+            // setBreak(username, time, data.channel);
 
-                breaks.active[username] = {
-                    outTime: new Date().getTime(),
-                    duration: time,
-                    channel: data.channel,
-                    remaining: time
-                };
+            if (breaks.task.hasOwnProperty(username))
+                delete breaks.task[username];
 
-                /* logging */
-                let logdata = {
-                    username: username,
-                    command: '!brb',
-                    duration: time,
-                    date: 'now'
-                };
+            breaks.active[username] = {
+                outTime: new Date().getTime(),
+                duration: time,
+                channel: data.channel,
+                remaining: time
+            };
 
-                db.log('command_history', logdata);
-            })
-            .catch(function (err) {
-                console.error('ERROR PARSING BREAK TIME', err);
-            });
-    }
+            /* logging */
+            let logdata = {
+                username: username,
+                command: '!brb',
+                duration: time,
+                date: 'now'
+            };
+
+            db.log('command_history', logdata);
+        })
+        .catch(function (err) {
+            console.error(new Date().toLocaleString() + ' ERROR PARSING BREAK TIME', err);
+        });
 }
 
 /*

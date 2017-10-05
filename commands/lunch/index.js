@@ -4,7 +4,7 @@ let conf = require('../../conf/config.breaks.js');
 let db = require('../../lib/database');
 //let requests = require('../lc_requests');
 let globals = require('../../conf/config.globals');
-//let breaks = require('../breaks');
+let breakLib = require('../breaks');
 let luncher = require('../luncher');
 
 let offs = {'!lunch': 1, 'breakbot': 2};
@@ -36,48 +36,49 @@ function lunch(data) {
         return true;
     }
 
-    else {
 
-        /* prevents users from logging out again if they're already logged out */
-        if (breaks.lunch[username] instanceof Object) {
-            slack.sendMessage('already on lunch', data.channel);
-            return;
-        }
+    /* prevents users from logging out again if they're already logged out */
+    // if (breaks.lunch[username] instanceof Object) {
+    //     slack.sendMessage('already on lunch', data.channel);
+    //     return;
+    // }
 
-        luncher.clearLunch(username, data.name);
-        delete breaks.task[username];
-        breaks.clearBreaks(username, data.name);
+    if (!breakLib.canTakeBreak(username, data.name))
+        return false;
 
-        if (!(globals[data.name].breaks.increment(data.name, username))) {
-            slack.sendMessage('err: hit daily break limit (' + conf.maxDailyBreaks + ')', data.channel);
-            return false;
-        }
+    luncher.clearLunch(username, data.name);
+    delete breaks.task[username];
+    breaks.clearBreaks(username, data.name);
 
-        /* sets agent status to "not accepting chats" */
-        slack.sendMessage('Set lunch for ' + username + '. See you in 30 minutes!', data.channel);
-
-        breaks.lunch[username] = {
-            outTime: new Date().getTime(),
-            duration: _time,
-            channel: data.name,
-            remaining: _time
-        };
-
-        //setBreak(username, _time, data.channel);
-
-        /* logging */
-        let logdata = {
-            username: username,
-            command: '!lunch',
-            duration: _time,
-            date: 'now'
-        };
-
-        db.log('command_history', logdata)
-            .catch(function (err) {
-                console.error('ERROR LOGGING COMMAND', err);
-            });
+    if (!(globals[data.name].breaks.increment(username, data.name))) {
+        slack.sendMessage('err: hit daily break limit (' + conf.maxDailyBreaks + ')', data.channel);
+        return false;
     }
+
+    /* sets agent status to "not accepting chats" */
+    slack.sendMessage('Set lunch for ' + username + '. See you in 30 minutes!', data.channel);
+
+    breaks.lunch[username] = {
+        outTime: new Date().getTime(),
+        duration: _time,
+        channel: data.name,
+        remaining: _time
+    };
+
+    //setBreak(username, _time, data.channel);
+
+    /* logging */
+    let logdata = {
+        username: username,
+        command: '!lunch',
+        duration: _time,
+        date: 'now'
+    };
+
+    db.log('command_history', logdata)
+        .catch(function (err) {
+            console.error('ERROR LOGGING COMMAND', err);
+        });
 }
 
 /*

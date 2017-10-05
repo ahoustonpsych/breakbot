@@ -1,10 +1,10 @@
 let slack = require('../../lib/slack').rtm;
 
-let conf = require('../../conf/config.breaks.js');
+let conf_breaks = require('../../conf/config.breaks.js');
 let db = require('../../lib/database');
 let requests = require('../lc_requests');
 let globals = require('../../conf/config.globals');
-// var breaks = require('../breaks');
+let breakLib = require('../breaks');
 
 let offs = {'!bio': 1, 'breakbot': 2};
 
@@ -27,16 +27,24 @@ function bio(data) {
 
     let username = slack.dataStore.getUserById(data.user).profile.email.split('@')[0];
 
-    /* prevents users from logging task again if they're already logged task */
-    if (breaks.bio[username] instanceof Object) {
-        slack.sendMessage('already on bio', data.channel);
+    if (!breakLib.canTakeBreak(username, data.name))
         return false;
-    }
 
-    if (!(globals[data.name].breaks.increment(data.name, username))) {
-        slack.sendMessage('err: hit daily break limit (' + conf.maxDailyBreaks + ')', data.channel);
-        return false;
-    }
+    /* prevents users from logging task again if they're already logged task */
+    // if (breakLib.isOnBreak(username, data.name)) {
+    //     slack.sendMessage('already on break', data.channel);
+    //     return false;
+    // }
+    //
+    // if (breaks.cooldown.hasOwnProperty(username)) {
+    //     slack.sendMessage('too soon since last break', data.channel);
+    //     return false;
+    // }
+    //
+    // if (!(globals[data.name].breaks.increment(data.name, username))) {
+    //     slack.sendMessage('err: hit daily break limit (' + conf.maxDailyBreaks + ')', data.channel);
+    //     return false;
+    // }
 
     delete breaks.task[username];
     breaks.clearBreaks(username, data.name);
