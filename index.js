@@ -4,6 +4,8 @@ let slack = require('./lib/slack').rtm;
 let conf = require('./conf/config');
 let conf_breaks = require('./conf/config.breaks');
 
+//let globs = require('./conf/config.globals');
+//let globals = {};
 let globals = require('./conf/config.globals');
 
 let messageController = require('./lib/messageController');
@@ -13,6 +15,8 @@ let upkeep = require('./lib/upkeep').upkeep;
 
 let topic = require('./commands/topic');
 let breaks = require('./commands/breaks');
+
+let adp = require('./lib/adp');
 //let wrapup = require('./commands/wrapup');
 
 module.exports = {
@@ -29,11 +33,14 @@ slack.on('authenticated', function (data) {
     //     //create channel objs
     //     topic.topic = chan.topic.value;
 
+    // conf.channels.forEach(function (chan) {
+    //     globals[chan] = require('./conf/config.globals');
+    // });
+
 });
 
 /* always listening */
 slack.on('message', function (data) {
-
 
     //ignore own messages
     //TODO fix this
@@ -89,6 +96,9 @@ function updateChannelInfo(channel) {
         return false;
     }
 
+    //globals[channel.name] = new globals.Channel(channel.name, channel.id, channel.topic.value);
+    console.log('name: ' + channel.name)
+
     //global channel object
     globals[channel.name] = {
         name: channel.name,
@@ -105,6 +115,7 @@ function updateChannelInfo(channel) {
             over: {},
             meeting: {},
             count: {},
+            cooldown: {},
             increment: increaseBreakCount,
             clearBreaks: clearBreaks
         }
@@ -121,7 +132,7 @@ function clearBreaks(user, channel) {
 }
 
 /* increments user's break count for the day */
-function increaseBreakCount(channel, user) {
+function increaseBreakCount(user, channel) {
     if (globals.hasOwnProperty(channel)) {
         if (!(globals[channel].breaks.count.hasOwnProperty(user))) {
             globals[channel].breaks.count[user] = 1;
