@@ -190,10 +190,10 @@ function scheduler(data) {
     }
 
     //fail if slot already taken
-    if (!(luncher.checkDupe(lunch, data.name))) {
-        slack.sendMessage('slot already taken: ' + time, data.channel);
-        return false;
-    }
+    // if (!(luncher.checkDupe(lunch, data.name))) {
+    //     slack.sendMessage('slot already taken: ' + time, data.channel);
+    //     return false;
+    // }
 
     //add lunch if all else is good
     else {
