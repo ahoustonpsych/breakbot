@@ -37,7 +37,7 @@ function brb(data) {
         arg = data.text.split(' ')[off + 1];
 
     /* debug. allows you to do !brb [time] [user] to log someone else task */
-    //if (data.text.split(' ')[off + 1])
+    // if (data.text.split(' ')[off + 1])
     //    username = slack.dataStore.getUserByName(data.text.split(' ')[off + 1]).profile.email.split('@')[0];
 
     if (!breakLib.canTakeBreak(username, data.name))

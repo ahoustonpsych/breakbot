@@ -52,7 +52,7 @@ function logIn(data, username) {
     breaks.cooldown[username] = setTimeout(() => {
         delete breaks.cooldown[username];
         console.log(new Date().toLocaleString() + ' break cooldown expired for ' + username);
-    }, 1000 * conf_breaks.breakCooldown);
+    }, 60 * 1000 * conf_breaks.breakCooldown);
 
     /* logging */
     let logdata = {
