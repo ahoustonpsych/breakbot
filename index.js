@@ -107,6 +107,9 @@ function updateChannelInfo(channel) {
         //TODO
         //make sure not to overwrite this data during restart
         schedule: {},
+        punches: {},
+        punchCount: 0,
+        maxOnBreak: 5,
         breaks: {
             active: {},
             bio: {},

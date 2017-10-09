@@ -1,4 +1,5 @@
 let web = require('../lib/slack').web;
+let slack = require('../lib/slack').rtm;
 
 let globals = require('../conf/config.globals');
 
@@ -72,5 +73,5 @@ function cleanTopic(topic) {
     return removeSpecial(topic)
         .replace(/chat(ters)?|cap(('|'n)?|tain)?|back(up)?|lead(er)?/ig, '')
         .split(' ')
-        .filter(function (el) { return el !== ''; });
+        .filter(function (el) { return el !== '' && slack.dataStore.getUserByName(el) instanceof Object; });
 }

@@ -119,6 +119,12 @@ function canTakeBreak(user, channel) {
         return false;
     }
 
+    /* reject if eos is near */
+    // if (!globals[channel].punches[user].punched_eos) {
+    //     slack.sendMessage('err: too close to eos', chanId);
+    //     return false;
+    // }
+
     return true;
 }
 
@@ -132,5 +138,5 @@ function slotAvailable(channel) {
 
     console.log(totalOut);
 
-    return totalOut < conf_breaks.maxOnBreak;
+    return totalOut < globals[channel].maxOnBreak;
 }
