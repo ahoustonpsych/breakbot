@@ -38,7 +38,7 @@ function back(data) {
     logIn(data, username);
 
 }
-let t;
+
 /* log user in */
 function logIn(data, username) {
 
