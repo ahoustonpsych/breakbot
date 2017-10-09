@@ -55,10 +55,8 @@ module.exports = {
         globals[chanObj.name].topic = topic;
 
     },
-    getChatters: function () {
-
-        return cleanTopic(this.topic);
-
+    getChatters: function (chan) {
+        return cleanTopic(globals[chan].topic);
     },
     removeSpecial: removeSpecial
 };
