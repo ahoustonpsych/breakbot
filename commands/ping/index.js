@@ -11,5 +11,5 @@ module.exports = {
  * pings all chatters in topic
  */
 function ping(data) {
-    slack.sendMessage('^^ ' + topic.getChatters().join(' '), data.channel)
+    slack.sendMessage('^^ ' + topic.getChatters(data.name).join(' '), data.channel)
 }
