@@ -14,7 +14,7 @@ let config = {
     /* maximum number of people on break at a time */
     maxOnBreak: 5,
     /* minimum time required between two breaks, in minutes*/
-    breakCooldown: 30
+    breakCooldown: 60
 };
 
 module.exports = config;

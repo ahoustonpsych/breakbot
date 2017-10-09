@@ -73,26 +73,24 @@ function listLunch(channel) {
 
     let schedule = globals[channel].schedule;
 
-    // console.log('sched:')!
+    // console.log('sched:')
     // console.log(schedule.length)
 
     //loop through lunch schedule to build a list
     if (Object.keys(schedule).length !== 0) {
         Object.keys(schedule).forEach(function (user) {
-            console.log(user);
 
             // console.log('schedule: ' + Object.keys(globals[channel].schedule['ahouston']))
-            console.log('schedule: ' + schedule[user].name)
-
-            console.log('time: ' + schedule[user].time)
+            // console.log('schedule: ' + schedule[user].name);
+            //
+            // console.log('time: ' + schedule[user].time);
 
             list.push({
                 user: schedule[user].name,
                 time: schedule[user].time
             });
 
-            console.log('after push: ')
-            console.log(list)
+            //console.log(list);
 
         });
     }
@@ -111,7 +109,7 @@ function listLunch(channel) {
 
     while (list.length > 0) {
 
-        console.log(list)
+        //console.log(list);
 
         let user = list.shift();
 
