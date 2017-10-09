@@ -6,11 +6,13 @@ module.exports = {
 
     ENV: (function () { return process.env.NODE_ENV ? process.env.NODE_ENV : 'dev'; }()),
 
-    /* file to store break data if a restart occurs */
-    savefile: 'var/breaks.save',
+    /* files to use for temp break storage if a restart occurs */
+    restore: {
+        savefile: 'var/breaks.save',
+        wrapupfile: 'var/wrapup.save',
+        officefile: 'var/office.save'
+    },
 
-    /* file to store wrapup data if a restart occurs */
-    wrapupfile: 'var/wrapup.save',
 
     /* channels to operate in */
     channels: [
