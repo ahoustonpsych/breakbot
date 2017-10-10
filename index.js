@@ -21,11 +21,22 @@ let adp = require('./lib/adp');
 
 module.exports = {
     startProcessing: startProcessing,
-    updateChannelInfo: updateChannelInfo
+    initChannel: initChannel
 };
 
 
 slack.on('authenticated', function (data) {
+
+    data.channels.forEach((chan) => {
+        if (chan.is_member)
+            initChannel(chan)
+    });
+    //console.log(data.groups)
+    data.groups.forEach((chan) => {
+        initChannel(chan);
+    });
+
+    adp.getPunchedIn();
 
     //TODO
     //set topics for all channels when joined
@@ -47,7 +58,7 @@ slack.on('message', function (data) {
     if (slack.dataStore.getUserById(data.user).name === 'breakbot.sftest')
         return false;
 
-    //console.log(data)
+    console.log(globals['breakbot-support']);
 
     startProcessing(data);
 
@@ -71,7 +82,7 @@ function startProcessing(data) {
     if (!isApprovedChannel(rawChannel.name))
         return false;
 
-    updateChannelInfo(rawChannel);
+    initChannel(rawChannel);
 
     //update topic
     if (data.hasOwnProperty('subtype'))
@@ -88,7 +99,7 @@ function startProcessing(data) {
 }
 
 //TODO
-function updateChannelInfo(channel) {
+function initChannel(channel) {
 
     if (globals.hasOwnProperty(channel.name)) {
         //update topic if global channel object exists
@@ -97,7 +108,7 @@ function updateChannelInfo(channel) {
     }
 
     //globals[channel.name] = new globals.Channel(channel.name, channel.id, channel.topic.value);
-    console.log('name: ' + channel.name)
+    console.log('name: ' + channel.name);
 
     //global channel object
     globals[channel.name] = {
@@ -109,20 +120,19 @@ function updateChannelInfo(channel) {
         schedule: {},
         punches: {},
         punchCount: 0,
-        maxOnBreak: 5,
+        maxOnBreak: 4,
         breaks: {
             active: {},
             bio: {},
             lunch: {},
             task: {},
             over: {},
-            meeting: {},
+            //meeting: {},
             count: {},
             cooldown: {},
             increment: increaseBreakCount,
             clearBreaks: clearBreaks
         }
-
     };
 }
 
