@@ -38,16 +38,6 @@ slack.on('authenticated', function (data) {
 
     adp.getPunchedIn();
 
-    //TODO
-    //set topics for all channels when joined
-    // if (isApprovedChannel(data))
-    //     //create channel objs
-    //     topic.topic = chan.topic.value;
-
-    // conf.channels.forEach(function (chan) {
-    //     globals[chan] = require('./conf/config.globals');
-    // });
-
 });
 
 /* always listening */
@@ -57,8 +47,6 @@ slack.on('message', function (data) {
     //TODO fix this
     if (slack.dataStore.getUserById(data.user).name === 'breakbot.sftest')
         return false;
-
-    console.log(globals['breakbot-support']);
 
     startProcessing(data);
 
@@ -74,10 +62,12 @@ slack.on('disconnect', data => {
 function startProcessing(data) {
     //console.log('startProcessing data: ' + data)
     let rawChannel = slack.dataStore.getChannelGroupOrDMById(data.channel);
-    //console.log(rawChannel);
 
     //add plaintext channel name to message object, for reference later
     data.name = rawChannel.name;
+
+    //add plaintext user name to message object, for reference later
+    data.username = slack.dataStore.getUserById(data.user).profile.email.split('@')[0];
 
     if (!isApprovedChannel(rawChannel.name))
         return false;
@@ -101,14 +91,11 @@ function startProcessing(data) {
 //TODO
 function initChannel(channel) {
 
-    if (globals.hasOwnProperty(channel.name)) {
-        //update topic if global channel object exists
-        //globals[channel.name].topic = channel.topic.value;
+    if (globals.hasOwnProperty(channel.name))
         return false;
-    }
 
     //globals[channel.name] = new globals.Channel(channel.name, channel.id, channel.topic.value);
-    console.log('name: ' + channel.name);
+    //console.log('name: ' + channel.name);
 
     //global channel object
     globals[channel.name] = {
@@ -120,7 +107,7 @@ function initChannel(channel) {
         schedule: {},
         punches: {},
         punchCount: 0,
-        maxOnBreak: 4,
+        maxOnBreak: 5,
         breaks: {
             active: {},
             bio: {},
@@ -136,7 +123,7 @@ function initChannel(channel) {
     };
 }
 
-//delete all breaks for a user
+/* delete all breaks for a user (except for tasks) */
 function clearBreaks(user, channel) {
     delete globals[channel].breaks.active[user];
     delete globals[channel].breaks.over[user];
@@ -164,7 +151,6 @@ function increaseBreakCount(user, channel) {
             console.error(globals[channel].breaks.count);
         }
     }
-
 }
 
 /*
@@ -172,6 +158,10 @@ function increaseBreakCount(user, channel) {
  */
 function isApprovedChannel(channelName) {
     return conf.channels.indexOf(channelName) !== -1;
+}
+
+function isPrivateMessage(msg) {
+    return msg.channel.slice(0,1) === 'D';
 }
 
 function main() {
