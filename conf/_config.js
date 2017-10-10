@@ -9,8 +9,7 @@ module.exports = {
     /* files to use for temp break storage if a restart occurs */
     restore: {
         savefile: 'var/breaks.save',
-        wrapupfile: 'var/wrapup.save',
-        officefile: 'var/office.save'
+        wrapupfile: 'var/wrapup.save'
     },
 
 
