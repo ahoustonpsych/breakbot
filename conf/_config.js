@@ -15,10 +15,10 @@ module.exports = {
 
     /* channels to operate in */
     channels: [
-        "breakbot-support",
-        "breakbot-livechat",
-        "breakbot-windows",
-        "breakbot_test"
+        'breakbot-support',
+        'breakbot-livechat',
+        'breakbot-windows',
+        'breakbot_test'
     ],
 
     /* path to the database containing command logs */
