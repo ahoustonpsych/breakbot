@@ -96,8 +96,8 @@ function isOnBreak(user, channel) {
 }
 
 function canTakeBreak(user, channel) {
-    breaks = globals[channel].breaks;
     let chanId = slack.dataStore.getChannelOrGroupByName(channel).id;
+    breaks = globals[channel].breaks;
 
     if (isOnBreak(user, channel)) {
         slack.sendMessage('already on break', chanId);
@@ -133,10 +133,10 @@ function slotAvailable(channel) {
         Object.keys(breaks.active).length +
         Object.keys(breaks.bio).length +
         Object.keys(breaks.lunch).length +
-        Object.keys(breaks.task).length +
+        //Object.keys(breaks.task).length +
         Object.keys(breaks.over).length;
 
-    console.log(totalOut);
+    //console.log(totalOut);
 
     return totalOut < globals[channel].maxOnBreak;
 }
