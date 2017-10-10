@@ -33,7 +33,7 @@ function list(data) {
             if (name.match(/^me$/ig) !== null)
                 name = username;
 
-            console.log(name);
+            //console.log(name);
             if (breaks.active.hasOwnProperty(name) ||
                 breaks.over.hasOwnProperty(name) ||
                 breaks.task.hasOwnProperty(name) ||
@@ -58,22 +58,28 @@ function list(data) {
 
     let onbreak_list = '*On break:* ';
     let lunch_list = '*On lunch:* ';
+    let task_list = '*On task:* ';
     let bio_list = '*Bathroom:* ';
 
     /* populates list of users currently on break, paired with the amount of time left on their break */
     if (Object.keys(breaks.active).length !== 0)
-        Object.keys(breaks.active).forEach(function (user) {
+        Object.keys(breaks.active).forEach((user) => {
             onbreak_list = onbreak_list + user + ' (' + breaks.active[user].remaining + 'm), ';
         });
 
     if (Object.keys(breaks.lunch).length !== 0)
-        Object.keys(breaks.lunch).forEach(function (user) {
+        Object.keys(breaks.lunch).forEach((user) => {
             lunch_list = lunch_list + user + ' (' + breaks.lunch[user].remaining + 'm), ';
         });
 
     if (Object.keys(breaks.bio).length !== 0)
-        Object.keys(breaks.bio).forEach(function (user) {
+        Object.keys(breaks.bio).forEach((user) => {
             bio_list = bio_list + user + ' (' + breaks.bio[user].remaining + 'm), ';
+        });
+
+    if (Object.keys(breaks.task).length !== 0)
+        Object.keys(breaks.task).forEach((user) => {
+            task_list = task_list + user + ' (' + breaks.task[user].remaining + 'm), ';
         });
 
     /* strips trailing comma from the list */
@@ -110,7 +116,7 @@ function list(data) {
 
         slack.sendMessage(onbreak_list + '\n' +
             '*Over break:* ' + Object.keys(breaks.over).join(', ') + '\n' +
-            '*On task:* ' + Object.keys(breaks.task).join(', ') + '\n' +
+            task_list + '\n' +
             lunch_list + '\n' +
             bio_list, data.channel);
     }
