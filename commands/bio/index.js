@@ -25,9 +25,9 @@ function bio(data) {
     else
         off = offs['breakbot'];
 
-    let username = slack.dataStore.getUserById(data.user).profile.email.split('@')[0];
+    //let username = slack.dataStore.getUserById(data.user).profile.email.split('@')[0];
 
-    if (!breakLib.canTakeBreak(username, data.name))
+    if (!breakLib.canTakeBreak(data.username, data.name))
         return false;
 
     /* prevents users from logging task again if they're already logged task */
@@ -50,11 +50,11 @@ function bio(data) {
     breaks.clearBreaks(username, data.name);
 
     /* sets agent status to "not accepting chats" */
-    slack.sendMessage('Set ' + time.toString() + ' minute bio for ' + username + '.', data.channel);
+    slack.sendMessage('Set ' + time.toString() + ' minute bio for ' + data.username + '.', data.channel);
 
     //setBreak(username, time, data.channel);
 
-    breaks.bio[username] = {
+    breaks.bio[data.username] = {
         outTime: new Date().getTime(),
         duration: time,
         channel: data.channel,
@@ -63,7 +63,7 @@ function bio(data) {
 
     /* logging */
     let logdata = {
-        username: username,
+        username: data.username,
         command: '!bio',
         duration: time,
         date: 'now'

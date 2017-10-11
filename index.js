@@ -79,10 +79,12 @@ slack.on('disconnect', data => {
 function startProcessing(data) {
     //console.log('startProcessing data: ' + data)
     let rawChannel = slack.dataStore.getChannelGroupOrDMById(data.channel);
-    //console.log(rawChannel);
 
     //add plaintext channel name to message object, for reference later
     data.name = rawChannel.name;
+
+    //add plaintext user name to message object, for reference later
+    data.username = slack.dataStore.getUserById(data.user).profile.email.split('@')[0];
 
     if (!isApprovedChannel(rawChannel.name))
         return false;
@@ -115,7 +117,6 @@ function initChannel(channel) {
         //update topic if global channel object exists
         //globals.channels[channel.name].topic = channel.topic.value;
         return false;
-    }
 
     //globals.channels[channel.name] = new globals.Channel(channel.name, channel.id, channel.topic.value);
     console.log('name: ' + channel.name);
@@ -130,7 +131,7 @@ function initChannel(channel) {
         schedule: {},
         punches: {},
         punchCount: 0,
-        maxOnBreak: 4,
+        maxOnBreak: 5,
         breaks: {
             active: {},
             bio: {},
@@ -182,6 +183,10 @@ function initChannel(channel) {
  */
 function isApprovedChannel(channelName) {
     return conf.channels.indexOf(channelName) !== -1;
+}
+
+function isPrivateMessage(msg) {
+    return msg.channel.slice(0,1) === 'D';
 }
 
 function main() {

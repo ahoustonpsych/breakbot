@@ -13,7 +13,7 @@ let config = {
     maxDailyBreaks: 5,
     /* maximum number of people on break at a time */
     maxOnBreak: 5,
-    /* minimum time required between two breaks, in minutes*/
+    /* minimum time required between two breaks, in minutes */
     breakCooldown: 60
 };
 

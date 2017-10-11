@@ -9,17 +9,16 @@ module.exports = {
     /* files to use for temp break storage if a restart occurs */
     restore: {
         savefile: 'var/breaks.save',
-        wrapupfile: 'var/wrapup.save',
-        officefile: 'var/office.save'
+        wrapupfile: 'var/wrapup.save'
     },
 
 
     /* channels to operate in */
     channels: [
-        "breakbot-support",
-        "breakbot-livechat",
-        "breakbot-windows",
-        "breakbot_test"
+        'breakbot-support',
+        'breakbot-livechat',
+        'breakbot-windows',
+        'breakbot_test'
     ],
 
     /* path to the database containing command logs */

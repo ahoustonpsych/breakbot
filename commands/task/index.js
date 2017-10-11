@@ -1,10 +1,11 @@
-var slack = require('../../lib/slack').rtm;
-var requests = require('../lc_requests');
+let slack = require('../../lib/slack').rtm;
+let Promise = require('promise');
 let globals = require('../../conf/config.globals');
+let conf_breaks = require('../../conf/config.breaks');
 //var breaks = require('../breaks');
-var db = require('../../lib/database');
+let db = require('../../lib/database');
 
-var offs = {'!task': 1, 'breakbot': 2};
+let offs = {'!task': 1, 'breakbot': 2};
 
 /*
  * USAGE:
@@ -19,62 +20,139 @@ module.exports = {
 
 function task(data) {
 
+    let user, users, time, reason;
+    let breaks = globals[data.name].breaks;
+
     if (data.text.split(' ')[0].match(/^!task/i) !== null)
         off = offs['!task'];
     else
         off = offs['breakbot'];
 
-    /* list of users passed into !task */
-    var users = undefined;
+    let arg = data.text.split(' ')[off];
 
-    /* user who sent the !task message */
-    var user = slack.dataStore.getUserById(data.user).profile.email.split('@')[0];
-
-    /* split up the list of users, discarding 'invalid' ones except for 'me' */
-    users = data.text.split(' ')
-        .slice(off)
-        .filter(function (el) {
-
-            /* match 'me' for later use */
-            if (el.match(/^me$/i) !== null)
-                return true;
-
-            /* match usernames if given, and discard the rest */
-            else
-                return (slack.dataStore.getUserByName(el) instanceof Object);
-
-        })
-        .map(function (el) {
-
-            /* replace 'me' with your username if given */
-            if (el.match(/^me$/i) !== null)
-                return slack.dataStore.getUserById(data.user).name;
-
-            /* otherwise, don't do anything */
-            return el;
-
-        });
-
-    /* if we have an invalid array somehow, just default to the user that sent the message*/
-    if (users instanceof Array) {
-        if (users.length === 0) {
-            users = [slack.dataStore.getUserById(data.user).name];
-        }
+    if (isValidUser(arg)) {
+        //offset remaining args if user is given
+        off += 1;
+        user = arg;
     }
 
     else
-        users = [user];
+        user = data.username;
 
-    /* log task users */
-    if (users instanceof Array)
-        putOnTask(data, users);
+    time = data.text.split(' ')[off];
+    reason = data.text.split(' ')[off+1];
+
+    if (!time) {
+        slack.sendMessage('err: no time or reason given. syntax: *!task [user] [time] [reason]*', data.channel);
+        return;
+    }
+
+    //check for valid time
+    if (isNaN(parseInt(time))) {
+        slack.sendMessage('err: invalid time. syntax: *!task [user] [time] [reason]*', data.channel);
+        return;
+    }
+
+    if (!reason) {
+        slack.sendMessage('err: no reason given. syntax: *!task [user] [time] [reason]*', data.channel);
+        return;
+    }
+
+    if (globals[data.name].breaks.task.hasOwnProperty(user)) {
+        slack.sendMessage('err: already on task', data.channel);
+        return;
+    }
+
+    if (typeof(user) === 'string') {
+        parseBreakTime(time)
+            .then((time) => {
+                slack.sendMessage('Put ' + user + ' on task for ' + time + ' minutes. ' +
+                    'Please use *!back* to log back in when you are done', data.channel);
+
+                /* nuke existing breaks */
+                breaks.clearBreaks(user, data.name);
+
+                breaks.task[user] = {
+                    outTime: new Date().getTime(),
+                    duration: time,
+                    channel: data.channel,
+                    remaining: time
+                };
+
+                //breaks.task[user] = new Date().getTime();
+
+                /* logging */
+                //TODO log reason
+                let logdata = {
+                    username: user,
+                    command: '!task',
+                    date: 'now'
+                };
+
+                db.log('command_history', logdata)
+                    .catch(function (err) {
+                        console.error(new Date().toLocaleString() + ' ERROR LOGGING COMMAND', err);
+                    });
+
+            })
+            .catch(function (err) {
+                console.error(new Date().toLocaleString() + ' ERROR PARSING TASK TIME', err);
+            });
+    }
 
     else
-        console.error('INVALID LIST OF USERS FOR !task: ' + users);
+        console.error(new Date().toLocaleString() + ' INVALID USER FOR !task: ' + user);
+
+    /* list of users passed into !task */
+
+
+    /* user who sent the !task message */
+    //let user = slack.dataStore.getUserById(data.user).profile.email.split('@')[0];
+
+    /* split up the list of users, discarding 'invalid' ones except for 'me' */
+    // users = data.text.split(' ')
+    //     .slice(off)
+    //     .filter(function (el) {
+    //
+    //         /* match 'me' for later use */
+    //         if (el.match(/^me$/i) !== null)
+    //             return true;
+    //
+    //         /* match usernames if given, and discard the rest */
+    //         else
+    //             return (slack.dataStore.getUserByName(el) instanceof Object);
+    //
+    //     })
+    //     .map(function (el) {
+    //
+    //         /* replace 'me' with your username if given */
+    //         if (el.match(/^me$/i) !== null)
+    //             return data.username;
+    //
+    //         /* otherwise, don't do anything */
+    //         return el;
+    //
+    //     });
+
+    /* if we have an invalid array somehow, just default to the user that sent the message*/
+    // if (users instanceof Array) {
+    //     if (users.length === 0) {
+    //         users = [user];
+    //     }
+    // }
+
+    // else
+         //users = [user];
+
+    /* log task users */
+    // if (users instanceof Array)
+    //     putOnTask(data, users);
+
+
 
 }
 
-function putOnTask(data, users) {
+function putOnTask(data, user, time, reason) {
 
     let breaks = globals.channels[data.name].breaks;
 
@@ -87,46 +165,50 @@ function putOnTask(data, users) {
             data.channel);
 
     else
-        console.error('invalid user list for !task somehow: ' + users);
+        console.error(new Date().toLocaleString() + ' invalid user list for !task somehow: ' + users);
+
+
 
     /* log task each user */
-    users.forEach(function (user) {
+    // users.forEach(function (user) {
+    //
+    //     /* nuke existing breaks */
+    //     breaks.clearBreaks(user, data.name);
+    //     breaks.task[user] = new Date().getTime();
+    //
+    //     /* logging */
+    //     //TODO log reason
+    //     let logdata = {
+    //         username: user,
+    //         command: '!task',
+    //         date: 'now'
+    //     };
+    //
+    //     db.log('command_history', logdata)
+    //         .catch(function (err) {
+    //             console.error(new Date().toLocaleString() + ' ERROR LOGGING COMMAND', err);
+    //         });
+    //
+    // });
+}
 
         /* nuke existing breaks */
         breaks.clearBreaks(user);
         breaks.task[user] = new Date().getTime();
 
-        /* logging */
-        //TODO log reason
-        let logdata = {
-            username: user,
-            command: '!task',
-            date: 'now'
-        };
+/* TODO merge with brb command */
+function parseBreakTime(time) {
+    return new Promise(function (fulfill, reject) {
+        /* sets break time to the default if it's not provided */
+        if (!parseInt(time))
+            fulfill(conf_breaks.defaultBreak);
 
-        db.log('command_history', logdata)
-            .catch(function (err) {
-                console.error('ERROR LOGGING COMMAND', err);
-            });
+        /* prevents the break time from being negative, zero, or higher than the max time */
+        else if ((parseInt(time) > conf_breaks.maxBreak) || (parseInt(time) <= 0))
+            fulfill(conf_breaks.defaultBreak);
 
-        // requests.changeStatus(user, 'not accepting chats')
-        //     .then(function (res) {
-        //
-        //         /* logging */
-        //         var logdata = {
-        //             username: user,
-        //             command: '!task',
-        //             date: 'now'
-        //         };
-        //
-        //         db.log('command_history', logdata)
-        //             .catch(function (err) {
-        //                 console.error('ERROR LOGGING COMMAND', err);
-        //             });
-        //
-        //     })
-        //     .catch(function (err) {
-        //         console.error('ERROR CHANGING STATUS FOR: ' + user, err);
-        //     });
+        /* if all else is good, set break time properly */
+        else
+            fulfill(parseInt(time));
     });
 }
