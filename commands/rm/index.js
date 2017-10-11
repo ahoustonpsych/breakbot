@@ -13,7 +13,7 @@ module.exports = {
 };
 
 function rm(data) {
-    let oldtopic = globals[data.name].topic;
+    let oldtopic = globals.channels[data.name].topic;
 
     if (data.text.split(' ')[0].match(/!rm/i) !== null)
         off = offs['!rm'];

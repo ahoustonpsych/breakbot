@@ -44,7 +44,7 @@ module.exports = {
     },
     setTopic: function (chanObj, topic) {
 
-        //topic = globals[chanObj.name].topic + ' ' + newtopic;
+        //topic = globals.channels[chanObj.name].topic + ' ' + newtopic;
         /* private channels */
         if (chanObj.channel[0] === 'G')
             web.groups.setTopic(chanObj.channel, topic);
@@ -53,11 +53,11 @@ module.exports = {
         else
             web.channels.setTopic(chanObj.channel, topic);
 
-        globals[chanObj.name].topic = topic;
+        globals.channels[chanObj.name].topic = topic;
 
     },
     getChatters: function (chan) {
-        return cleanTopic(globals[chan].topic);
+        return cleanTopic(globals.channels[chan].topic);
     },
     removeSpecial: removeSpecial
 };

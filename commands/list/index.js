@@ -13,7 +13,7 @@ module.exports = {
 
 function list(data) {
 
-    let breaks = globals[data.name].breaks;
+    let breaks = globals.channels[data.name].breaks;
     //console.log(breaks.active)
 
     if (data.text.split(' ')[0].match(/^!list/i) !== null)

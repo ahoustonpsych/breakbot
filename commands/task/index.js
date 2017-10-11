@@ -76,7 +76,7 @@ function task(data) {
 
 function putOnTask(data, users) {
 
-    let breaks = globals[data.name].breaks;
+    let breaks = globals.channels[data.name].breaks;
 
     if (users.length > 1)
         slack.sendMessage('Put on task: ' + users.join(' ') + '. Please use *!back* to log back in when you are done',
@@ -93,7 +93,7 @@ function putOnTask(data, users) {
     users.forEach(function (user) {
 
         /* nuke existing breaks */
-        breaks.clearBreaks(user, data.name);
+        breaks.clearBreaks(user);
         breaks.task[user] = new Date().getTime();
 
         /* logging */

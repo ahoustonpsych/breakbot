@@ -88,15 +88,15 @@ function restoreBreaks() {
 }
 
 function isOnBreak(user, channel) {
-    return !!globals[channel].breaks.active[user]
-    || !!globals[channel].breaks.task[user]
-    || !!globals[channel].breaks.bio[user]
-    || !!globals[channel].breaks.over[user]
-    || !!globals[channel].breaks.lunch[user];
+    return !!globals.channels[channel].breaks.active[user]
+    || !!globals.channels[channel].breaks.task[user]
+    || !!globals.channels[channel].breaks.bio[user]
+    || !!globals.channels[channel].breaks.over[user]
+    || !!globals.channels[channel].breaks.lunch[user];
 }
 
 function canTakeBreak(user, channel) {
-    breaks = globals[channel].breaks;
+    breaks = globals.channels[channel].breaks;
     let chanId = slack.dataStore.getChannelOrGroupByName(channel).id;
 
     if (isOnBreak(user, channel)) {
@@ -109,7 +109,7 @@ function canTakeBreak(user, channel) {
         return false;
     }
 
-    if (!(globals[channel].breaks.increment(user, channel))) {
+    if (!(breaks.increaseBreakCount(user))) {
         slack.sendMessage('err: hit daily break limit (' + conf_breaks.maxDailyBreaks + ')', chanId);
         return false;
     }
@@ -120,7 +120,7 @@ function canTakeBreak(user, channel) {
     }
 
     /* reject if eos is near */
-    // if (!globals[channel].punches[user].punched_eos) {
+    // if (!globals.channels[channel].punches[user].punched_eos) {
     //     slack.sendMessage('err: too close to eos', chanId);
     //     return false;
     // }
@@ -138,5 +138,5 @@ function slotAvailable(channel) {
 
     console.log(totalOut);
 
-    return totalOut < globals[channel].maxOnBreak;
+    return totalOut < globals.channels[channel].maxOnBreak;
 }

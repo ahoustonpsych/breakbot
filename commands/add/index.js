@@ -33,5 +33,5 @@ function add(data) {
             arg = [slack.dataStore.getUserById(data.user).name];
 
     // topic.setTopic(data.channel, topic.topic + ' ' + arg.join(' '));
-    topic.setTopic(data, globals[data.name].topic + ' ' + arg.join(' '));
+    topic.setTopic(data, globals.channels[data.name].topic + ' ' + arg.join(' '));
 }

@@ -16,10 +16,10 @@ function addLunch(user, time, channel) {
         return false;
     }
 
-    let schedule = globals[channel].schedule;
+    let schedule = globals.channels[channel].schedule;
 
     if (schedule.hasOwnProperty(user)) {
-        console.log('ALREADY SCHEDULED: ' + Object.keys(globals[channel]));
+        console.log('ALREADY SCHEDULED: ' + Object.keys(globals.channels[channel]));
         return false;
     }
 
@@ -36,7 +36,7 @@ function addLunch(user, time, channel) {
 }
 
 function clearLunch(user, channel) {
-    let schedule = globals[channel].schedule;
+    let schedule = globals.channels[channel].schedule;
 
     if (schedule[user] instanceof Object) {
         delete schedule[user];
@@ -49,7 +49,7 @@ function clearLunch(user, channel) {
 }
 
 function checkDupe(time, channel) {
-    let schedule = globals[channel].schedule;
+    let schedule = globals.channels[channel].schedule;
 
     for (let user in schedule) {
         if ((schedule[user].time.getHours() === time.getHours()) && (schedule[user].time.getMinutes() === time.getMinutes())) {
@@ -62,7 +62,7 @@ function checkDupe(time, channel) {
 
 function listLunch(channel) {
 
-    //console.log(globals[channel].schedule)
+    //console.log(globals.channels[channel].schedule)
 
     let list = [];
 
@@ -71,7 +71,7 @@ function listLunch(channel) {
     if (!(globals.hasOwnProperty(channel)))
         return false;
 
-    let schedule = globals[channel].schedule;
+    let schedule = globals.channels[channel].schedule;
 
     // console.log('sched:')
     // console.log(schedule.length)
@@ -80,7 +80,7 @@ function listLunch(channel) {
     if (Object.keys(schedule).length !== 0) {
         Object.keys(schedule).forEach(function (user) {
 
-            // console.log('schedule: ' + Object.keys(globals[channel].schedule['ahouston']))
+            // console.log('schedule: ' + Object.keys(globals.channels[channel].schedule['ahouston']))
             // console.log('schedule: ' + schedule[user].name);
             //
             // console.log('time: ' + schedule[user].time);

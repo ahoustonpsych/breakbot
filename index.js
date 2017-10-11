@@ -17,6 +17,7 @@ let topic = require('./commands/topic');
 let breaks = require('./commands/breaks');
 
 let adp = require('./lib/adp');
+let Channel = require('./lib/channels');
 //let wrapup = require('./commands/wrapup');
 
 module.exports = {
@@ -27,16 +28,20 @@ module.exports = {
 
 slack.on('authenticated', function (data) {
 
+    /* init channel objects */
     data.channels.forEach((chan) => {
-        if (chan.is_member)
-            initChannel(chan)
-    });
-    //console.log(data.groups)
-    data.groups.forEach((chan) => {
-        initChannel(chan);
+        if (chan.is_member) {
+            let rawChannel = slack.dataStore.getChannelGroupOrDMById(chan.id);
+            globals.channels[rawChannel.name] = new Channel(rawChannel)
+        }
     });
 
-    adp.getPunchedIn();
+    data.groups.forEach((chan) => {
+        let rawChannel = slack.dataStore.getChannelGroupOrDMById(chan.id);
+        globals.channels[rawChannel.name] = new Channel(rawChannel)
+    });
+    //
+    // adp.getPunchedIn();
 
     //TODO
     //set topics for all channels when joined
@@ -45,7 +50,7 @@ slack.on('authenticated', function (data) {
     //     topic.topic = chan.topic.value;
 
     // conf.channels.forEach(function (chan) {
-    //     globals[chan] = require('./conf/config.globals');
+    //     globals.channels[chan] = require('./conf/config.globals');
     // });
 
 });
@@ -58,7 +63,7 @@ slack.on('message', function (data) {
     if (slack.dataStore.getUserById(data.user).name === 'breakbot.sftest')
         return false;
 
-    console.log(globals['breakbot-support']);
+    //console.log(globals.channels['breakbot-support']);
 
     startProcessing(data);
 
@@ -82,18 +87,23 @@ function startProcessing(data) {
     if (!isApprovedChannel(rawChannel.name))
         return false;
 
-    initChannel(rawChannel);
+    globals.channels[data.name].breaks.increaseBreakCount('ahouston');
+
+    //console.log(globals.channels[data.name].breaks)
+    // console.log(newchan);
+
+    //initChannel(rawChannel);
 
     //update topic
     if (data.hasOwnProperty('subtype'))
         if (data.subtype === 'group_topic' || data.subtype === 'channel_topic') {
             //console.log(data)
-            globals[rawChannel.name].topic = data.topic;
+            globals.channels[rawChannel.name].topic = data.topic;
             // console.log('updating topic')
             // console.log('data topic: ' + data.topic)
         }
 
-    //console.log(globals[rawChannel.name]);
+    //console.log(globals.channels[rawChannel.name]);
 
     messageController.handle(data);
 }
@@ -103,15 +113,15 @@ function initChannel(channel) {
 
     if (globals.hasOwnProperty(channel.name)) {
         //update topic if global channel object exists
-        //globals[channel.name].topic = channel.topic.value;
+        //globals.channels[channel.name].topic = channel.topic.value;
         return false;
     }
 
-    //globals[channel.name] = new globals.Channel(channel.name, channel.id, channel.topic.value);
+    //globals.channels[channel.name] = new globals.Channel(channel.name, channel.id, channel.topic.value);
     console.log('name: ' + channel.name);
 
     //global channel object
-    globals[channel.name] = {
+    globals.channels[channel.name] = {
         name: channel.name,
         id: channel.id,
         topic: channel.topic.value,
@@ -136,36 +146,36 @@ function initChannel(channel) {
     };
 }
 
-//delete all breaks for a user
-function clearBreaks(user, channel) {
-    delete globals[channel].breaks.active[user];
-    delete globals[channel].breaks.over[user];
-    delete globals[channel].breaks.lunch[user];
-    delete globals[channel].breaks.bio[user];
-}
-
-/* increments user's break count for the day */
-function increaseBreakCount(user, channel) {
-    if (globals.hasOwnProperty(channel)) {
-        if (!(globals[channel].breaks.count.hasOwnProperty(user))) {
-            globals[channel].breaks.count[user] = 1;
-            return true;
-        }
-        else if (globals[channel].breaks.count[user] < conf_breaks.maxDailyBreaks) {
-            globals[channel].breaks.count[user] += 1;
-            return true;
-        }
-        else if (globals[channel].breaks.count[user] === conf_breaks.maxDailyBreaks) {
-            console.log(new Date().toLocaleString() + ' ' + user + ' exceeded maximum daily breaks');
-            return false;
-        }
-        else {
-            console.error('BAD BREAK COUNT:');
-            console.error(globals[channel].breaks.count);
-        }
-    }
-
-}
+// //delete all breaks for a user
+// function clearBreaks(user, channel) {
+//     delete globals.channels[channel].breaks.active[user];
+//     delete globals.channels[channel].breaks.over[user];
+//     delete globals.channels[channel].breaks.lunch[user];
+//     delete globals.channels[channel].breaks.bio[user];
+// }
+//
+// /* increments user's break count for the day */
+// function increaseBreakCount(user, channel) {
+//     if (globals.hasOwnProperty(channel)) {
+//         if (!(globals.channels[channel].breaks.count.hasOwnProperty(user))) {
+//             globals.channels[channel].breaks.count[user] = 1;
+//             return true;
+//         }
+//         else if (globals.channels[channel].breaks.count[user] < conf_breaks.maxDailyBreaks) {
+//             globals.channels[channel].breaks.count[user] += 1;
+//             return true;
+//         }
+//         else if (globals.channels[channel].breaks.count[user] === conf_breaks.maxDailyBreaks) {
+//             console.log(new Date().toLocaleString() + ' ' + user + ' exceeded maximum daily breaks');
+//             return false;
+//         }
+//         else {
+//             console.error('BAD BREAK COUNT:');
+//             console.error(globals.channels[channel].breaks.count);
+//         }
+//     }
+//
+// }
 
 /*
  * Returns true if we're in an approved channel

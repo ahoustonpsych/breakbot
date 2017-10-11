@@ -19,7 +19,7 @@ module.exports = {
 
 function lunch(data) {
 
-    let breaks = globals[data.name].breaks;
+    let breaks = globals.channels[data.name].breaks;
 
     if (data.text.split(' ')[0].match(/!lunch/i) !== null)
         off = offs['!lunch'];
@@ -50,7 +50,7 @@ function lunch(data) {
     delete breaks.task[username];
     breaks.clearBreaks(username, data.name);
 
-    if (!(globals[data.name].breaks.increment(username, data.name))) {
+    if (!(globals.channels[data.name].breaks.increment(username, data.name))) {
         slack.sendMessage('err: hit daily break limit (' + conf.maxDailyBreaks + ')', data.channel);
         return false;
     }

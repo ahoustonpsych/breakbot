@@ -23,7 +23,7 @@ module.exports = {
 
 function brb(data) {
     //console.log(Object.keys(globals))
-    let breaks = globals[data.name].breaks;
+    let breaks = globals.channels[data.name].breaks;
 
     if (data.text.split(' ')[0].match(/!brb/i) !== null)
         off = offs['!brb'];
@@ -54,7 +54,7 @@ function brb(data) {
     //     return false;
     // }
     //
-    // if (!(globals[data.name].breaks.increment(data.name, username))) {
+    // if (!(globals.channels[data.name].breaks.increment(data.name, username))) {
     //     slack.sendMessage('err: hit daily break limit (' + conf.maxDailyBreaks + ')', data.channel);
     //     return false;
     // }
