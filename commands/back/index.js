@@ -42,11 +42,11 @@ function back(data) {
 /* log user in */
 function logIn(data, username) {
 
-    let breaks = globals[data.name].breaks;
+    let breaks = globals.channels[data.name].breaks;
 
     slack.sendMessage(username + ': you have been logged back in.', data.channel);
 
-    breaks.clearBreaks(username, data.name);
+    breaks.clearBreaks(username);
     delete breaks.task[username];
 
     breaks.cooldown[username] = setTimeout(() => {

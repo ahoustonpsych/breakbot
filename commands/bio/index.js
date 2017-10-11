@@ -18,7 +18,7 @@ module.exports = {
 
 function bio(data) {
 
-    let breaks = globals[data.name].breaks;
+    let breaks = globals.channels[data.name].breaks;
 
     if (data.text.split(' ')[0].match(/!bio/i) !== null)
         off = offs['!bio'];
@@ -30,8 +30,24 @@ function bio(data) {
     if (!breakLib.canTakeBreak(data.username, data.name))
         return false;
 
-    delete breaks.task[data.username];
-    breaks.clearBreaks(data.username, data.name);
+    /* prevents users from logging task again if they're already logged task */
+    // if (breakLib.isOnBreak(username, data.name)) {
+    //     slack.sendMessage('already on break', data.channel);
+    //     return false;
+    // }
+    //
+    // if (breaks.cooldown.hasOwnProperty(username)) {
+    //     slack.sendMessage('too soon since last break', data.channel);
+    //     return false;
+    // }
+    //
+    // if (!(globals.channels[data.name].breaks.increment(data.name, username))) {
+    //     slack.sendMessage('err: hit daily break limit (' + conf.maxDailyBreaks + ')', data.channel);
+    //     return false;
+    // }
+
+    delete breaks.task[username];
+    breaks.clearBreaks(username, data.name);
 
     /* sets agent status to "not accepting chats" */
     slack.sendMessage('Set ' + time.toString() + ' minute bio for ' + data.username + '.', data.channel);

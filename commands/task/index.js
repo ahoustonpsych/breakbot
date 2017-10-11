@@ -154,7 +154,7 @@ function task(data) {
 
 function putOnTask(data, user, time, reason) {
 
-    let breaks = globals[data.name].breaks;
+    let breaks = globals.channels[data.name].breaks;
 
     if (users.length > 1)
         slack.sendMessage('Put on task: ' + users.join(' ') + '. Please use *!back* to log back in when you are done',
@@ -192,9 +192,9 @@ function putOnTask(data, user, time, reason) {
     // });
 }
 
-function isValidUser(user) {
-    return slack.dataStore.getUserByName(user) instanceof Object;
-}
+        /* nuke existing breaks */
+        breaks.clearBreaks(user);
+        breaks.task[user] = new Date().getTime();
 
 /* TODO merge with brb command */
 function parseBreakTime(time) {
