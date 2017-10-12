@@ -14,6 +14,7 @@ let breaks;
 module.exports = {
     isOnBreak: isOnBreak,
     canTakeBreak: canTakeBreak,
+    slotAvailable: slotAvailable,
     saveBreaks: saveBreaks,
     restoreBreaks: restoreBreaks
 };
@@ -96,17 +97,19 @@ function isOnBreak(user, channel) {
 }
 
 function canTakeBreak(user, channel) {
-    breaks = globals.channels[channel].breaks;
+
     let chanId = slack.dataStore.getChannelOrGroupByName(channel).id;
-    breaks = globals[channel].breaks;
+    breaks = globals.channels[channel].breaks;
 
     if (isOnBreak(user, channel)) {
-        slack.sendMessage('already on break', chanId);
+        slack.sendMessage('err: already on break', chanId);
         return false;
     }
 
     if (breaks.cooldown.hasOwnProperty(user)) {
-        slack.sendMessage('too soon since last break', chanId);
+        let rem = new Date().getTime() - breaks.cooldown[user].getTime(); // milliseconds
+        rem = Math.ceil(Math.abs(rem / 60 / 1000));
+        slack.sendMessage('err: too soon since last break (' + rem + 'm remaining)', chanId);
         return false;
     }
 
@@ -129,15 +132,21 @@ function canTakeBreak(user, channel) {
     return true;
 }
 
+/* returns true if there's a break opening in channel */
 function slotAvailable(channel) {
+
+    let breaks = globals.channels[channel].breaks;
+
     let totalOut =
         Object.keys(breaks.active).length +
-        Object.keys(breaks.bio).length +
+        //Object.keys(breaks.bio).length +
         Object.keys(breaks.lunch).length +
         //Object.keys(breaks.task).length +
         Object.keys(breaks.over).length;
 
     //console.log(totalOut);
 
-    return totalOut < globals.channels[channel].maxOnBreak;
+    let max = globals.channels[channel].maxOnBreak > 0 || conf_breaks.maxOnBreak;
+
+    return totalOut < max;
 }

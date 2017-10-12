@@ -11,8 +11,10 @@ let config = {
     lunchExpire: 120,
     /* maximum number of breaks someone can take per day */
     maxDailyBreaks: 5,
-    /* maximum number of people on break at a time */
+    /* default maximum number of people on break at a time */
     maxOnBreak: 5,
+    /* percentage of people punched in that can be on break */
+    maxOnBreakPercentage: .1,
     /* minimum time required between two breaks, in minutes */
     breakCooldown: 60
 };
