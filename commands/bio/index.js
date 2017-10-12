@@ -17,7 +17,6 @@ module.exports = {
 };
 
 function bio(data) {
-    console.log(data)
 
     let breaks = globals.channels[data.name].breaks;
 
@@ -31,7 +30,7 @@ function bio(data) {
     if (!breakLib.canTakeBreak(data.username, data.name))
         return false;
 
-    /* prevents users from logging task again if they're already logged task */
+    /* prevents users from logging out again if they're already logged out */
     // if (breakLib.isOnBreak(username, data.name)) {
     //     slack.sendMessage('already on break', data.channel);
     //     return false;
