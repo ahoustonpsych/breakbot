@@ -1,6 +1,7 @@
 let slack = require('../../lib/slack').rtm;
 
 let globals = require('../../conf/config.globals');
+let conf_breaks = require('../../conf/config.breaks');
 //var breaks = require('../breaks');
 
 let offs = {'!list': 1, 'breakbot': 2};
@@ -61,6 +62,28 @@ function list(data) {
     let task_list = '*On task:* ';
     let bio_list = '*Bathroom:* ';
 
+    let strTotal = '*Total:* ';
+    let strMax = '*Max:* ';
+    let max = conf_breaks.maxOnBreak;
+    let total = 0;
+
+    //number of people on break
+    total =
+        Object.keys(breaks.active).length +
+        Object.keys(breaks.bio).length +
+        Object.keys(breaks.lunch).length +
+        Object.keys(breaks.over).length;
+
+    //max people on break
+    if (globals.channels[data.name].maxOnBreak > 0)
+        max = globals.channels[data.name].maxOnBreak;
+
+    if (typeof(total) === 'number')
+        strTotal += total;
+
+    if (typeof(max) === 'number')
+        strMax += max;
+
     /* populates list of users currently on break, paired with the amount of time left on their break */
     if (Object.keys(breaks.active).length !== 0)
         Object.keys(breaks.active).forEach((user) => {
@@ -86,6 +109,7 @@ function list(data) {
     onbreak_list = onbreak_list.replace(/, $/, '');
     lunch_list = lunch_list.replace(/, $/, '');
     bio_list = bio_list.replace(/, $/, '');
+    task_list = task_list.replace(/, $/, '');
 
     /*
     //shelved for now
@@ -118,7 +142,9 @@ function list(data) {
             '*Over break:* ' + Object.keys(breaks.over).join(', ') + '\n' +
             task_list + '\n' +
             lunch_list + '\n' +
-            bio_list, data.channel);
+            bio_list + '\n' +
+            strTotal + ', ' +
+            strMax, data.channel);
     }
     else {
         slack.sendMessage('Nobody on break', data.channel);
