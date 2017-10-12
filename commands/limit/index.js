@@ -21,10 +21,10 @@ module.exports = {
 
 function limit(data) {
 
-    if (!globals.hasOwnProperty(data.name))
+    if (!globals.channels.hasOwnProperty(data.name))
         return false;
 
-    slack.sendMessage('max users on break: ' + globals[data.name].maxOnBreak, data.channel);
+    slack.sendMessage('max users on break: ' + globals.channels[data.name].maxOnBreak, data.channel);
 
     // //disabling unless I need it
     // return false;
