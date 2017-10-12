@@ -17,6 +17,7 @@ module.exports = {
 };
 
 function bio(data) {
+    console.log(data)
 
     let breaks = globals.channels[data.name].breaks;
 
@@ -46,8 +47,8 @@ function bio(data) {
     //     return false;
     // }
 
-    delete breaks.task[username];
-    breaks.clearBreaks(username, data.name);
+    delete breaks.task[data.username];
+    breaks.clearBreaks(data.username, data.name);
 
     /* sets agent status to "not accepting chats" */
     slack.sendMessage('Set ' + time.toString() + ' minute bio for ' + data.username + '.', data.channel);
