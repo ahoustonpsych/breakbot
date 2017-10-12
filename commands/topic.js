@@ -66,12 +66,12 @@ module.exports = {
  * removes special characters from a string
  */
 function removeSpecial(str) {
-    return str.replace(/[!@#$%^&?*(){}<>\[\]\/\\|_+-=.,`~;:]+/g, '');
+    return str.replace(/[!@#$%^&?*(){}<>\[\]\/\\|_+\-=.,`~;:]+/g, '');
 }
 
 function cleanTopic(topic) {
     return removeSpecial(topic)
         .replace(/chat(ters)?|cap(('|'n)?|tain)?|back(up)?|lead(er)?/ig, '')
         .split(' ')
-        .filter(function (el) { return el !== '' && slack.dataStore.getUserByName(el) instanceof Object; });
+        .filter(function (el) { return el !== '' && slack.getUser(el.toLowerCase()) instanceof Object });
 }
