@@ -21,7 +21,7 @@ module.exports = {
 function task(data) {
 
     let user, users, time, reason;
-    let breaks = globals[data.name].breaks;
+    let breaks = globals.channels[data.name].breaks;
 
     if (data.text.split(' ')[0].match(/^!task/i) !== null)
         off = offs['!task'];
@@ -58,7 +58,7 @@ function task(data) {
         return;
     }
 
-    if (globals[data.name].breaks.task.hasOwnProperty(user)) {
+    if (globals.channels[data.name].breaks.task.hasOwnProperty(user)) {
         slack.sendMessage('err: already on task', data.channel);
         return;
     }
@@ -152,6 +152,10 @@ function task(data) {
 
 }
 
+function isValidUser(user) {
+    return slack.dataStore.getUserByName(user) instanceof Object;
+}
+
 function putOnTask(data, user, time, reason) {
 
     let breaks = globals.channels[data.name].breaks;
@@ -191,10 +195,6 @@ function putOnTask(data, user, time, reason) {
     //
     // });
 }
-
-        /* nuke existing breaks */
-        breaks.clearBreaks(user);
-        breaks.task[user] = new Date().getTime();
 
 /* TODO merge with brb command */
 function parseBreakTime(time) {
