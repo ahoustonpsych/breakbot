@@ -27,8 +27,8 @@ function bio(data) {
 
     //let username = slack.dataStore.getUserById(data.user).profile.email.split('@')[0];
 
-    if (!breakLib.canTakeBreak(data.username, data.name))
-        return false;
+    // if (!breakLib.canTakeBreak(data.username, data.name))
+    //     return false;
 
     /* prevents users from logging out again if they're already logged out */
     // if (breakLib.isOnBreak(username, data.name)) {
