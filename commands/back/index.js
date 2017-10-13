@@ -29,7 +29,7 @@ function back(data) {
     let username = slack.dataStore.getUserById(data.user).profile.email.split('@')[0];
 
     if (!breakLib.isOnBreak(username, data.name)) {
-        slack.sendMessage('not on break', data.channel);
+        slack.sendMessage('err: not on break', data.channel);
         return false;
     }
 
@@ -44,15 +44,16 @@ function logIn(data, username) {
 
     let breaks = globals.channels[data.name].breaks;
 
-    slack.sendMessage(username + ': you have been logged back in.', data.channel);
+    slack.sendMessage(username + ': welcome back!', data.channel);
 
     breaks.clearBreaks(username);
     delete breaks.task[username];
 
-    breaks.cooldown[username] = setTimeout(() => {
-        delete breaks.cooldown[username];
-        console.log(new Date().toLocaleString() + ' break cooldown expired for ' + username);
-    }, 60 * 1000 * conf_breaks.breakCooldown);
+    breaks.cooldown[username] = new Date(new Date().getTime() + 60 * 1000 * conf_breaks.breakCooldown);
+    // setTimeout(() => {
+    //     delete breaks.cooldown[username];
+    //     console.log(new Date().toLocaleString() + ' break cooldown expired for ' + username);
+    // }, 60 * 1000 * conf_breaks.breakCooldown);
 
     /* logging */
     let logdata = {

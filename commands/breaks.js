@@ -146,7 +146,7 @@ function slotAvailable(channel) {
 
     //console.log(totalOut);
 
-    let max = globals.channels[channel].maxOnBreak > 0 || conf_breaks.maxOnBreak;
+    let max = globals.channels[channel].maxOnBreak > 1 ? globals.channels[channel].maxOnBreak : conf_breaks.maxOnBreak;
 
     return totalOut < max;
 }
