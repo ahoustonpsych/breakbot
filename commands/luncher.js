@@ -11,17 +11,23 @@ module.exports = {
 
 function addLunch(user, time, channel) {
 
-    if (!(globals.hasOwnProperty(channel))) {
+    if (!(globals.channels.hasOwnProperty(channel))) {
         console.log('NO SCHEDULE: ' + Object.keys(globals));
         return false;
     }
 
     let schedule = globals.channels[channel].schedule;
 
-    if (schedule.hasOwnProperty(user)) {
-        console.log('ALREADY SCHEDULED: ' + Object.keys(globals.channels[channel]));
-        return false;
-    }
+    // if (schedule.hasOwnProperty(time)) {
+    //     if (schedule[time])
+    //     console.log('ALREADY SCHEDULED: ' + Object.keys(globals.channels[channel]));
+    //     return false;
+    // }
+
+    // if (Object.keys(schedule[time]) === 4) {
+    //     console.log('slot full')
+    //     return;
+    //}
 
     schedule[user] = {
         name: user,
@@ -29,14 +35,32 @@ function addLunch(user, time, channel) {
         notified: 0
     };
 
+    // if (!schedule.hasOwnProperty(time))
+    //     schedule[time] = [];
+    //
+    // schedule[time].push({
+    //     name: user,
+    //     time: time,
+    //     notified: 0
+    // });
+
     console.log('SCHEDULE: ');
-    console.log(schedule[user]);
+    console.log(schedule);
 
     return true;
 }
 
 function clearLunch(user, channel) {
     let schedule = globals.channels[channel].schedule;
+
+    // Object.keys(schedule).forEach((slot) => {
+    //     console.log(slot);
+    //     Object.keys(schedule[slot]).forEach(() => {
+    //         console.log(user)
+    //         if (user.user == user)
+    //             delete schedule[slot]
+    //     });
+    // });
 
     if (schedule[user] instanceof Object) {
         delete schedule[user];
@@ -68,7 +92,7 @@ function listLunch(channel) {
 
     let lunch_list = '*Lunch times:* ';
 
-    if (!(globals.hasOwnProperty(channel)))
+    if (!(globals.channels.hasOwnProperty(channel)))
         return false;
 
     let schedule = globals.channels[channel].schedule;
