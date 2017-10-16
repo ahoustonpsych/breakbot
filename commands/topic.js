@@ -73,5 +73,6 @@ function cleanTopic(topic) {
     return removeSpecial(topic)
         .replace(/chat(ters)?|cap(('|'n)?|tain)?|back(up)?|lead(er)?/ig, '')
         .split(' ')
-        .filter(function (el) { return el !== '' && slack.getUser(el.toLowerCase()) instanceof Object });
+        .filter(function (el) { return el !== '' && slack.getUser(el) instanceof Object })
+        .map((el) => { return slack.getUser(el).name });
 }
