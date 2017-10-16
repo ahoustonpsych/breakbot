@@ -66,7 +66,8 @@ slack.on('message', function (data) {
     if (!isApprovedChannel(slack.dataStore.getChannelGroupOrDMById(data.channel).name))
         return false;
 
-    if (!!data.user)
+    //ignore bots
+    if (data.hasOwnProperty('bot_user'))
         return false;
 
     //ignore own messages
@@ -91,7 +92,6 @@ function startProcessing(data) {
     let rawChannel = slack.dataStore.getChannelGroupOrDMById(data.channel);
 
     //add plaintext channel name to message object, for reference later
-
     if (!slack.getUser(data.user) instanceof Object)
         return false;
 

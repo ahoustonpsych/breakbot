@@ -12,14 +12,17 @@ module.exports = {
         wrapupfile: 'var/wrapup.save'
     },
 
-
     /* channels to operate in */
     channels: [
-        'breakbot-support',
-        'breakbot-livechat',
-        'breakbot-windows',
-        'breakbot_test'
+        'break',
+        'livechat',
     ],
+
+    /* ties channels to departments*/
+    channelDesignation: {
+        'support': 'breakbot-support',
+        'livechat': 'breakbot-livechat'
+    },
 
     /* path to the database containing command logs */
     logfile: {
