@@ -66,6 +66,9 @@ slack.on('message', function (data) {
     if (!isApprovedChannel(slack.dataStore.getChannelGroupOrDMById(data.channel).name))
         return false;
 
+    if (!!data.user)
+        return false;
+
     //ignore own messages
     //TODO fix this
     if (slack.getUser(data.user).name === 'breakbot.sftest')
