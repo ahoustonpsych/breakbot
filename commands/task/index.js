@@ -4,6 +4,7 @@ let globals = require('../../conf/config.globals');
 let conf_breaks = require('../../conf/config.breaks');
 //var breaks = require('../breaks');
 let db = require('../../lib/database');
+let topic = require('../topic');
 
 let offs = {'!task': 1, 'breakbot': 2};
 
@@ -153,7 +154,8 @@ function task(data) {
 }
 
 function isValidUser(user) {
-    return slack.dataStore.getUserByName(user) instanceof Object;
+    let cleaned = topic.removeSpecial(user);
+    return slack.getUser(cleaned) instanceof Object;
 }
 
 function putOnTask(data, user, time, reason) {

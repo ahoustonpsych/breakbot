@@ -28,16 +28,16 @@ function rm(data) {
             el = topic.removeSpecial(el);
 
             if (el.match(/^me$/i) !== null || el === '')
-                return slack.dataStore.getUserById(data.user).name;
+                return slack.getUser(data.user).name;
             else
-                return el;
+                return slack.getUser(el).name;
 
         });
 
     /* no arg given, default to the user who sent the message */
     if (arg instanceof Array)
         if (arg.length === 0)
-            arg = [slack.dataStore.getUserById(data.user).name];
+            arg = [slack.getUser(data.user).name];
 
     /* remove user(s) from topic */
     replaceChatter(oldtopic, arg, function (newtopic) {
