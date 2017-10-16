@@ -63,6 +63,9 @@ slack.on('authenticated', function (data) {
 /* always listening */
 slack.on('message', function (data) {
 
+    if (!isApprovedChannel(slack.dataStore.getChannelGroupOrDMById(data.channel).name))
+        return false;
+
     //ignore own messages
     //TODO fix this
     if (slack.getUser(data.user).name === 'breakbot.sftest')
@@ -85,8 +88,10 @@ function startProcessing(data) {
     let rawChannel = slack.dataStore.getChannelGroupOrDMById(data.channel);
 
     //add plaintext channel name to message object, for reference later
-    if (data.name === 'breakbot_test')
-        console.log(data);
+
+    if (!slack.getUser(data.user) instanceof Object)
+        return false;
+
     data.name = rawChannel.name;
 
     //add plaintext user name to message object, for reference later
@@ -112,6 +117,9 @@ function startProcessing(data) {
  * Returns true if we're in an approved channel
  */
 function isApprovedChannel(channelName) {
+    // console.log(channelName);
+    // console.log(conf.channels.indexOf(channelName));
+    // console.log(conf.channels);
     return conf.channels.indexOf(channelName) !== -1;
 }
 
