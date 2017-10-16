@@ -21,27 +21,32 @@ let Channel = require('./lib/channels');
 //let wrapup = require('./commands/wrapup');
 
 module.exports = {
-    startProcessing: startProcessing,
-    initChannel: initChannel
+    startProcessing: startProcessing
+    //initChannel: initChannel
 };
 
 
 slack.on('authenticated', function (data) {
+    console.log(new Date().toLocaleString() + ' authenticated to slack');
 
     /* init channel objects */
     data.channels.forEach((chan) => {
         if (chan.is_member) {
+            if (!isApprovedChannel(chan.name))
+                return false;
             let rawChannel = slack.dataStore.getChannelGroupOrDMById(chan.id);
             globals.channels[rawChannel.name] = new Channel(rawChannel)
         }
     });
 
     data.groups.forEach((chan) => {
+        if (!isApprovedChannel(chan.name))
+            return false;
         let rawChannel = slack.dataStore.getChannelGroupOrDMById(chan.id);
         globals.channels[rawChannel.name] = new Channel(rawChannel)
     });
-    //
-    // adp.getPunchedIn();
+
+    adp.getPunchedIn();
 
     //TODO
     //set topics for all channels when joined
@@ -60,7 +65,7 @@ slack.on('message', function (data) {
 
     //ignore own messages
     //TODO fix this
-    if (slack.dataStore.getUserById(data.user).name === 'breakbot.sftest')
+    if (slack.getUser(data.user).name === 'breakbot.sftest')
         return false;
 
     //console.log(globals.channels['breakbot-support']);
@@ -71,8 +76,7 @@ slack.on('message', function (data) {
 
 /* throw error if slack dies */
 slack.on('disconnect', data => {
-    console.error('**************SLACK DIED**************');
-    console.error(new Date());
+    console.error(new Date().toLocaleString() + ' **************SLACK DIED**************');
     throw new Error(data);
 });
 
@@ -84,15 +88,7 @@ function startProcessing(data) {
     data.name = rawChannel.name;
 
     //add plaintext user name to message object, for reference later
-    data.username = slack.dataStore.getUserById(data.user).profile.email.split('@')[0];
-
-    if (!isApprovedChannel(rawChannel.name))
-        return false;
-
-    globals.channels[data.name].breaks.increaseBreakCount('ahouston');
-
-    //console.log(globals.channels[data.name].breaks)
-    // console.log(newchan);
+    data.username = slack.getUser(data.user).name; //profile.email.split('@')[0];
 
     //initChannel(rawChannel);
 
@@ -109,74 +105,6 @@ function startProcessing(data) {
 
     messageController.handle(data);
 }
-
-//TODO
-function initChannel(channel) {
-
-    if (globals.hasOwnProperty(channel.name)) {
-        //update topic if global channel object exists
-        //globals.channels[channel.name].topic = channel.topic.value;
-        return false;
-
-    //globals.channels[channel.name] = new globals.Channel(channel.name, channel.id, channel.topic.value);
-    console.log('name: ' + channel.name);
-
-    //global channel object
-    globals.channels[channel.name] = {
-        name: channel.name,
-        id: channel.id,
-        topic: channel.topic.value,
-        //TODO
-        //make sure not to overwrite this data during restart
-        schedule: {},
-        punches: {},
-        punchCount: 0,
-        maxOnBreak: 5,
-        breaks: {
-            active: {},
-            bio: {},
-            lunch: {},
-            task: {},
-            over: {},
-            //meeting: {},
-            count: {},
-            cooldown: {},
-            increment: increaseBreakCount,
-            clearBreaks: clearBreaks
-        }
-    };
-}
-
-// //delete all breaks for a user
-// function clearBreaks(user, channel) {
-//     delete globals.channels[channel].breaks.active[user];
-//     delete globals.channels[channel].breaks.over[user];
-//     delete globals.channels[channel].breaks.lunch[user];
-//     delete globals.channels[channel].breaks.bio[user];
-// }
-//
-// /* increments user's break count for the day */
-// function increaseBreakCount(user, channel) {
-//     if (globals.hasOwnProperty(channel)) {
-//         if (!(globals.channels[channel].breaks.count.hasOwnProperty(user))) {
-//             globals.channels[channel].breaks.count[user] = 1;
-//             return true;
-//         }
-//         else if (globals.channels[channel].breaks.count[user] < conf_breaks.maxDailyBreaks) {
-//             globals.channels[channel].breaks.count[user] += 1;
-//             return true;
-//         }
-//         else if (globals.channels[channel].breaks.count[user] === conf_breaks.maxDailyBreaks) {
-//             console.log(new Date().toLocaleString() + ' ' + user + ' exceeded maximum daily breaks');
-//             return false;
-//         }
-//         else {
-//             console.error('BAD BREAK COUNT:');
-//             console.error(globals.channels[channel].breaks.count);
-//         }
-//     }
-//
-// }
 
 /*
  * Returns true if we're in an approved channel
