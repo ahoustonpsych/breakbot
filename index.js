@@ -4,8 +4,6 @@ let slack = require('./lib/slack').rtm;
 let conf = require('./conf/config');
 let conf_breaks = require('./conf/config.breaks');
 
-//let globs = require('./conf/config.globals');
-//let globals = {};
 let globals = require('./conf/config.globals');
 
 let messageController = require('./lib/messageController');
@@ -18,11 +16,9 @@ let breaks = require('./commands/breaks');
 
 let adp = require('./lib/adp');
 let Channel = require('./lib/channels');
-//let wrapup = require('./commands/wrapup');
 
 module.exports = {
     startProcessing: startProcessing
-    //initChannel: initChannel
 };
 
 
@@ -48,34 +44,23 @@ slack.on('authenticated', function (data) {
 
     adp.getPunchedIn();
 
-    //TODO
-    //set topics for all channels when joined
-    // if (isApprovedChannel(data))
-    //     //create channel objs
-    //     topic.topic = chan.topic.value;
-
-    // conf.channels.forEach(function (chan) {
-    //     globals.channels[chan] = require('./conf/config.globals');
-    // });
-
 });
 
 /* always listening */
 slack.on('message', function (data) {
+    //console.log(data);
 
     if (!isApprovedChannel(slack.dataStore.getChannelGroupOrDMById(data.channel).name))
         return false;
 
     //ignore bots
-    if (data.hasOwnProperty('bot_user'))
+    if (data.hasOwnProperty('bot_id'))
         return false;
 
     //ignore own messages
     //TODO fix this
     if (slack.getUser(data.user).name === 'breakbot.sftest')
         return false;
-
-    //console.log(globals.channels['breakbot-support']);
 
     startProcessing(data);
 
@@ -100,18 +85,15 @@ function startProcessing(data) {
     //add plaintext user name to message object, for reference later
     data.username = slack.getUser(data.user).name; //profile.email.split('@')[0];
 
-    //initChannel(rawChannel);
-
     //update topic
-    if (data.hasOwnProperty('subtype'))
+    if (data.hasOwnProperty('subtype')) {
         if (data.subtype === 'group_topic' || data.subtype === 'channel_topic') {
             //console.log(data)
             globals.channels[rawChannel.name].topic = data.topic;
             // console.log('updating topic')
             // console.log('data topic: ' + data.topic)
         }
-
-    //console.log(globals.channels[rawChannel.name]);
+    }
 
     messageController.handle(data);
 }
