@@ -26,6 +26,19 @@ function limit(data) {
 
     slack.sendMessage('max users on break: ' + globals.channels[data.name].maxOnBreak, data.channel);
 
+    /* logging */
+    let logdata = {
+        username: data.username,
+        channel: data.name,
+        command: '!limit',
+        date: 'now'
+    };
+
+    db.log('command_history', logdata)
+        .catch(function (err) {
+            console.error(new Date().toLocaleString() + ' ERROR LOGGING COMMAND', err);
+        });
+
     // //disabling unless I need it
     // return false;
     //

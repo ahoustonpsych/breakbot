@@ -1,9 +1,9 @@
-var fs = require('fs');
-var request = require('request');
-var web = require('../../lib/slack').web;
-var db = require('../../lib/database');
-var slack = require('../../lib/slack').rtm;
-var token = require('../../conf/config').slackAPIKey;
+let fs = require('fs');
+let request = require('request');
+let web = require('../../lib/slack').web;
+let db = require('../../lib/database');
+let slack = require('../../lib/slack').rtm;
+let token = require('../../conf/config').slackAPIKey;
 
 module.exports = {
     expr: /^(!parrot)|(breakbot:? parrot)/i,
@@ -24,8 +24,9 @@ function parrot(data) {
     }, function (err, res) {
         if (err) console.error(err.body);
         else {
-            var logdata = {
+            let logdata = {
                 username: slack.dataStore.getUserById(data.user).name,
+                channel: data.name,
                 date: 'now',
                 command: '!parrot'
             };

@@ -70,6 +70,7 @@ function lunch(data) {
     /* logging */
     let logdata = {
         username: username,
+        channel: data.name,
         command: '!lunch',
         duration: _time,
         date: 'now'

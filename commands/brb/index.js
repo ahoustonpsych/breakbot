@@ -82,6 +82,7 @@ function brb(data) {
             /* logging */
             let logdata = {
                 username: username,
+                channel: data.name,
                 command: '!brb',
                 duration: time,
                 date: 'now'

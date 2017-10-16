@@ -58,6 +58,7 @@ function logIn(data, username) {
     /* logging */
     let logdata = {
         username: username,
+        channel: data.name,
         date: 'now',
         command: '!back'
     };

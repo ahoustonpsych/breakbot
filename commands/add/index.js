@@ -1,9 +1,9 @@
-var slack = require('../../lib/slack').rtm;
-var topic = require('../topic');
+let slack = require('../../lib/slack').rtm;
+let topic = require('../topic');
 
 let globals = require('../../conf/config.globals');
 
-var offs = {'!add': 1, 'breakbot': 2};
+let offs = {'!add': 1, 'breakbot': 2};
 
 module.exports = {
     expr: /^(!add)|(breakbot:? add)/i,
@@ -18,7 +18,7 @@ function add(data) {
         off = offs['breakbot'];
 
     /* try to parse the arg if given. if it can't, defaults to the user that sent the message*/
-    var arg = data.text.split(' ')
+    let arg = data.text.split(' ')
         .slice(off)
         .map(function (el) {
             el = topic.removeSpecial(el);

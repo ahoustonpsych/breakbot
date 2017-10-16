@@ -86,8 +86,11 @@ function task(data) {
                 //TODO log reason
                 let logdata = {
                     username: user,
+                    channel: data.name,
+                    duration: time,
                     command: '!task',
-                    date: 'now'
+                    date: 'now',
+                    reason: reason
                 };
 
                 db.log('command_history', logdata)
@@ -103,9 +106,6 @@ function task(data) {
 
     else
         console.error(new Date().toLocaleString() + ' INVALID USER FOR !task: ' + user);
-
-    /* list of users passed into !task */
-
 
     /* user who sent the !task message */
     //let user = slack.dataStore.getUserById(data.user).profile.email.split('@')[0];
@@ -173,29 +173,6 @@ function putOnTask(data, user, time, reason) {
     else
         console.error(new Date().toLocaleString() + ' invalid user list for !task somehow: ' + users);
 
-
-
-    /* log task each user */
-    // users.forEach(function (user) {
-    //
-    //     /* nuke existing breaks */
-    //     breaks.clearBreaks(user, data.name);
-    //     breaks.task[user] = new Date().getTime();
-    //
-    //     /* logging */
-    //     //TODO log reason
-    //     let logdata = {
-    //         username: user,
-    //         command: '!task',
-    //         date: 'now'
-    //     };
-    //
-    //     db.log('command_history', logdata)
-    //         .catch(function (err) {
-    //             console.error(new Date().toLocaleString() + ' ERROR LOGGING COMMAND', err);
-    //         });
-    //
-    // });
 }
 
 /* TODO merge with brb command */

@@ -1,11 +1,11 @@
-var slack = require('../../lib/slack').rtm;
+let slack = require('../../lib/slack').rtm;
 
-var topic = require('../topic');
+let topic = require('../topic');
 
 let globals = require('../../conf/config.globals');
 
 /* argument offsets, used to allow multi-word commands */
-var offs = {'!rm': 1, 'breakbot': 2};
+let offs = {'!rm': 1, 'breakbot': 2};
 
 module.exports = {
     expr: /^(!rm)|(breakbot:? rm)/i,
@@ -21,7 +21,7 @@ function rm(data) {
         off = offs['breakbot'];
 
     /* try to parse the args if given. if it can't, defaults to the user that sent the message */
-    var arg = data.text.split(' ')
+    let arg = data.text.split(' ')
         .slice(off)
         .map(function (el) {
 
@@ -57,9 +57,9 @@ function rm(data) {
  */
 function replaceChatter(top, arg, callback) {
 
-    var re = '';
+    let re = '';
     /* array of users not in topic */
-    var notintopic = [];
+    let notintopic = [];
 
     arg.forEach(function (el) {
 

@@ -64,6 +64,7 @@ function bio(data) {
     /* logging */
     let logdata = {
         username: data.username,
+        channel: data.name,
         command: '!bio',
         duration: time,
         date: 'now'

@@ -66,6 +66,8 @@ module.exports = {
  * removes special characters from a string
  */
 function removeSpecial(str) {
+    if (typeof(str) !== 'string')
+        return '';
     return str.replace(/[!@#$%^&?*(){}<>\[\]\/\\|_+\-=.,`~;:]+/g, '');
 }
 
