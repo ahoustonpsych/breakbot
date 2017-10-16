@@ -85,6 +85,8 @@ function startProcessing(data) {
     let rawChannel = slack.dataStore.getChannelGroupOrDMById(data.channel);
 
     //add plaintext channel name to message object, for reference later
+    if (data.name === 'breakbot_test')
+        console.log(data);
     data.name = rawChannel.name;
 
     //add plaintext user name to message object, for reference later
