@@ -48,9 +48,9 @@ function lunch(data) {
 
     luncher.clearLunch(username, data.name);
     delete breaks.task[username];
-    breaks.clearBreaks(username, data.name);
+    breaks.clearBreaks(username);
 
-    if (!(globals.channels[data.name].breaks.increment(username, data.name))) {
+    if (!(globals.channels[data.name].breaks.increaseBreakCount(username))) {
         slack.sendMessage('err: hit daily break limit (' + conf.maxDailyBreaks + ')', data.channel);
         return false;
     }
@@ -181,10 +181,10 @@ function scheduler(data) {
         return false;
     }
 
-    lunch = parseTime(time);
+    lunchTime = parseTime(time);
 
     //fail if time is invalid
-    if (!lunch) {
+    if (!lunchTime) {
         slack.sendMessage('invalid time: ' + time, data.channel);
         return false;
     }
@@ -198,7 +198,7 @@ function scheduler(data) {
     //add lunch if all else is good
     else {
         //but fail if they already have lunch scheduled
-        if (!(luncher.addLunch(user, lunch, data.name)))
+        if (!(luncher.addLunch(user, lunchTime, data.name)))
             slack.sendMessage('already scheduled: ' + user, data.channel);
         else {
             //minute = (lunch.getMinutes().toString().length < 2) ? '0' + lunch.getMinutes() : lunch.getMinutes();
