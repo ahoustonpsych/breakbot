@@ -42,10 +42,8 @@ function rm(data) {
     /* remove user(s) from topic */
     replaceChatter(oldtopic, arg, function (newtopic) {
         //callback
-        console.log('newtopic: ' + newtopic)
         if (!(newtopic instanceof Array))
             topic.setTopic(data, newtopic);
-
         else
             slack.sendMessage('not in topic: ' + newtopic.join(' '), data.channel);
 

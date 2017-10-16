@@ -9,6 +9,8 @@ let config = {
     wrapupTime: 45,
     /* how long to wait before expiring a lunch slot, in minutes */
     lunchExpire: 120,
+    /* maximum number of users per lunch slot */
+    maxLunchSlot: 4,
     /* maximum number of breaks someone can take per day */
     maxDailyBreaks: 5,
     /* default maximum number of people on break at a time */

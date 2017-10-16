@@ -22,7 +22,7 @@ function add(data) {
         .slice(off)
         .map(function (el) {
             el = topic.removeSpecial(el);
-            console.log(el)
+            //console.log(el)
             if (el.match(/^me$/i))
                 return slack.getUser(data.user).name;
             else

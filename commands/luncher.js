@@ -2,6 +2,7 @@
 let Promise = require('promise');
 let slack = require('../lib/slack').rtm;
 let globals = require('../conf/config.globals');
+let conf_breaks = require('../conf/config.breaks');
 
 module.exports = {
     addLunch: addLunch,
@@ -13,30 +14,16 @@ module.exports = {
 function addLunch(user, time, channel) {
     return new Promise(function (fulfill, reject) {
         if (!(globals.channels.hasOwnProperty(channel))) {
-            console.log('NO SCHEDULE: ' + Object.keys(globals));
+            console.log(new Date().toLocaleString() + ' NO SCHEDULE: ' + Object.keys(globals));
             return false;
         }
 
         let schedule = globals.channels[channel].schedule;
 
-        // if (schedule.hasOwnProperty(time)) {
-        //     if (schedule[time])
-        //     console.log('ALREADY SCHEDULED: ' + Object.keys(globals.channels[channel]));
-        //     return false;
-        // }
-
-        // if (Object.keys(schedule[time]) === 4) {
-        //     console.log('slot full')
-        //     return;
-        //}
-
-        //TODO
-        //really need to fix this
-
         if (!schedule.hasOwnProperty(time))
             schedule[time] = [];
 
-        if (schedule[time].length >= 4) {
+        if (schedule[time].length >= conf_breaks.maxLunchSlot) {
             reject('err: slot full');
             return false;
         }
@@ -54,26 +41,6 @@ function addLunch(user, time, channel) {
                 reject('err: already scheduled');
                 return false;
             });
-
-        // if (isScheduled(user, channel)) {
-        //     reject('err: already scheduled');
-        // }
-
-
-
-        // schedule[time].push({
-        //     name: user,
-        //     time: time,
-        //     notified: 0
-        // });
-
-        //fulfill();
-
-        // schedule[user] = {
-        //     name: user,
-        //     time: time,
-        //     notified: 0
-        // };
 
         // console.log('SCHEDULE: ');
         // console.log(schedule);
@@ -131,9 +98,6 @@ function listLunch(channel) {
 
     let schedule = globals.channels[channel].schedule;
 
-    // console.log('sched:')
-    // console.log(schedule.length)
-
     //loop through lunch schedule to build a list
     if (Object.keys(schedule).length !== 0) {
         Object.keys(schedule).forEach((time) => {
@@ -148,15 +112,12 @@ function listLunch(channel) {
             //
             // console.log('time: ' + schedule[user].time);
 
-            //console.log(list);
-
         });
     }
 
     //return if nobody is scheduled for lunch
-    else {
+    else
         return false;
-    }
 
     list = list.sort(function (first, second) {
         //sorts by lunch time
