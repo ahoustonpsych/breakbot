@@ -1,87 +1,121 @@
 
+let Promise = require('promise');
 let slack = require('../lib/slack').rtm;
 let globals = require('../conf/config.globals');
 
 module.exports = {
     addLunch: addLunch,
     clearLunch: clearLunch,
-    checkDupe: checkDupe,
+    isScheduled: isScheduled,
     listLunch: listLunch
 };
 
 function addLunch(user, time, channel) {
+    return new Promise(function (fulfill, reject) {
+        if (!(globals.channels.hasOwnProperty(channel))) {
+            console.log('NO SCHEDULE: ' + Object.keys(globals));
+            return false;
+        }
 
-    if (!(globals.channels.hasOwnProperty(channel))) {
-        console.log('NO SCHEDULE: ' + Object.keys(globals));
-        return false;
-    }
+        let schedule = globals.channels[channel].schedule;
 
-    let schedule = globals.channels[channel].schedule;
+        // if (schedule.hasOwnProperty(time)) {
+        //     if (schedule[time])
+        //     console.log('ALREADY SCHEDULED: ' + Object.keys(globals.channels[channel]));
+        //     return false;
+        // }
 
-    // if (schedule.hasOwnProperty(time)) {
-    //     if (schedule[time])
-    //     console.log('ALREADY SCHEDULED: ' + Object.keys(globals.channels[channel]));
-    //     return false;
-    // }
+        // if (Object.keys(schedule[time]) === 4) {
+        //     console.log('slot full')
+        //     return;
+        //}
 
-    // if (Object.keys(schedule[time]) === 4) {
-    //     console.log('slot full')
-    //     return;
-    //}
+        //TODO
+        //really need to fix this
 
-    schedule[user] = {
-        name: user,
-        time: time,
-        notified: 0
-    };
+        if (!schedule.hasOwnProperty(time))
+            schedule[time] = [];
 
-    // if (!schedule.hasOwnProperty(time))
-    //     schedule[time] = [];
-    //
-    // schedule[time].push({
-    //     name: user,
-    //     time: time,
-    //     notified: 0
-    // });
+        if (schedule[time].length >= 4) {
+            reject('err: slot full');
+            return false;
+        }
 
-    console.log('SCHEDULE: ');
-    console.log(schedule);
+        isScheduled(user, channel)
+            .then((res) => {
+                schedule[time].push({
+                    name: user,
+                    time: time,
+                    notified: 0
+                });
+                fulfill();
+            })
+            .catch((err) => {
+                reject('err: already scheduled');
+                return false;
+            });
 
-    return true;
+        // if (isScheduled(user, channel)) {
+        //     reject('err: already scheduled');
+        // }
+
+
+
+        // schedule[time].push({
+        //     name: user,
+        //     time: time,
+        //     notified: 0
+        // });
+
+        //fulfill();
+
+        // schedule[user] = {
+        //     name: user,
+        //     time: time,
+        //     notified: 0
+        // };
+
+        // console.log('SCHEDULE: ');
+        // console.log(schedule);
+
+    });
 }
 
 function clearLunch(user, channel) {
-    let schedule = globals.channels[channel].schedule;
+    return new Promise(function (fulfill, reject) {
+        let schedule = globals.channels[channel].schedule;
 
-    // Object.keys(schedule).forEach((slot) => {
-    //     console.log(slot);
-    //     Object.keys(schedule[slot]).forEach(() => {
-    //         console.log(user)
-    //         if (user.user == user)
-    //             delete schedule[slot]
-    //     });
-    // });
+        Object.keys(schedule).forEach((slot) => {
+            Object.keys(schedule[slot]).forEach((userIdx) => {
+                if (schedule[slot][userIdx].name === user) {
+                    delete schedule[slot][userIdx];
+                    console.log(new Date().toLocaleString() + ' removed schedule lunch for ' + user);
+                    fulfill('removed lunch time');
+                }
+            })
+        });
 
-    if (schedule[user] instanceof Object) {
-        delete schedule[user];
-        return true;
-    }
-
-    else
-        return false;
-
+        reject('lunch not found');
+    });
 }
 
-function checkDupe(time, channel) {
-    let schedule = globals.channels[channel].schedule;
+function isScheduled(name, channel) {
+    return new Promise(function (fulfill, reject) {
+        let schedule = globals.channels[channel].schedule;
 
-    for (let user in schedule) {
-        if ((schedule[user].time.getHours() === time.getHours()) && (schedule[user].time.getMinutes() === time.getMinutes())) {
-            return false;
-        }
-    }
+        Object.keys(schedule).forEach((slot) => {
+            //console.log(schedule[slot])
+            Object.keys(schedule[slot]).forEach((userIdx) => {
+                //console.log(schedule[slot][userIdx])
+                if (schedule[slot][userIdx].name === name) {
+                    //console.log('fail')
+                    reject('is scheduled');
+                }
+            });
+        });
 
-    return true;
+        fulfill('not scheduled');
+    });
 }
 
 function listLunch(channel) {
@@ -102,17 +136,17 @@ function listLunch(channel) {
 
     //loop through lunch schedule to build a list
     if (Object.keys(schedule).length !== 0) {
-        Object.keys(schedule).forEach(function (user) {
-
+        Object.keys(schedule).forEach((time) => {
+            schedule[time].forEach((user) => {
+                list.push({
+                    user: user.name,
+                    time: user.time
+                });
+            });
             // console.log('schedule: ' + Object.keys(globals.channels[channel].schedule['ahouston']))
             // console.log('schedule: ' + schedule[user].name);
             //
             // console.log('time: ' + schedule[user].time);
-
-            list.push({
-                user: schedule[user].name,
-                time: schedule[user].time
-            });
 
             //console.log(list);
 

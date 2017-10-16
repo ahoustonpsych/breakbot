@@ -1,7 +1,7 @@
 {
   "name": "breakbot",
-  "version": "0.1.0",
-  "description": "slack bot that facilitates livechat agents taking breaks",
+  "version": "2.0.0",
+  "description": "slack bot that facilitates employees taking breaks",
   "main": "index.js",
   "dependencies": {
     "@slack/client": "^3.6.0",
@@ -15,7 +15,7 @@
     "mocha": "^3.2.0"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha test/test.js"
   },
   "repository": {
     "type": "git",

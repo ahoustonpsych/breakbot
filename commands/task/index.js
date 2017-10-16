@@ -83,7 +83,6 @@ function task(data) {
                 //breaks.task[user] = new Date().getTime();
 
                 /* logging */
-                //TODO log reason
                 let logdata = {
                     username: user,
                     channel: data.name,

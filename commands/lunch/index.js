@@ -144,22 +144,23 @@ function scheduler(data) {
             name = user;
 
         //fail if invalid user
-        if (!(slack.dataStore.getUserByName(name) instanceof Object)) {
+        if (!(slack.getUser(name) instanceof Object)) {
             slack.sendMessage('invalid user: ' + name, data.channel);
             return false;
         }
 
         //fail if lunch time doesn't exist
-        else if (!(luncher.clearLunch(name, data.name))) {
-            slack.sendMessage('lunch not found for: ' + name, data.channel);
-            return false;
-        }
+        luncher.clearLunch(name, data.name)
+            .then((res) => {
+                slack.sendMessage('removed lunch for: ' + name, data.channel);
+                return true;
+            })
+            .catch((err) => {
+                slack.sendMessage('lunch not found for: ' + name, data.channel);
+                return false;
+            });
 
-        else {
-            slack.sendMessage('removed lunch for: ' + name, data.channel);
-            return true;
-        }
-
+        return;
     }
 
     //match username if possible
@@ -197,15 +198,15 @@ function scheduler(data) {
     // }
 
     //add lunch if all else is good
-    else {
-        //but fail if they already have lunch scheduled
-        if (!(luncher.addLunch(user, lunchTime, data.name)))
-            slack.sendMessage('already scheduled: ' + user, data.channel);
-        else {
-            //minute = (lunch.getMinutes().toString().length < 2) ? '0' + lunch.getMinutes() : lunch.getMinutes();
+    luncher.addLunch(user, lunchTime, data.name)
+        .then(() => {
             slack.sendMessage('Set lunch for: ' + user, data.channel);
-        }
-    }
+        })
+        .catch((err) => {
+            console.log(err);
+            //fail if already scheduled or if slot is full
+            slack.sendMessage(err, data.channel);
+        });
 }
 
 //returns date obj if time is valid, false otherwise
@@ -259,7 +260,7 @@ function parseTime(time) {
     if (hour > 23 || hour < 0 || minute > 59 || minute < 0)
         return false;
 
-    lunchtime = new Date(timeobj.setHours(hour, minute));
+    lunchtime = new Date(timeobj.setHours(hour, minute, 0, 0));
 
     //add 12 hours until the desired time is later than the current time
     while (lunchtime < new Date()) {
