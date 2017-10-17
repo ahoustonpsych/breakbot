@@ -50,7 +50,7 @@ function lunch(data) {
     delete breaks.task[username];
     breaks.clearBreaks(username);
 
-    if (!(globals.channels[data.name].breaks.increaseBreakCount(username))) {
+    if (!(breaks.increaseBreakCount(username))) {
         slack.sendMessage('err: hit daily break limit (' + conf.maxDailyBreaks + ')', data.channel);
         return false;
     }
