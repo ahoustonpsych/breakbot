@@ -150,18 +150,13 @@ function scheduler(data) {
             slack.sendMessage('invalid user: ' + name, data.channel);
             return false;
         }
-        console.log('rm command')
         //fail if lunch time doesn't exist
         luncher.clearLunch(name, data.name)
             .then((res) => {
-                console.log('lunch found')
-                console.log(data)
                 slack.sendMessage('removed lunch for: ' + name, data.channel);
                 return false
             })
             .catch((err) => {
-                console.log('lunch not found')
-                console.log(data)
                 slack.sendMessage('lunch not found for: ' + name, data.channel);
                 //return false;
             });

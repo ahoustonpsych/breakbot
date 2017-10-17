@@ -84,7 +84,6 @@ function isScheduled(name, channel) {
         Object.keys(schedule).forEach((slot) => {
             Object.keys(schedule[slot]).forEach((userIdx) => {
                 if (schedule[slot][userIdx].name === name) {
-                    //console.log('fail')
                     fulfill('is scheduled');
                 }
             });
