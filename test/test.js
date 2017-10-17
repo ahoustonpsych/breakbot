@@ -856,7 +856,7 @@ describe('Commands', function () {
     });
 
     describe('#Lunch scheduling', () => {
-        let futureTime = new Date(new Date().setHours(18, 0, 0, 0));
+        let futureTime = new Date(new Date().setHours(24, 0, 0, 0));
 
         before(function (done) {
             emitter = new EventEmitter();
@@ -868,17 +868,18 @@ describe('Commands', function () {
                 done();
             });
             describe('#set lunch time', () => {
-                it('should create lunch slot for ahouston at 18:00', done => {
+                it('should create lunch slot for ahouston at 12:00', done => {
                     emitter.on('sendMessage', res => {
                         expect(res).to.eql({
                             message: 'Set lunch for: ahouston',
                             channel: CHANLIST['breakbot-support']
                         });
+                        console.log(globals.channels['breakbot-support'].schedule[futureTime]);
                         expect(globals.channels['breakbot-support'].schedule).to.have.property(futureTime);
                         done();
                     });
 
-                    data.text = '!lunch 6:00';
+                    data.text = '!lunch 12:00';
                     bot.startProcessing(data);
                 });
             });
@@ -922,7 +923,7 @@ describe('Commands', function () {
                             });
 
                             addLunchSlot('ahouston', 'breakbot-support', futureTime);
-                            data.text = '!lunch 7:00';
+                            data.text = '!lunch 12:00';
                             bot.startProcessing(data);
                         });
                     });
@@ -934,7 +935,7 @@ describe('Commands', function () {
                         done();
                     });
                     describe('same time', () => {
-                        it('should schedule lunch for bnewman at 18:00', done => {
+                        it('should schedule lunch for bnewman at 12:00', done => {
                             emitter.on('sendMessage', res => {
                                 expect(res).to.eql({
                                     message: 'Set lunch for: bnewman',
@@ -945,13 +946,13 @@ describe('Commands', function () {
                             });
 
                             addLunchSlot('ahouston', 'breakbot-support', futureTime);
-                            data.text = '!lunch bnewman 6:00';
+                            data.text = '!lunch bnewman 12:00';
                             bot.startProcessing(data);
                         });
                     });
 
                     describe('different time', () => {
-                        it('should schedule lunch for bnewman at 19:00', done => {
+                        it('should schedule lunch for bnewman at 13:00', done => {
                             emitter.on('sendMessage', res => {
                                 expect(res).to.eql({
                                     message: 'Set lunch for: bnewman',
@@ -962,7 +963,7 @@ describe('Commands', function () {
                             });
 
                             addLunchSlot('ahouston', 'breakbot-support', futureTime);
-                            data.text = '!lunch bnewman 7:00';
+                            data.text = '!lunch bnewman 13:00';
                             bot.startProcessing(data);
                         });
                     });
