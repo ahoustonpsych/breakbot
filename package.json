@@ -8,9 +8,12 @@
     "body-parser": "^1.18.2",
     "express": "^4.14.0",
     "promise": "^7.1.1",
+    "request": "^2.83.0",
+    "sinon": "^4.0.1",
     "sqlite3": "^3.1.8"
   },
   "devDependencies": {
+    "expect.js": "^0.3.1",
     "istanbul": "^0.4.5",
     "mocha": "^3.2.0"
   },
