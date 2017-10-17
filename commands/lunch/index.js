@@ -204,7 +204,7 @@ function scheduler(data) {
             slack.sendMessage('Set lunch for: ' + user, data.channel);
         })
         .catch((err) => {
-            console.log(err);
+            //console.log(err);
             //fail if already scheduled or if slot is full
             slack.sendMessage(err, data.channel);
         });
