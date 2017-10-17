@@ -12,7 +12,7 @@ let config = {
     /* maximum number of users per lunch slot */
     maxLunchSlot: 4,
     /* maximum number of breaks someone can take per day */
-    maxDailyBreaks: 5,
+    maxDailyBreaks: 4,
     /* default maximum number of people on break at a time */
     maxOnBreak: 5,
     /* percentage of people punched in that can be on break */
