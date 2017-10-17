@@ -62,12 +62,7 @@ function brb(data) {
     parseBreakTime(arg)
         .then(function (time) {
 
-            breaks.active[username] = {remaining: time};
-
-            /* sets agent status to "not accepting chats" */
-            slack.sendMessage('Set break for ' + username + ' for ' + time.toString() + ' minutes.', data.channel);
-
-            // setBreak(username, time, data.channel);
+            // breaks.active[username] = {remaining: time};
 
             if (breaks.task.hasOwnProperty(username))
                 delete breaks.task[username];
@@ -78,6 +73,9 @@ function brb(data) {
                 channel: data.channel,
                 remaining: time
             };
+
+            /* notify user */
+            slack.sendMessage('Set break for ' + username + ' for ' + time.toString() + ' minutes.', data.channel);
 
             /* logging */
             let logdata = {

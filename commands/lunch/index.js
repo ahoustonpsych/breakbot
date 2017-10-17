@@ -46,7 +46,9 @@ function lunch(data) {
     if (!breakLib.canTakeBreak(username, data.name))
         return false;
 
-    luncher.clearLunch(username, data.name);
+    luncher.clearLunch(username, data.name)
+        .then(() => {})
+        .catch((err) => {});
     delete breaks.task[username];
     breaks.clearBreaks(username);
 
@@ -55,15 +57,15 @@ function lunch(data) {
         return false;
     }
 
-    /* sets agent status to "not accepting chats" */
-    slack.sendMessage('Set lunch for ' + username + '. See you in 30 minutes!', data.channel);
-
     breaks.lunch[username] = {
         outTime: new Date().getTime(),
         duration: _time,
         channel: data.name,
         remaining: _time
     };
+
+    /* sets agent status to "not accepting chats" */
+    slack.sendMessage('Set lunch for ' + username + '. See you in 30 minutes!', data.channel);
 
     //setBreak(username, _time, data.channel);
 
@@ -148,16 +150,20 @@ function scheduler(data) {
             slack.sendMessage('invalid user: ' + name, data.channel);
             return false;
         }
-
+        console.log('rm command')
         //fail if lunch time doesn't exist
         luncher.clearLunch(name, data.name)
             .then((res) => {
+                console.log('lunch found')
+                console.log(data)
                 slack.sendMessage('removed lunch for: ' + name, data.channel);
-                return true;
+                return false
             })
             .catch((err) => {
+                console.log('lunch not found')
+                console.log(data)
                 slack.sendMessage('lunch not found for: ' + name, data.channel);
-                return false;
+                //return false;
             });
 
         return;

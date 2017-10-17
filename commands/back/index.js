@@ -44,16 +44,12 @@ function logIn(data, username) {
 
     let breaks = globals.channels[data.name].breaks;
 
-    slack.sendMessage(username + ': welcome back!', data.channel);
-
     breaks.clearBreaks(username);
     delete breaks.task[username];
 
     breaks.cooldown[username] = new Date(new Date().getTime() + 60 * 1000 * conf_breaks.breakCooldown);
-    // setTimeout(() => {
-    //     delete breaks.cooldown[username];
-    //     console.log(new Date().toLocaleString() + ' break cooldown expired for ' + username);
-    // }, 60 * 1000 * conf_breaks.breakCooldown);
+
+    slack.sendMessage(username + ': welcome back!', data.channel);
 
     /* logging */
     let logdata = {

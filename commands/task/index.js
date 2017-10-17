@@ -67,8 +67,6 @@ function task(data) {
     if (typeof(user) === 'string') {
         parseBreakTime(time)
             .then((time) => {
-                slack.sendMessage('Put ' + user + ' on task for ' + time + ' minutes. ' +
-                    'Please use *!back* to log back in when you are done', data.channel);
 
                 /* nuke existing breaks */
                 breaks.clearBreaks(user, data.name);
@@ -80,7 +78,8 @@ function task(data) {
                     remaining: time
                 };
 
-                //breaks.task[user] = new Date().getTime();
+                slack.sendMessage('Put ' + user + ' on task for ' + time + ' minutes. ' +
+                    'Please use *!back* to log back in when you are done', data.channel);
 
                 /* logging */
                 let logdata = {

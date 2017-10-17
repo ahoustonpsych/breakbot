@@ -49,9 +49,6 @@ function bio(data) {
     delete breaks.task[data.username];
     breaks.clearBreaks(data.username, data.name);
 
-    /* sets agent status to "not accepting chats" */
-    slack.sendMessage('Set ' + time.toString() + ' minute bio for ' + data.username + '.', data.channel);
-
     //setBreak(username, time, data.channel);
 
     breaks.bio[data.username] = {
@@ -60,6 +57,9 @@ function bio(data) {
         channel: data.channel,
         remaining: time
     };
+
+    /* sets agent status to "not accepting chats" */
+    slack.sendMessage('Set ' + time.toString() + ' minute bio for ' + data.username + '.', data.channel);
 
     /* logging */
     let logdata = {

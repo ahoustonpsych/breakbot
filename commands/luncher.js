@@ -29,18 +29,19 @@ function addLunch(user, time, channel) {
         }
 
         isScheduled(user, channel)
-            .then((res) => {
+            .then((err) => {
+                reject('err: already scheduled');
+                return false;
+            })
+            .catch((res) => {
                 schedule[time].push({
                     name: user,
                     time: time,
                     notified: 0
                 });
                 fulfill();
-            })
-            .catch((err) => {
-                reject('err: already scheduled');
-                return false;
             });
+
 
         // console.log('SCHEDULE: ');
         // console.log(schedule);
@@ -50,19 +51,29 @@ function addLunch(user, time, channel) {
 
 function clearLunch(user, channel) {
     return new Promise(function (fulfill, reject) {
+
+        isScheduled(user, channel)
+            .then(() => {})
+            .catch((err) => reject('not scheduled'));
+
         let schedule = globals.channels[channel].schedule;
 
+        //TODO
+        //runs twice in my tests, need to fix that
+        //seems fine live though
         Object.keys(schedule).forEach((slot) => {
-            Object.keys(schedule[slot]).forEach((userIdx) => {
+            Object.keys(schedule[slot]).forEach(function (userIdx) {
                 if (schedule[slot][userIdx].name === user) {
+                    console.log(new Date().toLocaleString() + ' removed scheduled lunch for ' + user);
                     delete schedule[slot][userIdx];
-                    console.log(new Date().toLocaleString() + ' removed schedule lunch for ' + user);
                     fulfill('removed lunch time');
                 }
             })
         });
+        //delete globals.channels[channel].schedule[target[0]][target[1]];
+        //fulfill('removed')
 
-        reject('lunch not found');
+        //reject('lunch not found');
     });
 }
 
@@ -71,17 +82,15 @@ function isScheduled(name, channel) {
         let schedule = globals.channels[channel].schedule;
 
         Object.keys(schedule).forEach((slot) => {
-            //console.log(schedule[slot])
             Object.keys(schedule[slot]).forEach((userIdx) => {
-                //console.log(schedule[slot][userIdx])
                 if (schedule[slot][userIdx].name === name) {
                     //console.log('fail')
-                    reject('is scheduled');
+                    fulfill('is scheduled');
                 }
             });
         });
 
-        fulfill('not scheduled');
+        reject('not scheduled');
     });
 }
 
