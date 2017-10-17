@@ -59,7 +59,7 @@ slack.on('message', function (data) {
 
     //ignore own messages
     //TODO fix this
-    if (slack.getUser(data.user).name === 'breakbot.sftest')
+    if (slack.getUser(data.user).name === 'breakbot')
         return false;
 
     startProcessing(data);
