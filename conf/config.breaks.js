@@ -17,6 +17,8 @@ let config = {
     maxOnBreak: 5,
     /* percentage of people punched in that can be on break */
     maxOnBreakPercentage: .1,
+
+    maxOnBreakPercentageLiveChat: .3,
     /* minimum time required between two breaks, in minutes */
     breakCooldown: 60
 };
