@@ -47,7 +47,7 @@ function logIn(data, username) {
     breaks.clearBreaks(username);
     delete breaks.task[username];
 
-    breaks.cooldown[username] = new Date(new Date().getTime() + 60 * 1000 * conf_breaks.breakCooldown);
+    // breaks.cooldown[username] = new Date(new Date().getTime() + 60 * 1000 * conf_breaks.breakCooldown);
 
     slack.sendMessage(username + ': welcome back!', data.channel);
 

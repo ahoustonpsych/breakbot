@@ -1,7 +1,7 @@
 let slack = require('../../lib/slack').rtm;
 let Promise = require('promise');
 
-let conf = require('../../conf/config.breaks');
+let conf_breaks = require('../../conf/config.breaks');
 let globals = require('../../conf/config.globals');
 
 let db = require('../../lib/database');
@@ -74,6 +74,10 @@ function brb(data) {
                 remaining: time
             };
 
+            /* set break cooldown */
+            breaks.cooldown[username] =
+                new Date(new Date().getTime() + 60 * 1000 * (conf_breaks.breakCooldown + time));
+
             /* notify user */
             slack.sendMessage('Set break for ' + username + ' for ' + time.toString() + ' minutes.', data.channel);
 
@@ -120,11 +124,11 @@ function parseBreakTime(time) {
     return new Promise(function (fulfill, reject) {
         /* sets break time to the default if it's not provided */
         if (!parseInt(time))
-            fulfill(conf.defaultBreak);
+            fulfill(conf_breaks.defaultBreak);
 
         /* prevents the break time from being negative, zero, or higher than the max time */
-        else if ((parseInt(time) > conf.maxBreak) || (parseInt(time) <= 0))
-            fulfill(conf.defaultBreak);
+        else if ((parseInt(time) > conf_breaks.maxBreak) || (parseInt(time) <= 0))
+            fulfill(conf_breaks.defaultBreak);
 
         /* if all else is good, set break time properly */
         else

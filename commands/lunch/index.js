@@ -1,6 +1,6 @@
 let slack = require('../../lib/slack').rtm;
 
-let conf = require('../../conf/config.breaks.js');
+let conf_breaks = require('../../conf/config.breaks.js');
 let db = require('../../lib/database');
 //let requests = require('../lc_requests');
 let globals = require('../../conf/config.globals');
@@ -53,7 +53,7 @@ function lunch(data) {
     breaks.clearBreaks(username);
 
     if (!(breaks.increaseBreakCount(username))) {
-        slack.sendMessage('err: hit daily break limit (' + conf.maxDailyBreaks + ')', data.channel);
+        slack.sendMessage('err: hit daily break limit (' + conf_breaks.maxDailyBreaks + ')', data.channel);
         return false;
     }
 
@@ -63,6 +63,10 @@ function lunch(data) {
         channel: data.name,
         remaining: _time
     };
+
+    /* set break cooldown */
+    breaks.cooldown[username] =
+        new Date(new Date().getTime() + 60 * 1000 * conf_breaks.breakCooldown+_time );
 
     /* sets agent status to "not accepting chats" */
     slack.sendMessage('Set lunch for ' + username + '. See you in 30 minutes!', data.channel);
