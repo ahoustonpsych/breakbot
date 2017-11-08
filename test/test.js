@@ -36,13 +36,14 @@ let CHANLIST = {
     'breakbot_test': 'G2L3YRUEP',
 };
 
-function overrides() {
+/* set up test channels */
+conf.channels = Object.keys(CHANLIST);
+conf.channelDesignation = {
+    livechat: 'breakbot-livechat',
+    support: 'breakbot-support'
+};
 
-    conf.channels = Object.keys(CHANLIST);
-    conf.channelDesignation = {
-        livechat: 'breakbot-livechat',
-        support: 'breakbot-support'
-    };
+function overrides() {
 
     slack.sendMessage = function (str, chan) {
 
@@ -102,7 +103,7 @@ function freshMessage() {
 
 function createBreak(name, channel, type, time) {
     globals.channels[channel].breaks[type][name] = {
-        outTime: new Date().getTime() + time * 60 * 1000,
+        outTime: new Date().getTime(), //new Date().getTime() + time * 60 * 1000,
         duration: time,
         channel: CHANLIST[channel],
         remaining: time
