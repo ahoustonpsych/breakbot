@@ -66,7 +66,7 @@ function lunch(data) {
 
     /* set break cooldown */
     breaks.cooldown[username] =
-        new Date(new Date().getTime() + 60 * 1000 * conf_breaks.breakCooldown+_time );
+        new Date(new Date().getTime() + 60 * 1000 * (conf_breaks.breakCooldown + _time));
 
     /* sets agent status to "not accepting chats" */
     slack.sendMessage('Set lunch for ' + username + '. See you in 30 minutes!', data.channel);

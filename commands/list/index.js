@@ -70,8 +70,8 @@ function list(data) {
     //number of people on break
     total =
         Object.keys(breaks.active).length +
-        Object.keys(breaks.bio).length +
-        Object.keys(breaks.lunch).length +
+        //Object.keys(breaks.bio).length +
+        //Object.keys(breaks.lunch).length +
         Object.keys(breaks.over).length;
 
     //max people on break

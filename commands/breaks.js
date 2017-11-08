@@ -140,7 +140,7 @@ function slotAvailable(channel) {
     let totalOut =
         Object.keys(breaks.active).length +
         //Object.keys(breaks.bio).length +
-        Object.keys(breaks.lunch).length +
+        //Object.keys(breaks.lunch).length +
         //Object.keys(breaks.task).length +
         Object.keys(breaks.over).length;
 
