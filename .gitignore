@@ -3,6 +3,5 @@ node_modules/
 .idea/
 logs/
 coverage/
-test/
 commands/testing/
 var/
