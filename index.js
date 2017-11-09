@@ -50,19 +50,25 @@ slack.on('authenticated', function (data) {
 slack.on('message', function (data) {
     //console.log(data);
 
+    //validate message data
+    if (!(!!data.user && !!data.text && !!data.channel)) {
+        // console.error(new Date().toLocaleString() + ' unknown message format! Ignoring:');
+        // console.error(data);
+        return false;
+    }
+
     if (!isApprovedChannel(slack.dataStore.getChannelGroupOrDMById(data.channel).name))
         return false;
 
     //ignore bots
-    if (data.hasOwnProperty('bot_id'))
+    if (!!data.bot_id)
         return false;
 
     //ignore own messages
-    //TODO fix this
-    if (data.user === undefined) console.error(data);
     if (slack.getUser(data.user).name === 'breakbot')
         return false;
 
+    //process message
     startProcessing(data);
 
 });
@@ -84,7 +90,7 @@ function startProcessing(data) {
     data.name = rawChannel.name;
 
     //add plaintext user name to message object, for reference later
-    data.username = slack.getUser(data.user).name; //profile.email.split('@')[0];
+    data.username = slack.getUser(data.user).name; //.profile.email.split('@')[0];
 
     //update topic
     if (data.hasOwnProperty('subtype')) {
