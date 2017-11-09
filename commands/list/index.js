@@ -14,6 +14,7 @@ module.exports = {
 
 function list(data) {
 
+    let chanObj = globals.channels[data.name];
     let breaks = globals.channels[data.name].breaks;
     //console.log(breaks.active)
 
@@ -44,7 +45,7 @@ function list(data) {
                 //TODO
                 //log this
                 delete breaks.task[name];
-                breaks.clearBreaks(name, data.name);
+                chanObj.clearBreaks(name);
                 slack.sendMessage('removed from break list: ' + name, data.channel);
                 console.log(new Date().toLocaleString() + ' removed breaks for: ' + name + ' in channel: ' + data.name);
                 return true;
@@ -57,15 +58,13 @@ function list(data) {
         }
     }
 
-    let onbreak_list = '*On break:* ';
-    let lunch_list = '*On lunch:* ';
-    let task_list = '*On task:* ';
-    let bio_list = '*Bathroom:* ';
-
-    let strTotal = '*Total:* ';
-    let strMax = '*Max:* ';
-    let max = conf_breaks.maxOnBreak;
-    let total = 0;
+    let onbreak_list = '*On break:* ',
+        lunch_list = '*On lunch:* ',
+        task_list = '*On task:* ',
+        bio_list = '*Bathroom:* ',
+        strTotal = '*Total:* ',
+        strMax = '*Max:* ',
+        max = conf_breaks.maxOnBreak;
 
     //number of people on break
     total =

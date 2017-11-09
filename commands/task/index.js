@@ -21,8 +21,9 @@ module.exports = {
 
 function task(data) {
 
-    let user, users, time, reason;
-    let breaks = globals.channels[data.name].breaks;
+    let user, users, time, reason,
+        chanObj = globals.channels[data.name],
+        breaks = globals.channels[data.name].breaks;
 
     if (data.text.split(' ')[0].match(/^!task/i) !== null)
         off = offs['!task'];
@@ -69,7 +70,7 @@ function task(data) {
             .then((time) => {
 
                 /* nuke existing breaks */
-                breaks.clearBreaks(user, data.name);
+                chanObj.clearBreaks(user, data.name);
 
                 breaks.task[user] = {
                     outTime: new Date().getTime(),

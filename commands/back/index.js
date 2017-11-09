@@ -42,9 +42,10 @@ function back(data) {
 /* log user in */
 function logIn(data, username) {
 
+    let chanObj = globals.channels[data.name];
     let breaks = globals.channels[data.name].breaks;
 
-    breaks.clearBreaks(username);
+    chanObj.clearBreaks(username);
     delete breaks.task[username];
 
     // breaks.cooldown[username] = new Date(new Date().getTime() + 60 * 1000 * conf_breaks.breakCooldown);

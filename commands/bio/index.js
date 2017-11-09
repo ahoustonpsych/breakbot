@@ -18,6 +18,7 @@ module.exports = {
 
 function bio(data) {
 
+    let chanObj = globals.channels[data.name];
     let breaks = globals.channels[data.name].breaks;
 
     if (data.text.split(' ')[0].match(/!bio/i) !== null)
@@ -47,7 +48,7 @@ function bio(data) {
     // }
 
     delete breaks.task[data.username];
-    breaks.clearBreaks(data.username, data.name);
+    chanObj.clearBreaks(data.username);
 
     //setBreak(username, time, data.channel);
 

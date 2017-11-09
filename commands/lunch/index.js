@@ -19,6 +19,7 @@ module.exports = {
 
 function lunch(data) {
 
+    let chanObj = globals.channels[data.name];
     let breaks = globals.channels[data.name].breaks;
 
     if (data.text.split(' ')[0].match(/!lunch/i) !== null)
@@ -51,7 +52,7 @@ function lunch(data) {
         .catch((err) => {});
 
     delete breaks.task[username];
-    breaks.clearBreaks(username);
+    chanObj.clearBreaks(username);
 
     breaks.lunch[username] = {
         outTime: new Date().getTime(),
