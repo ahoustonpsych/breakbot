@@ -1,8 +1,8 @@
-var slack = require('../../lib/slack').rtm;
-var db = require('../../lib/database');
+let slack = require('../../lib/slack').rtm;
+let db = require('../../lib/database');
 
-var breaks = require('../breaks');
-var wrapup = require('../wrapup');
+let breaks = require('../breaks');
+let wrapup = require('../wrapup');
 
 module.exports = {
     expr: /^(!restart)|(breakbot:? restart)/i,
@@ -16,9 +16,9 @@ function restart(data) {
 
             console.log('saved breaks successfully');
 
-            wrapup.saveWrapup();
+            //wrapup.saveWrapup();
 
-            var logdata = {
+            let logdata = {
                 username: slack.dataStore.getUserById(data.user).name,
                 command: '!restart',
                 date: 'now'
@@ -37,7 +37,7 @@ function restart(data) {
 
                 })
                 .catch(function (err) {
-                    console.error('ERROR LOGGING COMMAND', err);
+                    console.error(new Date().toLocaleString() + ' ERROR LOGGING COMMAND', err);
                 });
         })
         .catch(function (err) {
