@@ -84,7 +84,7 @@ function lunch(data) {
 
     db.log('command_history', logdata)
         .catch(function (err) {
-            console.error('ERROR LOGGING COMMAND', err);
+            console.error(new Date().toLocaleString() + ' ERROR LOGGING COMMAND', err);
         });
 }
 

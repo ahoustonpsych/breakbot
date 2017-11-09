@@ -90,7 +90,10 @@ function brb(data) {
                 date: 'now'
             };
 
-            db.log('command_history', logdata);
+            db.log('command_history', logdata)
+                .catch(function (err) {
+                    console.error(new Date().toLocaleString() + ' ERROR LOGGING COMMAND', err);
+                });
         })
         .catch(function (err) {
             console.error(new Date().toLocaleString() + ' ERROR PARSING BREAK TIME', err);
