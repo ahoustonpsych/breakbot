@@ -14,7 +14,10 @@ function remaining(data) {
     if (!globals.channels.hasOwnProperty(data.name))
         return false;
 
-    let breaksLeft = conf_breaks.maxDailyBreaks - globals.channels[data.name].breaks.count[data.username] || conf_breaks.maxDailyBreaks;
+    let breaksLeft = conf_breaks.maxDailyBreaks;
+
+    if (globals.channels[data.name].breaks.count.hasOwnProperty(data.username))
+        breaksLeft -= globals.channels[data.name].breaks.count[data.username];
 
     slack.sendMessage('breaks remaining: ' + breaksLeft, data.channel);
 
