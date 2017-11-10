@@ -16,8 +16,6 @@ function restart(data) {
 
             console.log('saved breaks successfully');
 
-            //wrapup.saveWrapup();
-
             let logdata = {
                 username: slack.dataStore.getUserById(data.user).name,
                 command: '!restart',
@@ -40,7 +38,8 @@ function restart(data) {
                     console.error(new Date().toLocaleString() + ' ERROR LOGGING COMMAND', err);
                 });
         })
-        .catch(function (err) {
-            console.error(err);
+        .catch(function (data) {
+            console.error(new Date().toLocaleString() + ' invalid break data:');
+            console.error(data);
         });
 }
