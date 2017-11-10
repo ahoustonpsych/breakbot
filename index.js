@@ -42,6 +42,8 @@ slack.on('authenticated', function (data) {
         globals.channels[rawChannel.name] = new Channel(rawChannel)
     });
 
+    breaks.restoreBreaks();
+
     adp.getPunchedIn();
 
 });
@@ -124,8 +126,6 @@ function main() {
     db.initdb();
 
     server.initserver();
-
-    //breaks.restoreBreaks();
 
     //wrapup.restoreWrapup();
 

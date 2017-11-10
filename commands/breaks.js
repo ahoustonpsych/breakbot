@@ -23,68 +23,91 @@ module.exports = {
 //fix break save/restore
 function saveBreaks() {
 
-    let that = this;
+    //let that = this;
+
+    //console.log(JSON.stringify(globals));
 
     return new Promise(function (fulfill, reject) {
 
-        /* all break data */
-        let breakdata = JSON.stringify(that.active) + '\n' +
-            JSON.stringify(that.over) + '\n' +
-            JSON.stringify(that.task) + '\n' +
-            JSON.stringify(that.lunch) + '\n' +
-            JSON.stringify(that.bio) + '\n' +
-            JSON.stringify(luncher.schedule);
+        let globalsSnapshot = JSON.stringify(globals);
 
-        if (breakdata !== undefined) {
-            fs.writeFileSync(conf.restore.savefile, breakdata);
+        /* all break data */
+        if (globalsSnapshot !== undefined) {
+            fs.writeFileSync(conf.restore.savefile, globalsSnapshot);
             fulfill('success');
         }
 
-        else reject('empty break data somehow: ' + breakdata);
+        else reject(globalsSnapshot);
 
     });
 }
 
 function restoreBreaks() {
 
-    let that = this;
+    fs.readFile(conf.restore.savefile, 'utf8', (err,res) => {
 
-    fs.readFile(conf.restore.savefile, 'utf8', function (err,res) {
-
-        if (err) console.error('not found');
-
-        else if (!res) {
-            console.log('no break data in file');
+        if (err) {
+            console.error(new Date().toLocaleString() + ' save file not found: ' + conf.restore.savefile);
+            console.error(err);
         }
 
-        else {
+        else if (!res || res === '{}') {
+            console.log(new Date().toLocaleString() + ' no break data in file');
+            console.log(res);
+            return;
+        }
 
-            let rawbreaks = res.split('\n');
+        let parsed = JSON.parse(res);
 
-            breakdata = '{}\n{}\n{}\n{}\n{}\n{}';
+        //for each channel obj
+        Object.keys(parsed.channels).forEach((chan) => {
 
-            that.active = JSON.parse(rawbreaks[0]);
-            that.over = JSON.parse(rawbreaks[1]);
-            that.task = JSON.parse(rawbreaks[2]);
-            that.lunch = JSON.parse(rawbreaks[3]);
-            that.bio = JSON.parse(rawbreaks[4]);
+            globalChanObj = globals.channels[chan];
+            parsedChanObj = parsed.channels[chan];
 
-            luncher.schedule = JSON.parse(rawbreaks[5]);
-
-            //return if lunch schedule is empty
-            if (luncher === {})
-                return;
-
-            //restore lunch times to date objects
-            Object.keys(luncher.schedule).forEach(function (user) {
-                luncher.schedule[user].time = new Date(luncher.schedule[user].time);
+            Object.keys(parsedChanObj).forEach((key) => {
+                if (key === 'schedule') return;
+                globalChanObj[key] = parsedChanObj[key];
             });
 
-            if (breakdata !== undefined) {
-                fs.writeFileSync(conf.restore.savefile, breakdata);
-            }
+            //for each lunch slot obj
+            Object.keys(parsedChanObj.schedule).forEach((slot) => {
+                //for each scheduled lunch el
+                for (slotIdx in parsedChanObj.schedule[slot]) {
+                    if (parsedChanObj.schedule[slot][slotIdx] === null)
+                        continue;
 
-        }
+                    // console.log('slot:')
+                    // console.log(slot)
+                    // console.log('slotIdx:')
+                    // console.log(slotIdx);
+                    // console.log('parsed schedule:')
+                    // console.log(parsedChanObj.schedule);
+
+                    if (!(parsedChanObj.schedule[slot][slotIdx].hasOwnProperty('name') ||
+                        parsedChanObj.schedule[slot][slotIdx].hasOwnProperty('notified'))) {
+                        return;
+                    }
+
+                    let name = parsedChanObj.schedule[slot][slotIdx].name,
+                        time = new Date(Date.parse(slot)),
+                        notified = parsedChanObj.schedule[slot][slotIdx].notified;
+
+                    if (!globalChanObj.schedule.hasOwnProperty(time))
+                        globalChanObj.schedule[time] = [];
+
+                    globalChanObj.schedule[time].push({
+                        name: name,
+                        time: time,
+                        notified: notified
+                    });
+                }
+            });
+        });
+
+        fs.writeFileSync(conf.restore.savefile, '{}');
+
+
     });
 }
 
@@ -113,7 +136,7 @@ function canTakeBreak(user, channel) {
         return false;
     }
 
-    if (!(breaks.increaseBreakCount(user))) {
+    if (!(globals.channels[channel].increaseBreakCount(user))) {
         slack.sendMessage('err: hit daily break limit (' + conf_breaks.maxDailyBreaks + ')', chanId);
         return false;
     }
