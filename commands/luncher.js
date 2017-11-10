@@ -14,8 +14,8 @@ module.exports = {
 function addLunch(user, time, channel) {
     return new Promise(function (fulfill, reject) {
         if (!(globals.channels.hasOwnProperty(channel))) {
-            console.log(new Date().toLocaleString() + ' NO SCHEDULE: ' + Object.keys(globals));
-            return false;
+            console.error(new Date().toLocaleString() + ' NO SCHEDULE: ' + Object.keys(globals.channels));
+            reject();
         }
 
         let schedule = globals.channels[channel].schedule;
@@ -60,7 +60,7 @@ function clearLunch(user, channel) {
 
         //TODO
         //runs twice in my tests, need to fix that
-        //seems fine live though
+        //seems fine live though. results in a schedule list like this: [ null ]
         Object.keys(schedule).forEach((slot) => {
             Object.keys(schedule[slot]).forEach(function (userIdx) {
                 if (schedule[slot][userIdx].name === user) {
