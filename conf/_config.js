@@ -4,6 +4,11 @@ module.exports = {
     /* slack api token */
     slackAPIKey: '',
 
+    /* user to connect to wallboard */
+    wallboardUser: '',
+    /* key to authenticate to wallboard */
+    wallboardKey: '',
+
     ENV: (function () { return process.env.NODE_ENV ? process.env.NODE_ENV : 'dev'; }()),
 
     /* files to use for temp break storage if a restart occurs */
