@@ -13,15 +13,15 @@ module.exports = {
     dbInfo: {
         dev: {
             db: 'breakbot_logging_test',
-            dbHost: 'localhost',
-            dbUser: 'breakbot',
-            dbPass: ''
+            host: 'localhost',
+            user: 'breakbot',
+            pass: ''
         },
         stage: {
             db: 'breakbot_logging',
-            dbHost: 'localhost',
-            dbUser: 'breakbot',
-            dbPass: ''
+            host: 'localhost',
+            user: 'breakbot',
+            pass: ''
         }
     },
 
