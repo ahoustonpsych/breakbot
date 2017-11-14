@@ -22,13 +22,16 @@ function lunch(data) {
     let chanObj = globals.channels[data.name];
     let breaks = globals.channels[data.name].breaks;
 
-    if (data.text.split(' ')[0].match(/!lunch/i) !== null)
-        off = offs['!lunch'];
-    else
-        off = offs['breakbot'];
+    // if (data.text.split(' ')[0].match(/!lunch/i) !== null)
+    //     off = offs['!lunch'];
+    // else
+    //     off = offs['breakbot'];
 
-    let username = slack.dataStore.getUserById(data.user).profile.email.split('@')[0];
-    let arg = data.text.split(' ')[off];
+    //let username = slack.dataStore.getUserById(data.user).profile.email.split('@')[0];
+    //let arg = data.text.split(' ')[off];
+
+    let username = data.username;
+    let arg = data.text.split(' ')[0];
 
     //console.log('USERNAME: ' + username)
 
@@ -114,8 +117,11 @@ function setBreak(username, time, channel) {
 
 function scheduler(data) {
 
-    let user = slack.dataStore.getUserById(data.user).profile.email.split('@')[0];
-    let arg = data.text.split(' ')[off];
+    // let user = slack.dataStore.getUserById(data.user).profile.email.split('@')[0];
+    // let arg = data.text.split(' ')[off];
+
+    let user = data.username;
+    let arg = data.text.split(' ')[0];
 
     if (!arg)
         return false;
@@ -141,7 +147,7 @@ function scheduler(data) {
     //rm command
     //TODO split this into its own func
     else if (arg.match(/^rm$/i) !== null) {
-        name = data.text.split(' ')[off+1];
+        name = data.text.split(' ')[1];
 
         if (!name || name.match(/^me$/i) !== null)
             name = user;
@@ -166,14 +172,14 @@ function scheduler(data) {
     }
 
     //match username if possible
-    if (slack.dataStore.getUserByName(arg) instanceof Object) {
+    if (slack.getUser(arg) instanceof Object) {
         user = slack.dataStore.getUserByName(arg).profile.email.split('@')[0];
-        time = data.text.split(' ')[off + 1];
+        time = data.text.split(' ')[1];
     }
 
     //match 'me'
     else if (arg.match(/^me$/i) !== null) {
-        time = data.text.split(' ')[off + 1];
+        time = data.text.split(' ')[1];
     }
 
     //no arg given

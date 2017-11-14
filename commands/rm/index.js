@@ -15,14 +15,14 @@ module.exports = {
 function rm(data) {
     let oldtopic = globals.channels[data.name].topic;
 
-    if (data.text.split(' ')[0].match(/!rm/i) !== null)
-        off = offs['!rm'];
-    else
-        off = offs['breakbot'];
+    // if (data.text.split(' ')[0].match(/!rm/i) !== null)
+    //     off = offs['!rm'];
+    // else
+    //     off = offs['breakbot'];
 
     /* try to parse the args if given. if it can't, defaults to the user that sent the message */
     let arg = data.text.split(' ')
-        .slice(off)
+        //.slice(off)
         .map(function (el) {
 
             el = topic.removeSpecial(el);

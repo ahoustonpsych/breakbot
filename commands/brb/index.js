@@ -25,16 +25,19 @@ function brb(data) {
     //console.log(Object.keys(globals))
     let breaks = globals.channels[data.name].breaks;
 
-    if (data.text.split(' ')[0].match(/!brb/i) !== null)
-        off = offs['!brb'];
-    else
-        off = offs['breakbot'];
+    // if (data.text.split(' ')[0].match(/!brb/i) !== null)
+    //     off = offs['!brb'];
+    // else
+    //     off = offs['breakbot'];
 
-    let username = slack.dataStore.getUserById(data.user).profile.email.split('@')[0];
-    let arg = data.text.split(' ')[off];
+    //let username = slack.dataStore.getUserById(data.user).profile.email.split('@')[0];
+    //let arg = data.text.split(' ')[off];
+
+    let username = data.username;
+    let arg = data.text.split(' ')[0];
 
     if (arg && arg.match(/me/i) !== null)
-        arg = data.text.split(' ')[off + 1];
+        arg = data.text.split(' ')[1];
 
     /* debug. allows you to do !brb [time] [user] to log someone else task */
     // if (data.text.split(' ')[off + 1])

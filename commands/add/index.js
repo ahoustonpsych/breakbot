@@ -12,14 +12,14 @@ module.exports = {
 
 function add(data) {
 
-    if (data.text.split(' ')[0].match(/!add/i) !== null)
-        off = offs['!add'];
-    else
-        off = offs['breakbot'];
+    // if (data.text.split(' ')[0].match(/!add/i) !== null)
+    //     off = offs['!add'];
+    // else
+    //     off = offs['breakbot'];
 
     /* try to parse the arg if given. if it can't, defaults to the user that sent the message*/
     let arg = data.text.split(' ')
-        .slice(off)
+        //.slice(off)
         .map(function (el) {
             el = topic.removeSpecial(el);
             //console.log(el)

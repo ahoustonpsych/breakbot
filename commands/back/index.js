@@ -21,12 +21,14 @@ module.exports = {
 
 function back(data) {
 
-    if (data.text.split(' ')[0].match(/!back/i) !== null)
-        off = offs['!back'];
-    else
-        off = offs['breakbot'];
+    // if (data.text.split(' ')[0].match(/!back/i) !== null)
+    //     off = offs['!back'];
+    // else
+    //     off = offs['breakbot'];
 
-    let username = slack.dataStore.getUserById(data.user).profile.email.split('@')[0];
+    //let username = slack.dataStore.getUserById(data.user).profile.email.split('@')[0];
+
+    let username = data.username;
 
     if (!breakLib.isOnBreak(username, data.name)) {
         slack.sendMessage('err: not on break', data.channel);

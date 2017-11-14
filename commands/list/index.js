@@ -16,16 +16,19 @@ function list(data) {
 
     let chanObj = globals.channels[data.name];
     let breaks = globals.channels[data.name].breaks;
-    //console.log(breaks.active)
 
-    if (data.text.split(' ')[0].match(/^!list/i) !== null)
-        off = offs['!list'];
-    else
-        off = offs['breakbot'];
+    // if (data.text.split(' ')[0].match(/^!list/i) !== null)
+    //     off = offs['!list'];
+    // else
+    //     off = offs['breakbot'];
 
-    let username = slack.dataStore.getUserById(data.user).profile.email.split('@')[0];
-    let arg = data.text.split(' ')[off];
-    let name = data.text.split(' ')[off+1];
+    //let username = slack.dataStore.getUserById(data.user).profile.email.split('@')[0];
+    //let arg = data.text.split(' ')[off];
+    //let name = data.text.split(' ')[off+1];
+
+    let username = data.username;
+    let arg = data.text.split(' ')[0];
+    let name = data.text.split(' ')[1];
 
     //!list rm handling
     //removes user from the break lists

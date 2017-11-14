@@ -22,27 +22,28 @@ module.exports = {
 function task(data) {
 
     let user, users, time, reason,
+        offset = 0,
         chanObj = globals.channels[data.name],
         breaks = globals.channels[data.name].breaks;
 
-    if (data.text.split(' ')[0].match(/^!task/i) !== null)
-        off = offs['!task'];
-    else
-        off = offs['breakbot'];
+    // if (data.text.split(' ')[0].match(/^!task/i) !== null)
+    //     off = offs['!task'];
+    // else
+    //     off = offs['breakbot'];
 
-    let arg = data.text.split(' ')[off];
+    let arg = data.text.split(' ')[0];
 
     if (isValidUser(arg)) {
         //offset remaining args if user is given
-        off += 1;
+        offset += 1;
         user = arg;
     }
 
     else
         user = data.username;
 
-    time = data.text.split(' ')[off];
-    reason = data.text.split(' ')[off+1];
+    time = data.text.split(' ')[offset];
+    reason = data.text.split(' ')[offset+1];
 
     if (!time) {
         slack.sendMessage('err: no time or reason given. syntax: *!task [user] [time] [reason]*', data.channel);

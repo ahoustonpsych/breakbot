@@ -21,10 +21,10 @@ function bio(data) {
     let chanObj = globals.channels[data.name];
     let breaks = globals.channels[data.name].breaks;
 
-    if (data.text.split(' ')[0].match(/!bio/i) !== null)
-        off = offs['!bio'];
-    else
-        off = offs['breakbot'];
+    // if (data.text.split(' ')[0].match(/!bio/i) !== null)
+    //     off = offs['!bio'];
+    // else
+    //     off = offs['breakbot'];
 
     //let username = slack.dataStore.getUserById(data.user).profile.email.split('@')[0];
 
