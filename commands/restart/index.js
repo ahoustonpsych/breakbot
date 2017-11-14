@@ -18,6 +18,7 @@ function restart(data) {
 
             let logdata = {
                 username: slack.dataStore.getUserById(data.user).name,
+                channel: data.name,
                 command: '!restart',
                 date: 'now'
             };
