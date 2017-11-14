@@ -9,6 +9,12 @@ module.exports = {
     /* key to authenticate to wallboard */
     wallboardKey: '',
 
+    /* database connection information */
+    db: 'breakbot_logging',
+    dbHost: 'localhost',
+    dbUser: 'breakbot',
+    dbPass: '',
+
     ENV: (function () { return process.env.NODE_ENV ? process.env.NODE_ENV : 'dev'; }()),
 
     /* files to use for temp break storage if a restart occurs */
