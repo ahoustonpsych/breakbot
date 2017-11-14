@@ -8,6 +8,7 @@
     "body-parser": "^1.18.2",
     "eslint": "^4.9.0",
     "express": "^4.14.0",
+    "mysql": "^2.15.0",
     "promise": "^7.1.1",
     "request": "^2.83.0",
     "sinon": "^4.0.1",
