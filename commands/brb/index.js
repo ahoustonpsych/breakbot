@@ -90,23 +90,3 @@ function setBrb(user, time, chanObj) {
 
     return true;
 }
-
-/*
- * Determine if "time" is a valid break duration
- * if not, returns the default break duration (5 minutes)
- */
-function parseBreakTime(time) {
-    return new Promise(function (fulfill, reject) {
-        /* sets break time to the default if it's not provided */
-        if (!parseInt(time))
-            fulfill(conf_breaks.defaultBreak);
-
-        /* prevents the break time from being negative, zero, or higher than the max time */
-        else if ((parseInt(time) > conf_breaks.maxBreak) || (parseInt(time) <= 0))
-            fulfill(conf_breaks.defaultBreak);
-
-        /* if all else is good, set break time properly */
-        else
-            fulfill(parseInt(time));
-    });
-}
