@@ -2,10 +2,6 @@ let slack = require('../../lib/slack').rtm;
 
 let globals = require('../../conf/config.globals');
 let conf_breaks = require('../../conf/config.breaks');
-//var breaks = require('../breaks');
-
-let offs = {'!list': 1, 'breakbot': 2};
-
 
 module.exports = {
     expr: /^(!list)|(breakbot:? list)/i,
@@ -14,28 +10,18 @@ module.exports = {
 
 function list(data) {
 
-    let chanObj = globals.channels[data.name];
-    let breaks = globals.channels[data.name].breaks;
-
-    // if (data.text.split(' ')[0].match(/^!list/i) !== null)
-    //     off = offs['!list'];
-    // else
-    //     off = offs['breakbot'];
-
-    //let username = slack.dataStore.getUserById(data.user).profile.email.split('@')[0];
-    //let arg = data.text.split(' ')[off];
-    //let name = data.text.split(' ')[off+1];
-
-    let username = data.username;
-    let arg = data.text.split(' ')[0];
-    let name = data.text.split(' ')[1];
+    let chanObj = globals.channels[data.name],
+        breaks = chanObj.breaks,
+        username = data.username,
+        arg = data.text.split(' ')[0],
+        name = data.text.split(' ')[1];
 
     //!list rm handling
     //removes user from the break lists
     if (typeof(arg) === 'string' && typeof(name) === 'string') {
         if (arg.match(/^rm$/ig) !== null) {
 
-            if (name.match(/^me$/ig) !== null)
+            if (breaksLib.isMe(arg))
                 name = username;
 
             //console.log(name);

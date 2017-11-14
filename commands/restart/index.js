@@ -14,7 +14,9 @@ function restart(data) {
     breaks.saveBreaks()
         .then(function () {
 
-            console.log('saved breaks successfully');
+            console.log(new Date().toLocaleString() + ' saved breaks successfully');
+
+            slack.sendMessage('Restarting...', data.channel);
 
             let logdata = {
                 username: slack.dataStore.getUserById(data.user).name,
@@ -22,8 +24,6 @@ function restart(data) {
                 command: '!restart',
                 date: 'now'
             };
-
-            slack.sendMessage('Restarting...', data.channel);
 
             /* logging */
             db.log('command_history', logdata)

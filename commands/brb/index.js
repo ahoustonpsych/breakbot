@@ -4,11 +4,9 @@ let Promise = require('promise');
 let conf_breaks = require('../../conf/config.breaks');
 let globals = require('../../conf/config.globals');
 
-let db = require('../../lib/database');
-//var requests = require('../lc_requests');
 let breakLib = require('../breaks');
+let db = require('../../lib/database');
 
-let offs = {'!brb': 1, 'breakbot': 2};
 
 /* USAGE:
  * !brb [time]
@@ -22,74 +20,38 @@ module.exports = {
 };
 
 function brb(data) {
-    //console.log(Object.keys(globals))
-    let breaks = globals.channels[data.name].breaks;
+    let chanObj = globals.channels[data.name],
+        username = data.username,
+        arg = data.text.split(' ')[0];
 
-    // if (data.text.split(' ')[0].match(/!brb/i) !== null)
-    //     off = offs['!brb'];
-    // else
-    //     off = offs['breakbot'];
-
-    //let username = slack.dataStore.getUserById(data.user).profile.email.split('@')[0];
-    //let arg = data.text.split(' ')[off];
-
-    let username = data.username;
-    let arg = data.text.split(' ')[0];
-
-    if (arg && arg.match(/me/i) !== null)
+    /* offset time arg by 1 place if "me" is used */
+    if (breakLib.isMe(arg))
         arg = data.text.split(' ')[1];
 
-    /* debug. allows you to do !brb [time] [user] to log someone else task */
-    // if (data.text.split(' ')[off + 1])
-    //    username = slack.dataStore.getUserByName(data.text.split(' ')[off + 1]).profile.email.split('@')[0];
+    /* debug. uncomment to allow !brb [time] [user] to set another user on break */
+    // if (data.text.split(' ')[1])
+    //    username = slack.getUser(data.text.split(' ')[1]).name;
 
-    if (!breakLib.canTakeBreak(username, data.name))
-        return false;
-
-    /* prevents users from logging out again if they're already logged out */
+    /* prevents users from taking a break if they're already on break */
     // if (breakLib.isOnBreak(username, data.name)) {
     //     slack.sendMessage('already on break', data.channel);
     //     return false;
     // }
-    //
-    // if (breaks.cooldown.hasOwnProperty(username)) {
-    //     slack.sendMessage('too soon since last break', data.channel);
-    //     return false;
-    // }
-    //
-    // if (!(globals.channels[data.name].breaks.increment(data.name, username))) {
-    //     slack.sendMessage('err: hit daily break limit (' + conf.maxDailyBreaks + ')', data.channel);
-    //     return false;
-    // }
 
-    parseBreakTime(arg)
-        .then(function (time) {
+    if (!breakLib.canTakeBreak(username, data.name))
+        return false;
 
-            // breaks.active[username] = {remaining: time};
+    breakLib.parseBreakTime(arg)
+        .then((parsedTime) => {
 
-            if (breaks.task.hasOwnProperty(username))
-                delete breaks.task[username];
-
-            breaks.active[username] = {
-                outTime: new Date().getTime(),
-                duration: time,
-                channel: data.channel,
-                remaining: time
-            };
-
-            /* set break cooldown */
-            breaks.cooldown[username] =
-                new Date(new Date().getTime() + 60 * 1000 * (conf_breaks.breakCooldown + time));
-
-            /* notify user */
-            slack.sendMessage('Set break for ' + username + ' for ' + time.toString() + ' minutes.', data.channel);
+            setBrb(username, parsedTime, chanObj);
 
             /* logging */
             let logdata = {
                 username: username,
                 channel: data.name,
                 command: '!brb',
-                duration: time,
+                duration: parsedTime,
                 date: 'now'
             };
 
@@ -104,28 +66,35 @@ function brb(data) {
 }
 
 /*
- * sets break timer for [time] minutes
+ * sets user on break for "time" minutes
  */
-function setBreak(username, time, channel) {
-    if (typeof(breaks.task[username]) === 'number')
-        delete breaks.task[username];
+function setBrb(user, time, chanObj) {
+    let breaks = chanObj.breaks;
 
-    breaks.active[username] = 1;
+    if (breaks.task.hasOwnProperty(user))
+        delete breaks.task[user];
 
-    requests.changeStatus(username, 'not accepting chats')
-        .then(function (res) {
-            breaks.active[username] = {
-                outTime: new Date().getTime(),
-                duration: time,
-                channel: channel,
-                remaining: time
-            };
-        })
-        .catch(function (err) {
-            console.error('ERROR CHANGING STATUS', err);
-        });
+    breaks.active[user] = {
+        outTime: new Date().getTime(),
+        duration: time,
+        channel: chanObj.name,
+        remaining: time
+    };
+
+    /* set break cooldown */
+    breaks.cooldown[user] =
+        new Date(new Date().getTime() + 60 * 1000 * (conf_breaks.breakCooldown + time));
+
+    /* notify user */
+    slack.sendMessage('Set break for ' + user + ' for ' + time.toString() + ' minutes.', chanObj.id);
+
+    return true;
 }
 
+/*
+ * Determine if "time" is a valid break duration
+ * if not, returns the default break duration (5 minutes)
+ */
 function parseBreakTime(time) {
     return new Promise(function (fulfill, reject) {
         /* sets break time to the default if it's not provided */

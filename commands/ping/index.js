@@ -1,7 +1,8 @@
 let slack = require('../../lib/slack').rtm;
+
 let breaks = require('../breaks');
 let topic = require('../topic');
-let globals = require('../../conf/config.globals')
+let globals = require('../../conf/config.globals');
 
 module.exports = {
     expr: /(!ping)|(breakbot:? ping)/i,

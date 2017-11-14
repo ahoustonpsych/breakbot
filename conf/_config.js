@@ -10,10 +10,20 @@ module.exports = {
     wallboardKey: '',
 
     /* database connection information */
-    db: 'breakbot_logging',
-    dbHost: 'localhost',
-    dbUser: 'breakbot',
-    dbPass: '',
+    dbInfo: {
+        dev: {
+            db: 'breakbot_logging_test',
+            dbHost: 'localhost',
+            dbUser: 'breakbot',
+            dbPass: ''
+        },
+        stage: {
+            db: 'breakbot_logging',
+            dbHost: 'localhost',
+            dbUser: 'breakbot',
+            dbPass: ''
+        }
+    },
 
     ENV: (function () { return process.env.NODE_ENV ? process.env.NODE_ENV : 'dev'; }()),
 

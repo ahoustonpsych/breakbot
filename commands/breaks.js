@@ -16,17 +16,13 @@ module.exports = {
     canTakeBreak: canTakeBreak,
     slotAvailable: slotAvailable,
     saveBreaks: saveBreaks,
-    restoreBreaks: restoreBreaks
+    restoreBreaks: restoreBreaks,
+    parseBreakTime: parseBreakTime,
+    isMe: isMe
 };
 
-//TODO
-//fix break save/restore
+/* save all channel/break data */
 function saveBreaks() {
-
-    //let that = this;
-
-    //console.log(JSON.stringify(globals));
-
     return new Promise(function (fulfill, reject) {
 
         let globalsSnapshot = JSON.stringify(globals);
@@ -42,6 +38,7 @@ function saveBreaks() {
     });
 }
 
+/* restore all channel/break data, if possible */
 function restoreBreaks() {
 
     fs.readFile(conf.restore.savefile, 'utf8', (err,res) => {
@@ -77,6 +74,7 @@ function restoreBreaks() {
                     if (parsedChanObj.schedule[slot][slotIdx] === null)
                         continue;
 
+                    /* debug */
                     // console.log('slot:')
                     // console.log(slot)
                     // console.log('slotIdx:')
@@ -107,7 +105,6 @@ function restoreBreaks() {
 
         fs.writeFileSync(conf.restore.savefile, '{}');
 
-
     });
 }
 
@@ -119,10 +116,17 @@ function isOnBreak(user, channel) {
     || !!globals.channels[channel].breaks.lunch[user];
 }
 
+/*
+ * Returns true if:
+ *  - not already on break
+ *  - cooldown hasn't expired
+ *  - break slot is available
+ *  - daily break limit hasn't been hit
+ */
 function canTakeBreak(user, channel) {
 
-    let chanId = slack.dataStore.getChannelOrGroupByName(channel).id;
-    breaks = globals.channels[channel].breaks;
+    let chanId = slack.getChannel(channel).id,
+        breaks = globals.channels[channel].breaks;
 
     if (isOnBreak(user, channel)) {
         slack.sendMessage('err: already on break', chanId);
@@ -136,7 +140,7 @@ function canTakeBreak(user, channel) {
         return false;
     }
 
-    if (!(globals.channels[channel].increaseBreakCount(user))) {
+    if (!globals.channels[channel].increaseBreakCount(user)) {
         slack.sendMessage('err: hit daily break limit (' + conf_breaks.maxDailyBreaks + ')', chanId);
         return false;
     }
@@ -146,7 +150,7 @@ function canTakeBreak(user, channel) {
         return false;
     }
 
-    /* reject if eos is near */
+    /* uncomment to reject breaks if eos is near */
     // if (!globals.channels[channel].punches[user].punched_eos) {
     //     slack.sendMessage('err: too close to eos', chanId);
     //     return false;
@@ -155,21 +159,56 @@ function canTakeBreak(user, channel) {
     return true;
 }
 
-/* returns true if there's a break opening in channel */
+/*
+ * Returns true if there's a break opening in channel
+ */
 function slotAvailable(channel) {
 
-    let breaks = globals.channels[channel].breaks;
+    let breaks, totalOut, max;
 
-    let totalOut =
+    breaks = globals.channels[channel].breaks;
+
+    totalOut =
         Object.keys(breaks.active).length +
-        //Object.keys(breaks.bio).length +
-        //Object.keys(breaks.lunch).length +
-        //Object.keys(breaks.task).length +
         Object.keys(breaks.over).length;
+        /* uncomment to include other break types when calculating limits */
+        // Object.keys(breaks.bio).length +
+        // Object.keys(breaks.lunch).length +
+        // Object.keys(breaks.task).length;
 
-    //console.log(totalOut);
-
-    let max = globals.channels[channel].maxOnBreak > 1 ? globals.channels[channel].maxOnBreak : conf_breaks.maxOnBreak;
+    max = globals.channels[channel].maxOnBreak > 1 ? globals.channels[channel].maxOnBreak : conf_breaks.maxOnBreak;
 
     return totalOut < max;
+}
+
+/*
+ * Attempts to determine if "argTime" is a valid break time
+ * if not, returns the default break time (5 minutes)
+ */
+function parseBreakTime(argTime) {
+    return new Promise((fulfill, reject) => {
+        let parsed;
+
+        parsed = parseInt(argTime);
+
+        /* sets break time to the default if it's not provided */
+        if (!parsed || isNaN(parsed))
+            fulfill(conf_breaks.defaultBreak);
+
+        /* prevents the break time from being negative, zero, or higher than the max time */
+        else if ((parsed > conf_breaks.maxBreak) || (parsed <= 0))
+            fulfill(conf_breaks.defaultBreak);
+
+        /* if all else is good, set break time properly */
+        else
+            fulfill(parsed);
+    });
+}
+
+/*
+ * Determines if "str" is the string "me"
+ * used in commands, mostly
+ */
+function isMe(str) {
+    return !str || str.match(/^me$/i) !== null
 }

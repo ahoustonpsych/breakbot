@@ -20,9 +20,11 @@ function addLunch(user, time, channel) {
 
         let schedule = globals.channels[channel].schedule;
 
+        /* create new lunch slot if necessary */
         if (!schedule.hasOwnProperty(time))
             schedule[time] = [];
 
+        /* reject if the desired lunch slot is already full */
         if (schedule[time].length >= conf_breaks.maxLunchSlot) {
             reject('err: slot full');
             return false;
@@ -70,13 +72,12 @@ function clearLunch(user, channel) {
                 }
             })
         });
-        //delete globals.channels[channel].schedule[target[0]][target[1]];
-        //fulfill('removed')
-
-        //reject('lunch not found');
     });
 }
 
+/*
+ * Returns true if the user is already schedule for lunch
+ */
 function isScheduled(name, channel) {
     return new Promise(function (fulfill, reject) {
         let schedule = globals.channels[channel].schedule;
@@ -93,51 +94,39 @@ function isScheduled(name, channel) {
     });
 }
 
+/*
+ * Returns a sorted list of scheduled lunches
+ */
 function listLunch(channel) {
-
-    //console.log(globals.channels[channel].schedule)
-
-    let list = [];
-
-    let lunch_list = '*Lunch times:* ';
-
     if (!(globals.channels.hasOwnProperty(channel)))
         return false;
 
-    let schedule = globals.channels[channel].schedule;
+    let list = [],
+        schedule = globals.channels[channel].schedule,
+        lunch_list = '*Lunch times:* ';
 
-    //loop through lunch schedule to build a list
-    if (Object.keys(schedule).length !== 0) {
-        Object.keys(schedule).forEach((time) => {
-            schedule[time].forEach((user) => {
-                list.push({
-                    user: user.name,
-                    time: user.time
-                });
-            });
-            // console.log('schedule: ' + Object.keys(globals.channels[channel].schedule['ahouston']))
-            // console.log('schedule: ' + schedule[user].name);
-            //
-            // console.log('time: ' + schedule[user].time);
-
-        });
-    }
-
-    //return if nobody is scheduled for lunch
-    else
+    //return if nobody is scheduled
+    if (Object.keys(schedule).length === 0)
         return false;
 
+    /* build list of lunch schedules */
+    Object.keys(schedule).forEach((time) => {
+        schedule[time].forEach((user) => {
+            list.push({
+                user: user.name,
+                time: user.time
+            });
+        });
+    });
+
+    /* sort lunch schedule by time */
     list = list.sort(function (first, second) {
         //sorts by lunch time
         return (new Date(first.time)).getTime() - (new Date(second.time)).getTime();
     });
 
-    //console.log(list.shift());
-
+    /* parse each scheduled time into human-readable format (e.g. 12:00, 1:00, etc. */
     while (list.length > 0) {
-
-        //console.log(list);
-
         let user = list.shift();
 
         hour = user.time.getHours();
@@ -147,11 +136,9 @@ function listLunch(channel) {
             minute = '0' + minute;
 
         lunch_list = lunch_list + user.user + ' (' + hour + ':' + minute + '), ';
-
     }
 
     lunch_list = lunch_list.replace(/, $/, '');
 
     return lunch_list;
-
 }

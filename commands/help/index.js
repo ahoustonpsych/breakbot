@@ -16,6 +16,7 @@ module.exports = {
 
 function help(data) {
     slack.sendMessage(helpMsg, data.channel);
+
     /* logging */
     let logdata = {
         username: data.username,

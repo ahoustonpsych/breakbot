@@ -4,25 +4,19 @@ let topic = require('../topic');
 
 let globals = require('../../conf/config.globals');
 
-/* argument offsets, used to allow multi-word commands */
-let offs = {'!rm': 1, 'breakbot': 2};
-
 module.exports = {
     expr: /^(!rm)|(breakbot:? rm)/i,
     run: rm
 };
 
+/*
+ * Remove user or a list of users from the channel topic
+ */
 function rm(data) {
     let oldtopic = globals.channels[data.name].topic;
 
-    // if (data.text.split(' ')[0].match(/!rm/i) !== null)
-    //     off = offs['!rm'];
-    // else
-    //     off = offs['breakbot'];
-
     /* try to parse the args if given. if it can't, defaults to the user that sent the message */
     let arg = data.text.split(' ')
-        //.slice(off)
         .map(function (el) {
 
             el = topic.removeSpecial(el);
@@ -40,44 +34,42 @@ function rm(data) {
             arg = [slack.getUser(data.user).name];
 
     /* remove user(s) from topic */
-    replaceChatter(oldtopic, arg, function (newtopic) {
-        //callback
-        if (!(newtopic instanceof Array))
+    replaceChatter(oldtopic, arg)
+        .then((newtopic) => {
             topic.setTopic(data, newtopic);
-        else
-            slack.sendMessage('not in topic: ' + newtopic.join(' '), data.channel);
-
-    });
+        })
+        .catch((absentUsers) => {
+            if (!absentUsers instanceof Array) return;
+            slack.sendMessage('not in topic: ' + absentUsers.join(' '), data.channel);
+        });
 }
 
 /* top: current topic
  * arg: list of people to remove from the topic
  */
-function replaceChatter(top, arg, callback) {
+function replaceChatter(top, arg) {
+    return new Promise((fulfill,reject) => {
 
-    let re = '';
-    /* array of users not in topic */
-    let notintopic = [];
+        let re = '',
+            notInTopic = [];
 
-    arg.forEach(function (el) {
+        arg.forEach(function (el) {
 
-        /* searches for a name in the topic and removes it */
-        if (top.match(new RegExp(el, 'gi')) !== null) {
-            re = new RegExp('(,|, | |^)' + el, 'gi');
-            top = top.replace(re, '');
-        }
+            /* searches for a name in the topic and removes it */
+            if (top.match(new RegExp(el, 'gi')) !== null) {
+                re = new RegExp('(,|, | |^)' + el, 'gi');
+                top = top.replace(re, '');
+            }
 
-        /* take note if a user provided isn't in the topic */
+            /* take note if a user provided isn't in the topic */
+            else
+                notInTopic.push(el);
+        });
+
+        /* if none of the users provided are in the topic, then don't update it */
+        if (notInTopic.length >= arg.length)
+            reject(notInTopic);
         else
-            notintopic.push(el);
-
+            fulfill(top);
     });
-
-    /* if none of the users provided are in the topic, then don't update it */
-    if (notintopic.length >= arg.length)
-        callback(notintopic);
-
-    else
-        callback(top);
-
 }

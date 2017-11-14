@@ -1,12 +1,7 @@
 let slack = require('../../lib/slack').rtm;
 
-let conf_breaks = require('../../conf/config.breaks.js');
 let db = require('../../lib/database');
-let requests = require('../lc_requests');
 let globals = require('../../conf/config.globals');
-let breakLib = require('../breaks');
-
-let offs = {'!bio': 1, 'breakbot': 2};
 
 /* bio time */
 let time = 5;
@@ -18,49 +13,23 @@ module.exports = {
 
 function bio(data) {
 
-    let chanObj = globals.channels[data.name];
-    let breaks = globals.channels[data.name].breaks;
+    let chanObj = globals.channels[data.name],
+        breaks = chanObj.breaks;
 
-    // if (data.text.split(' ')[0].match(/!bio/i) !== null)
-    //     off = offs['!bio'];
-    // else
-    //     off = offs['breakbot'];
-
-    //let username = slack.dataStore.getUserById(data.user).profile.email.split('@')[0];
-
+    /* uncomment if bio breaks should count toward the daily limit */
     // if (!breakLib.canTakeBreak(data.username, data.name))
     //     return false;
 
-    /* prevents users from logging out again if they're already logged out */
+    /* prevents users from taking a break if they're already on a break */
     // if (breakLib.isOnBreak(username, data.name)) {
     //     slack.sendMessage('already on break', data.channel);
-    //     return false;
-    // }
-    //
-    // if (breaks.cooldown.hasOwnProperty(username)) {
-    //     slack.sendMessage('too soon since last break', data.channel);
-    //     return false;
-    // }
-    //
-    // if (!(globals.channels[data.name].breaks.increment(data.name, username))) {
-    //     slack.sendMessage('err: hit daily break limit (' + conf.maxDailyBreaks + ')', data.channel);
     //     return false;
     // }
 
     delete breaks.task[data.username];
     chanObj.clearBreaks(data.username);
 
-    //setBreak(username, time, data.channel);
-
-    breaks.bio[data.username] = {
-        outTime: new Date().getTime(),
-        duration: time,
-        channel: data.channel,
-        remaining: time
-    };
-
-    /* sets agent status to "not accepting chats" */
-    slack.sendMessage('Set ' + time.toString() + ' minute bio for ' + data.username + '.', data.channel);
+    setBio(data.username, time, chanObj);
 
     /* logging */
     let logdata = {
@@ -78,20 +47,19 @@ function bio(data) {
 }
 
 /*
- * sets break timer for [time] minutes
+ * sets user on bio break for 5 minutes
  */
-function setBreak(username, time, channel) {
+function setBio(user, time, chanObj) {
+    let breaks = chanObj.breaks;
 
-    requests.changeStatus(username, 'not accepting chats')
-        .then(function (res) {
-            breaks.bio[username] = {
-                outTime: new Date().getTime(),
-                duration: time,
-                channel: channel,
-                remaining: time
-            };
-        })
-        .catch(function (err) {
-            console.error('ERROR CHANGING STATUS', err);
-        });
+    breaks.bio[user] = {
+        outTime: new Date().getTime(),
+        duration: time,
+        channel: chanObj.name,
+        remaining: time
+    };
+
+    /* sets agent status to "not accepting chats" */
+    slack.sendMessage('Set ' + time.toString() + ' minute bio for ' + user + '.', chanObj.id);
+
 }

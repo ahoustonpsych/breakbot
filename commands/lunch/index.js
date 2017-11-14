@@ -1,13 +1,12 @@
 let slack = require('../../lib/slack').rtm;
 
 let conf_breaks = require('../../conf/config.breaks.js');
-let db = require('../../lib/database');
-//let requests = require('../lc_requests');
 let globals = require('../../conf/config.globals');
+
 let breakLib = require('../breaks');
 let luncher = require('../luncher');
 
-let offs = {'!lunch': 1, 'breakbot': 2};
+let db = require('../../lib/database');
 
 /* lunch time */
 const _time = 30;
@@ -19,29 +18,17 @@ module.exports = {
 
 function lunch(data) {
 
-    let chanObj = globals.channels[data.name];
-    let breaks = globals.channels[data.name].breaks;
-
-    // if (data.text.split(' ')[0].match(/!lunch/i) !== null)
-    //     off = offs['!lunch'];
-    // else
-    //     off = offs['breakbot'];
-
-    //let username = slack.dataStore.getUserById(data.user).profile.email.split('@')[0];
-    //let arg = data.text.split(' ')[off];
-
-    let username = data.username;
-    let arg = data.text.split(' ')[0];
-
-    //console.log('USERNAME: ' + username)
+    let chanObj = globals.channels[data.name],
+        breaks = chanObj.breaks,
+        username = data.username,
+        arg = data.text.split(' ')[0];
 
     if (arg) {
         scheduler(data);
         return true;
     }
 
-
-    /* prevents users from logging out again if they're already logged out */
+    /* prevents users from taking a break if they're already on a break */
     // if (breaks.lunch[username] instanceof Object) {
     //     slack.sendMessage('already on lunch', data.channel);
     //     return;
@@ -71,8 +58,6 @@ function lunch(data) {
     /* sets agent status to "not accepting chats" */
     slack.sendMessage('Set lunch for ' + username + '. See you in 30 minutes!', data.channel);
 
-    //setBreak(username, _time, data.channel);
-
     /* logging */
     let logdata = {
         username: username,
@@ -99,39 +84,20 @@ function setBreak(username, time, channel) {
         channel: channel,
         remaining: time
     };
-
-    // requests.changeStatus(username, 'not accepting chats')
-    //     .then(function (res) {
-    //         breaks.lunch[username] = {
-    //             outTime: new Date().getTime(),
-    //             duration: time,
-    //             channel: channel,
-    //             remaining: time
-    //         };
-    //     })
-    //     .catch(function (err) {
-    //         console.error('ERROR CHANGING STATUS', err);
-    //     });
 }
 
 
 function scheduler(data) {
 
-    // let user = slack.dataStore.getUserById(data.user).profile.email.split('@')[0];
-    // let arg = data.text.split(' ')[off];
-
-    let user = data.username;
-    let arg = data.text.split(' ')[0];
+    let user = data.username,
+        arg = data.text.split(' ')[0];
 
     if (!arg)
         return false;
 
-    //list command
+    /* !lunch list */
     if (arg.match(/^list$/i) !== null) {
         list = luncher.listLunch(data.name);
-
-        // console.log('list: ')
-        // console.log(list)
 
         if (!list) {
             slack.sendMessage('nobody scheduled for lunch', data.channel);
@@ -144,41 +110,25 @@ function scheduler(data) {
         return true;
     }
 
-    //rm command
-    //TODO split this into its own func
+    /* !lunch rm */
     else if (arg.match(/^rm$/i) !== null) {
         name = data.text.split(' ')[1];
 
-        if (!name || name.match(/^me$/i) !== null)
+        if (breakLib.isMe(name))
             name = user;
 
-        //fail if invalid user
-        if (!(slack.getUser(name) instanceof Object)) {
-            slack.sendMessage('invalid user: ' + name, data.channel);
-            return false;
-        }
-        //fail if lunch time doesn't exist
-        luncher.clearLunch(name, data.name)
-            .then((res) => {
-                slack.sendMessage('removed lunch for: ' + name, data.channel);
-                return false
-            })
-            .catch((err) => {
-                slack.sendMessage('lunch not found for: ' + name, data.channel);
-                //return false;
-            });
-
-        return;
+        removeLunch(name, data.channel);
+        return true;
     }
 
     //match username if possible
     if (slack.getUser(arg) instanceof Object) {
-        user = slack.dataStore.getUserByName(arg).profile.email.split('@')[0];
+        user = slack.getUser(arg).name;
         time = data.text.split(' ')[1];
     }
 
-    //match 'me'
-    else if (arg.match(/^me$/i) !== null) {
+    /* match "me" if possible */
+    else if (breakLib.isMe(arg)) {
         time = data.text.split(' ')[1];
     }
 
@@ -191,27 +141,21 @@ function scheduler(data) {
         return false;
     }
 
+    /* parse lunch time */
     lunchTime = parseTime(time);
 
-    //fail if time is invalid
+    /* fail if time is invalid */
     if (!lunchTime) {
         slack.sendMessage('invalid time: ' + time, data.channel);
         return false;
     }
 
-    //fail if slot already taken
-    // if (!(luncher.checkDupe(lunch, data.name))) {
-    //     slack.sendMessage('slot already taken: ' + time, data.channel);
-    //     return false;
-    // }
-
-    //add lunch if all else is good
+    /* add lunch if all else is good */
     luncher.addLunch(user, lunchTime, data.name)
         .then(() => {
             slack.sendMessage('Set lunch for: ' + user, data.channel);
         })
         .catch((err) => {
-            //console.log(err);
             //fail if already scheduled or if slot is full
             slack.sendMessage(err, data.channel);
         });
@@ -257,9 +201,6 @@ function parseTime(time) {
     if (typeof(hour) !== 'number' || typeof(minute) !== 'number' || isNaN(hour) || isNaN(minute))
         return false;
 
-    //console.log('hour: ' + hour);
-    //console.log('minute: ' + minute);
-
     //only allow lunches at 15m intervals
     if (minute % 15 !== 0)
         return false;
@@ -282,4 +223,25 @@ function parseTime(time) {
     else
         return false;
 
+}
+
+/*
+ * Removes schedule lunch slot for "user", if possible
+ */
+function removeLunch(user, chanId) {
+
+    //fail if invalid user
+    if (!(slack.getUser(user) instanceof Object)) {
+        slack.sendMessage('invalid user: ' + user, chanId);
+        return false;
+    }
+
+    //fail if lunch time isn't valid
+    luncher.clearLunch(user, chanId)
+        .then((res) => {
+            slack.sendMessage('removed lunch for: ' + user, chanId);
+        })
+        .catch((err) => {
+            slack.sendMessage('lunch not found for: ' + user, chanId);
+        });
 }

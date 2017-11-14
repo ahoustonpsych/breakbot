@@ -30,7 +30,7 @@ slack.on('authenticated', function (data) {
         if (chan.is_member) {
             if (!isApprovedChannel(chan.name))
                 return false;
-            let rawChannel = slack.dataStore.getChannelGroupOrDMById(chan.id);
+            let rawChannel = slack.getChannel(chan.id);
             globals.channels[rawChannel.name] = new Channel(rawChannel)
         }
     });
@@ -38,7 +38,7 @@ slack.on('authenticated', function (data) {
     data.groups.forEach((chan) => {
         if (!isApprovedChannel(chan.name))
             return false;
-        let rawChannel = slack.dataStore.getChannelGroupOrDMById(chan.id);
+        let rawChannel = slack.getChannel(chan.id);
         globals.channels[rawChannel.name] = new Channel(rawChannel)
     });
 
@@ -50,16 +50,16 @@ slack.on('authenticated', function (data) {
 
 /* always listening */
 slack.on('message', function (data) {
-    //console.log(data);
 
     //validate message data
     if (!(!!data.user && !!data.text && !!data.channel)) {
-        // console.error(new Date().toLocaleString() + ' unknown message format! Ignoring:');
-        // console.error(data);
+        console.error(new Date().toLocaleString() + ' unknown message format! Ignoring:');
+        console.error(data);
         return false;
     }
 
-    if (!isApprovedChannel(slack.dataStore.getChannelGroupOrDMById(data.channel).name))
+    //only run in valid channels
+    if (!isApprovedChannel(slack.getChannel(data.channel).name))
         return false;
 
     //ignore bots
@@ -82,8 +82,7 @@ slack.on('disconnect', data => {
 });
 
 function startProcessing(data) {
-    //console.log('startProcessing data: ' + data)
-    let rawChannel = slack.dataStore.getChannelGroupOrDMById(data.channel);
+    let rawChannel = slack.getChannel(data.channel);
 
     //add plaintext channel name to message object, for reference later
     if (!slack.getUser(data.user) instanceof Object)
@@ -97,10 +96,7 @@ function startProcessing(data) {
     //update topic
     if (data.hasOwnProperty('subtype')) {
         if (data.subtype === 'group_topic' || data.subtype === 'channel_topic') {
-            //console.log(data)
             globals.channels[rawChannel.name].topic = data.topic;
-            // console.log('updating topic')
-            // console.log('data topic: ' + data.topic)
         }
     }
 
@@ -111,9 +107,6 @@ function startProcessing(data) {
  * Returns true if we're in an approved channel
  */
 function isApprovedChannel(channelName) {
-    // console.log(channelName);
-    // console.log(conf.channels.indexOf(channelName));
-    // console.log(conf.channels);
     return conf.channels.indexOf(channelName) !== -1;
 }
 
@@ -126,8 +119,6 @@ function main() {
     db.initdb();
 
     server.initserver();
-
-    //wrapup.restoreWrapup();
 
     /* runs upkeep every second */
     setInterval(upkeep, 1000);
