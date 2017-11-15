@@ -41,7 +41,7 @@ function brb(data) {
     if (!breakLib.canTakeBreak(username, data.name))
         return false;
 
-    breakLib.parseBreakTime(arg)
+    breakLib.parseBreakTime(data.breakType, arg)
         .then((parsedTime) => {
 
             setBrb(username, parsedTime, chanObj);
@@ -60,7 +60,9 @@ function brb(data) {
                     console.error(new Date().toLocaleString() + ' ERROR LOGGING COMMAND', err);
                 });
         })
-        .catch(function (err) {
+        .catch((err) => {
+            if (err)
+                slack.sendMessage(err, data.channel);
             console.error(new Date().toLocaleString() + ' ERROR PARSING BREAK TIME', err);
         });
 }

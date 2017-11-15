@@ -3,7 +3,7 @@ let Promise = require('promise');
 
 let globals = require('../../conf/config.globals');
 let conf_breaks = require('../../conf/config.breaks');
-let breaksLib = require('../breaks');
+let breakLib = require('../breaks');
 
 let db = require('../../lib/database');
 let topic = require('../topic');
@@ -46,6 +46,7 @@ function task(data) {
     }
 
     //check for valid time
+    //TODO merge with breakLib.parseBreakTime
     if (isNaN(parseInt(time))) {
         slack.sendMessage('err: invalid time. syntax: *!task [user] [time] [reason]*', data.channel);
         return;
@@ -66,7 +67,7 @@ function task(data) {
         return;
     }
 
-    breaksLib.parseBreakTime(time)
+    breakLib.parseBreakTime(data.breakType, time)
         .then((parsedTime) => {
 
             setTask(user, parsedTime, reason, chanObj);
@@ -88,6 +89,8 @@ function task(data) {
 
         })
         .catch(function (err) {
+            /* invalid break time */
+            slack.sendMessage(err, data.channel);
             console.error(new Date().toLocaleString() + ' ERROR PARSING TASK TIME', err);
         });
 
