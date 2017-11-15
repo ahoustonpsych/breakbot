@@ -533,7 +533,7 @@ describe('Commands', function () {
         });
 
         describe('only time argument given', function () {
-            it('should set ahouston on lunch for 30 minutes', function (done) {
+            it('should schedule lunch for ahouston for 12:00', function (done) {
                 emitter.on('sendMessage', function (res) {
                     expect(res).to.eql({
                         message: 'Set lunch for: ahouston',
@@ -549,7 +549,7 @@ describe('Commands', function () {
         });
 
         describe('valid username, time: 12', function () {
-            it('should set ahouston on lunch for 30 minutes', function (done) {
+            it('should schedule lunch for ahouston for 12:00', function (done) {
                 emitter.on('sendMessage', function (res) {
                     expect(res).to.eql({
                         message: 'Set lunch for: ahouston',
@@ -581,7 +581,7 @@ describe('Commands', function () {
         });
 
         describe('valid username, time: 1200', function () {
-            it('should set ahouston on lunch for 30 minutes', function (done) {
+            it('should schedule lunch for ahouston for 12:00', function (done) {
                 emitter.on('sendMessage', function (res) {
                     expect(res).to.eql({
                         message: 'Set lunch for: ahouston',
@@ -597,7 +597,7 @@ describe('Commands', function () {
         });
 
         describe('valid username, time: 12:30', function () {
-            it('should set ahouston on lunch for 30 minutes', function (done) {
+            it('should schedule lunch for ahouston for 12:00', function (done) {
                 emitter.on('sendMessage', function (res) {
                     expect(res).to.eql({
                         message: 'Set lunch for: ahouston',
