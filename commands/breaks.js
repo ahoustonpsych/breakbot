@@ -49,7 +49,7 @@ function restoreBreaks() {
         }
 
         else if (!res || res === '{}') {
-            console.log(new Date().toLocaleString() + ' no break data in file');
+            console.log(new Date().toLocaleString() + ' NOTICE: no break data in file');
             console.log(res);
             return;
         }
@@ -185,19 +185,30 @@ function slotAvailable(channel) {
  * Attempts to determine if "argTime" is a valid break time
  * if not, returns the default break time (5 minutes)
  */
-function parseBreakTime(argTime) {
+function parseBreakTime(breakType, argTime) {
     return new Promise((fulfill, reject) => {
-        let parsed;
+        let parsed,
+            maxTime = breakType === 'task' ? conf_breaks.maxTask : conf_breaks.maxBreak;
+
+        /* reject time if data.breakType isn't valid */
+        if (!maxTime) {
+            console.error(new Date().toLocaleString() + ' UNKNOWN BREAK TYPE:', breakType);
+            reject();
+        }
 
         parsed = parseInt(argTime);
 
-        /* sets break time to the default if it's not provided */
-        if (!parsed || isNaN(parsed))
+        /* return default break time if it's not provided */
+        if (isNaN(parsed)) {
+            console.log(new Date().toLocaleString() + " WARNING: COULDN'T PARSE BREAK TIME: " + argTime);
             fulfill(conf_breaks.defaultBreak);
+        }
 
         /* prevents the break time from being negative, zero, or higher than the max time */
-        else if ((parsed > conf_breaks.maxBreak) || (parsed <= 0))
-            fulfill(conf_breaks.defaultBreak);
+        else if ((parsed > maxTime) || (parsed <= 0)) {
+            //reject with error
+            reject('err: break time out of range *(max: ' + maxTime + ')*');
+        }
 
         /* if all else is good, set break time properly */
         else

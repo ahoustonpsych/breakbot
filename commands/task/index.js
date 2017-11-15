@@ -88,9 +88,10 @@ function task(data) {
                 });
 
         })
-        .catch(function (err) {
-            /* invalid break time */
-            slack.sendMessage(err, data.channel);
+        .catch((err) => {
+            /* invalid time */
+            if (err)
+                slack.sendMessage(err, data.channel);
             console.error(new Date().toLocaleString() + ' ERROR PARSING TASK TIME', err);
         });
 

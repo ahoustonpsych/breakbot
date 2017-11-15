@@ -17,6 +17,7 @@ let db = require('../lib/database');
 
 let brb = require('../commands/brb');
 let conf = require('../conf/config');
+let conf_breaks = require('../conf/config.breaks');
 
 let globals = require('../conf/config.globals');
 let Channel = require('../lib/channels');
@@ -44,6 +45,10 @@ conf.channelDesignation = {
 };
 
 function overrides() {
+
+    db.log = function (table, data) {
+
+    };
 
     slack.sendMessage = function (str, chan) {
 
@@ -180,7 +185,6 @@ describe('Commands', function () {
                     });
                     done();
                 });
-
                 data.text = '!brb 10';
                 bot.startProcessing(data);
                 //messageController.handle(data);
@@ -188,10 +192,10 @@ describe('Commands', function () {
         });
 
         describe('0 minute break', function () {
-            it('should set ahouston on break for 5 minutes', function (done) {
+            it('should reject with error', function (done) {
                 emitter.on('sendMessage', function (res) {
                     expect(res).to.eql({
-                        message: 'Set break for ahouston for 5 minutes.',
+                        message: 'err: break time out of range *(max: 15)*',
                         channel: CHANLIST['breakbot-support']
                     });
                     done();
@@ -204,10 +208,10 @@ describe('Commands', function () {
         });
 
         describe('negative minute break', function () {
-            it('should set ahouston on break for 5 minutes', function (done) {
+            it('reject with error', function (done) {
                 emitter.on('sendMessage', function (res) {
                     expect(res).to.eql({
-                        message: 'Set break for ahouston for 5 minutes.',
+                        message: 'err: break time out of range *(max: 15)*',
                         channel: CHANLIST['breakbot-support']
                     });
                     done();
@@ -220,10 +224,10 @@ describe('Commands', function () {
         });
 
         describe('150 minute break', function () {
-            it('should set ahouston on break for 5 minutes', function (done) {
+            it('should reject with error', function (done) {
                 emitter.on('sendMessage', function (res) {
                     expect(res).to.eql({
-                        message: 'Set break for ahouston for 5 minutes.',
+                        message: 'err: break time out of range *(max: 15)*',
                         channel: CHANLIST['breakbot-support']
                     });
                     done();
@@ -421,6 +425,51 @@ describe('Commands', function () {
                 data.text = '!task bnewman 30 meeting';
                 bot.startProcessing(data);
                 //messageController.handle(data);
+            });
+        });
+
+        describe('excessive time given', function () {
+            it('should reject with error', (done) => {
+                emitter.on('sendMessage', (res) => {
+                    expect(res).to.eql({
+                        message: 'err: break time out of range *(max: 120)*',
+                        channel: CHANLIST['breakbot-support']
+                    });
+                    done();
+                });
+
+                data.text = '!task 130 meeting';
+                bot.startProcessing(data);
+            });
+        });
+
+        describe('negative time given', function () {
+            it('should reject with error', (done) => {
+                emitter.on('sendMessage', (res) => {
+                    expect(res).to.eql({
+                        message: 'err: break time out of range *(max: 120)*',
+                        channel: CHANLIST['breakbot-support']
+                    });
+                    done();
+                });
+
+                data.text = '!task -30 meeting';
+                bot.startProcessing(data);
+            });
+        });
+
+        describe('zero time given', function () {
+            it('should reject with error', (done) => {
+                emitter.on('sendMessage', (res) => {
+                    expect(res).to.eql({
+                        message: 'err: break time out of range *(max: 120)*',
+                        channel: CHANLIST['breakbot-support']
+                    });
+                    done();
+                });
+
+                data.text = '!task 0 meeting';
+                bot.startProcessing(data);
             });
         });
 
@@ -996,8 +1045,14 @@ describe('Situations', function () {
         });
 
         describe('original break', function () {
-            it('should set ahouston on break', function (done) {
-                emitter.on('sendMessage', () => done());
+            it('should set ahouston on break for 10 minutes', function (done) {
+                emitter.on('sendMessage', (res) => {
+                    expect(res).to.eql({
+                        message: 'Set break for ahouston for 10 minutes.',
+                        channel: CHANLIST['breakbot-support']
+                    });
+                    done();
+                });
 
                 data.text = '!brb 10';
                 bot.startProcessing(data);

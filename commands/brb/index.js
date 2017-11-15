@@ -61,8 +61,9 @@ function brb(data) {
                 });
         })
         .catch((err) => {
-            if (err)
+            if (err) {
                 slack.sendMessage(err, data.channel);
+            }
             console.error(new Date().toLocaleString() + ' ERROR PARSING BREAK TIME', err);
         });
 }
