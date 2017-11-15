@@ -54,16 +54,20 @@ function replaceChatter(top, arg) {
             notInTopic = [];
 
         arg.forEach(function (el) {
+            let elId = slack.getUser(el).id;
 
-            /* searches for a name in the topic and removes it */
-            if (top.match(new RegExp(el, 'gi')) !== null) {
+            /* searches for a name or user ID in the topic and removes it */
+            if (top.match(new RegExp(el, 'gi')) || top.match(new RegExp(elId, 'gi'))) {
                 re = new RegExp('(,|, | |^)' + el, 'gi');
+                reId = new RegExp('<@' + elId + '>', 'gi');
                 top = top.replace(re, '');
+                top = top.replace(reId, '');
             }
 
             /* take note if a user provided isn't in the topic */
             else
                 notInTopic.push(el);
+
         });
 
         /* if none of the users provided are in the topic, then don't update it */
