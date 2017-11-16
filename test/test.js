@@ -46,9 +46,7 @@ conf.channelDesignation = {
 
 function overrides() {
 
-    db.log = function (table, data) {
-
-    };
+    db.log = (table, data) => {};
 
     slack.sendMessage = function (str, chan) {
 
@@ -67,7 +65,7 @@ function overrides() {
             user: user
         };
 
-        emitter.emit('sendMessage', resdata);
+        emitter.emit('sendPrivateMessage', resdata);
     };
 
 }
