@@ -26,7 +26,8 @@ function task(data) {
         offset = 0, // arg offset
         chanObj = globals.channels[data.name],
         breaks = chanObj.breaks,
-        arg = data.text.split(' ')[0];
+        msgArr = data.text.split(' '),
+        arg = msgArr[0];
 
     if (isValidUser(arg)) {
         offset += 1;
@@ -37,8 +38,8 @@ function task(data) {
         user = data.username;
 
     /* offsets time/reason position by 1 if username is provided */
-    time = data.text.split(' ')[offset];
-    reason = data.text.split(' ')[offset+1];
+    time = msgArr[offset];
+    reason = msgArr.slice(offset+1).join(' ');
 
     if (!time) {
         slack.sendMessage('err: no time or reason given. syntax: *!task [user] [time] [reason]*', data.channel);
