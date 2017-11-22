@@ -133,30 +133,32 @@ function canTakeBreak(user, channel) {
         return false;
     }
 
-    if (breaks.cooldown.hasOwnProperty(user)) {
+    else if (breaks.cooldown.hasOwnProperty(user)) {
         let rem = new Date().getTime() - breaks.cooldown[user].getTime(); // milliseconds
         rem = Math.ceil(Math.abs(rem / 60 / 1000));
         slack.sendMessage('err: too soon since last break (' + rem + 'm remaining)', chanId);
         return false;
     }
 
-    if (!globals.channels[channel].increaseBreakCount(user)) {
-        slack.sendMessage('err: hit daily break limit (' + conf_breaks.maxDailyBreaks + ')', chanId);
-        return false;
-    }
-
-    if (!slotAvailable(channel)) {
+    else if (!slotAvailable(channel)) {
         slack.sendMessage('err: too many people on break. check !list', chanId);
         return false;
     }
 
     /* uncomment to reject breaks if eos is near */
-    // if (!globals.channels[channel].punches[user].punched_eos) {
+    // else if (!globals.channels[channel].punches[user].punched_eos) {
     //     slack.sendMessage('err: too close to eos', chanId);
     //     return false;
     // }
 
-    return true;
+    else if (!globals.channels[channel].increaseBreakCount(user)) {
+        slack.sendMessage('err: hit daily break limit (' + conf_breaks.maxDailyBreaks + ')', chanId);
+        return false;
+    }
+
+    else {
+        return true;
+    }
 }
 
 /*
@@ -176,8 +178,8 @@ function slotAvailable(channel) {
         // Object.keys(breaks.lunch).length +
         // Object.keys(breaks.task).length;
 
-    max = globals.channels[channel].maxOnBreak > 1 ? globals.channels[channel].maxOnBreak : conf_breaks.maxOnBreak;
-
+    //max = globals.channels[channel].maxOnBreak > 1 ? globals.channels[channel].maxOnBreak : conf_breaks.maxOnBreak;
+    max = conf_breaks.maxOnBreak;
     return totalOut < max;
 }
 
