@@ -178,8 +178,8 @@ function slotAvailable(channel) {
         // Object.keys(breaks.lunch).length +
         // Object.keys(breaks.task).length;
 
-    //max = globals.channels[channel].maxOnBreak > 1 ? globals.channels[channel].maxOnBreak : conf_breaks.maxOnBreak;
-    max = conf_breaks.maxOnBreak;
+    max = globals.channels[channel].maxOnBreak > 1 ? globals.channels[channel].maxOnBreak : conf_breaks.maxOnBreak;
+
     return totalOut < max;
 }
 
