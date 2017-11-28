@@ -2,6 +2,7 @@ let slack = require('../../lib/slack').rtm;
 
 let globals = require('../../conf/config.globals');
 let conf_breaks = require('../../conf/config.breaks');
+let breaksLib = require('../breaks');
 
 module.exports = {
     expr: /^(!list)|(breakbot:? list)/i,
