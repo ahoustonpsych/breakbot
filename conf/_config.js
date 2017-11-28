@@ -37,12 +37,14 @@ module.exports = {
     channels: [
         'break',
         'livechat',
+        '1st-shift-leads'
     ],
 
     /* ties channels to departments*/
     channelDesignation: {
-        'support': 'breakbot-support',
-        'livechat': 'breakbot-livechat'
+        'support': 'support',
+        'livechat': 'livechat',
+        'supers': '1st-shift-leads'
     },
 
     /* path to the database containing command logs */

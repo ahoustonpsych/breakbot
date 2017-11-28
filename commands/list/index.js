@@ -1,3 +1,5 @@
+const _ = require('lodash');
+
 let slack = require('../../lib/slack').rtm;
 
 let globals = require('../../conf/config.globals');
@@ -6,7 +8,8 @@ let breaksLib = require('../breaks');
 
 module.exports = {
     expr: /^(!list)|(breakbot:? list)/i,
-    run: list
+    run: list,
+    getList: buildBreakList
 };
 
 function list(data) {
@@ -15,7 +18,8 @@ function list(data) {
         breaks = chanObj.breaks,
         username = data.username,
         arg = data.text.split(' ')[0],
-        name = data.text.split(' ')[1];
+        name = data.text.split(' ')[1],
+        full_list = '';
 
     //!list rm handling
     //removes user from the break lists
@@ -48,57 +52,9 @@ function list(data) {
         }
     }
 
-    let onbreak_list = '*On break:* ',
-        lunch_list = '*On lunch:* ',
-        task_list = '*On task:* ',
-        bio_list = '*Bathroom:* ',
-        strTotal = '*Total:* ',
-        strMax = '*Max:* ',
-        max = conf_breaks.maxOnBreak;
+    full_list = buildBreakList(data.name);
 
-    //number of people on break
-    total =
-        Object.keys(breaks.active).length +
-        //Object.keys(breaks.bio).length +
-        //Object.keys(breaks.lunch).length +
-        Object.keys(breaks.over).length;
-
-    //max people on break
-    if (globals.channels[data.name].maxOnBreak > 0)
-        max = globals.channels[data.name].maxOnBreak;
-
-    if (typeof(total) === 'number')
-        strTotal += total;
-
-    if (typeof(max) === 'number')
-        strMax += max;
-
-    /* populates list of users currently on break, paired with the amount of time left on their break */
-    if (Object.keys(breaks.active).length !== 0)
-        Object.keys(breaks.active).forEach((user) => {
-            onbreak_list = onbreak_list + user + ' (' + breaks.active[user].remaining + 'm), ';
-        });
-
-    if (Object.keys(breaks.lunch).length !== 0)
-        Object.keys(breaks.lunch).forEach((user) => {
-            lunch_list = lunch_list + user + ' (' + breaks.lunch[user].remaining + 'm), ';
-        });
-
-    if (Object.keys(breaks.bio).length !== 0)
-        Object.keys(breaks.bio).forEach((user) => {
-            bio_list = bio_list + user + ' (' + breaks.bio[user].remaining + 'm), ';
-        });
-
-    if (Object.keys(breaks.task).length !== 0)
-        Object.keys(breaks.task).forEach((user) => {
-            task_list = task_list + user + ' (' + breaks.task[user].remaining + 'm), ';
-        });
-
-    /* strips trailing comma from the list */
-    onbreak_list = onbreak_list.replace(/, $/, '');
-    lunch_list = lunch_list.replace(/, $/, '');
-    bio_list = bio_list.replace(/, $/, '');
-    task_list = task_list.replace(/, $/, '');
+    slack.sendMessage(full_list, data.channel);
 
     /*
     //shelved for now
@@ -121,22 +77,83 @@ function list(data) {
         list += bio_list + '\n';
     */
 
-    if (Object.keys(breaks.active).length !== 0 ||
-        Object.keys(breaks.over).length !== 0 ||
-        Object.keys(breaks.task).length !== 0 ||
-        Object.keys(breaks.lunch).length !== 0 ||
-        Object.keys(breaks.bio).length !== 0) {
+}
 
-        slack.sendMessage(onbreak_list + '\n' +
+function buildBreakList(channel) {
+
+    let chanObj = slack.getChannel(channel),
+        breaks = globals.channels[chanObj.name].breaks,
+        onbreak_list = '*On break:* ',
+        lunch_list = '*On lunch:* ',
+        task_list = '*On task:* ',
+        bio_list = '*Bathroom:* ',
+        strTotal = '*Total:* ',
+        strMax = '*Max:* ',
+        full_list = '',
+        max = conf_breaks.maxOnBreak;
+
+    //number of people on break
+    total =
+        _.size(breaks.active) +
+        //Object.keys(breaks.bio).length +
+        //Object.keys(breaks.lunch).length +
+        _.size(breaks.over);
+
+    //max people on break
+    if (chanObj.maxOnBreak > 0)
+        max = chanObj.maxOnBreak;
+
+    if (typeof(total) === 'number')
+        strTotal += total;
+
+    if (typeof(max) === 'number')
+        strMax += max;
+
+    /* populates list of users currently on break, paired with the amount of time left on their break */
+    if (_.size(breaks.active) !== 0)
+        Object.keys(breaks.active).forEach((user) => {
+            onbreak_list = onbreak_list + user + ' (' + breaks.active[user].remaining + 'm), ';
+        });
+
+    if (_.size(breaks.lunch) !== 0)
+        Object.keys(breaks.lunch).forEach((user) => {
+            lunch_list = lunch_list + user + ' (' + breaks.lunch[user].remaining + 'm), ';
+        });
+
+    if (_.size(breaks.bio) !== 0)
+        Object.keys(breaks.bio).forEach((user) => {
+            bio_list = bio_list + user + ' (' + breaks.bio[user].remaining + 'm), ';
+        });
+
+    if (_.size(breaks.task) !== 0)
+        Object.keys(breaks.task).forEach((user) => {
+            task_list = task_list + user + ' (' + breaks.task[user].remaining + 'm), ';
+        });
+
+    /* strips trailing comma from the list */
+    onbreak_list = onbreak_list.replace(/, $/, '');
+    lunch_list = lunch_list.replace(/, $/, '');
+    bio_list = bio_list.replace(/, $/, '');
+    task_list = task_list.replace(/, $/, '');
+
+    if (_.size(breaks.active) !== 0 ||
+        _.size(breaks.over) !== 0 ||
+        _.size(breaks.task) !== 0 ||
+        _.size(breaks.lunch) !== 0 ||
+        _.size(breaks.bio) !== 0) {
+
+        full_list = onbreak_list + '\n' +
             '*Over break:* ' + Object.keys(breaks.over).join(', ') + '\n' +
             task_list + '\n' +
             lunch_list + '\n' +
             bio_list + '\n' +
             strTotal + ', ' +
-            strMax, data.channel);
+            strMax;
+
+        return full_list;
+
     }
     else {
-        slack.sendMessage('Nobody on break', data.channel);
+        return 'Nobody on break';
     }
-
 }
