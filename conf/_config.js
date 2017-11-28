@@ -33,6 +33,10 @@ module.exports = {
         wrapupfile: 'var/wrapup.save'
     },
 
+    superCommands: [
+        'list'
+    ],
+
     /* channels to operate in */
     channels: [
         'break',
