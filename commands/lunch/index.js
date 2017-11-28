@@ -236,12 +236,15 @@ function removeLunch(user, chanId) {
         return false;
     }
 
+    let chanName = slack.getChannel(chanId).name;
+
     //fail if lunch time isn't valid
-    luncher.clearLunch(user, chanId)
+    luncher.clearLunch(user, chanName)
         .then((res) => {
             slack.sendMessage('removed lunch for: ' + user, chanId);
         })
         .catch((err) => {
+            console.error(new Date().toLocaleString(),'LUNCH NOT FOUND:', err);
             slack.sendMessage('lunch not found for: ' + user, chanId);
         });
 }
