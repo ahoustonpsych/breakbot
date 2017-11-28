@@ -36,13 +36,15 @@ let CHANLIST = {
     'breakbot-support': 'C72K0RVK2',
     'breakbot-windows': 'G738QKPJN',
     'breakbot_test': 'G2L3YRUEP',
+    'breakbot_staging': 'G3J4K03GD'
 };
 
 /* set up test channels */
 conf.channels = Object.keys(CHANLIST);
 conf.channelDesignation = {
     livechat: 'breakbot-livechat',
-    support: 'breakbot-support'
+    support: 'breakbot-support',
+    supers: 'breakbot-staging'
 };
 
 function overrides() {
@@ -1457,4 +1459,62 @@ describe('Situations', function () {
             });
         });
     });
+
+    describe('#super channel', () => {
+        beforeEach(done => {
+            emitter = new EventEmitter();
+
+            // freshMock('breakbot-support');
+            // freshMock('breakbot-livechat');
+
+            freshMessage();
+            done();
+        });
+
+        describe('list command', () => {
+            before(done => {
+                //emitter = new EventEmitter();
+                freshMock('breakbot-support');
+                freshMock('breakbot-livechat');
+                // createBreak('ahouston', 'breakbot-support', 'brb', '15');
+                // createBreak('mszabo', 'breakbot-livechat', 'bio', '4');
+                // createBreak('pamiller', 'breakbot-support', 'lunch', '30');
+                // createBreak('dhultin', 'breakbot-livechat', 'brb', '15');
+                // createBreak('aschlichter', 'breakbot-support', 'brb', '11');
+                freshMessage();
+                done();
+            });
+
+            it.skip('should return the correct break lists', done => {
+                emitter.on('sendMessage', res => {
+                    list =
+                        '#breakbot-support'                                 + '\n' +
+                        '*On break:* ahouston (15m), aschlicter (11m)'      + '\n' +
+                        '*Over break:*'                                     + '\n' +
+                        '*On task:*'                                        + '\n' +
+                        '*On lunch:* pamiller (30m)'                        + '\n' +
+                        '*Bathroom:*'                                       + '\n' +
+                        '*Total:* 2, *Max:* 5'                              + '\n\n' +
+                        '#breakbot-livechat'                                + '\n' +
+                        '*On break:* dhultin (15m)'                         + '\n' +
+                        '*Over break:*'                                     + '\n' +
+                        '*On task:*'                                        + '\n' +
+                        '*On lunch:*'                                       + '\n' +
+                        '*Bathroom:* mszabo (4m)'                           + '\n' +
+                        '*Total:* 1, *Max:* 5';
+                    expect(res).to.eql({
+                        message: list,
+                        channel: CHANLIST['breakbot_staging'],
+                    });
+                    done();
+                })
+            });
+
+            // data.channel = CHANLIST['breakbot_staging'];
+            // data.name = 'breakbot_staging';
+            // data.text = '!list';
+            // console.log(data);
+            //bot.startProcessing(data);
+        })
+    })
 });
