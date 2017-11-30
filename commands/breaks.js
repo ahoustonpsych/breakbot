@@ -130,6 +130,7 @@ function canTakeBreak(user, channel) {
 
     if (isOnBreak(user, channel)) {
         slack.sendMessage('err: already on break', chanId);
+        console.log(new Date().toLocaleString(), user, 'BREAK BLOCKED (already on break)');
         return false;
     }
 
@@ -137,11 +138,13 @@ function canTakeBreak(user, channel) {
         let rem = new Date().getTime() - breaks.cooldown[user].getTime(); // milliseconds
         rem = Math.ceil(Math.abs(rem / 60 / 1000));
         slack.sendMessage('err: too soon since last break (' + rem + 'm remaining)', chanId);
+        console.log(new Date().toLocaleString(), user, 'BREAK BLOCKED (too soon,', rem, 'm remaining)');
         return false;
     }
 
     else if (!slotAvailable(channel)) {
         slack.sendMessage('err: too many people on break. check !list', chanId);
+        console.log(new Date().toLocaleString(), user, 'BREAK BLOCKED (too many on break)');
         return false;
     }
 
@@ -153,6 +156,7 @@ function canTakeBreak(user, channel) {
 
     else if (!globals.channels[channel].increaseBreakCount(user)) {
         slack.sendMessage('err: hit daily break limit (' + conf_breaks.maxDailyBreaks + ')', chanId);
+        console.log(new Date().toLocaleString(), user, 'BREAK BLOCKED (hit daily limit)');
         return false;
     }
 
