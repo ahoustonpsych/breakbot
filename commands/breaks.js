@@ -138,7 +138,7 @@ function canTakeBreak(user, channel) {
         let rem = new Date().getTime() - breaks.cooldown[user].getTime(); // milliseconds
         rem = Math.ceil(Math.abs(rem / 60 / 1000));
         slack.sendMessage('err: too soon since last break (' + rem + 'm remaining)', chanId);
-        console.log(new Date().toLocaleString(), user, 'BREAK BLOCKED (too soon,', rem, 'm remaining)');
+        console.log(new Date().toLocaleString(), user, 'BREAK BLOCKED (too soon,', rem + 'm remaining)');
         return false;
     }
 
