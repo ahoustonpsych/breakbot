@@ -51,6 +51,16 @@ slack.on('authenticated', function (data) {
 /* always listening */
 slack.on('message', function (data) {
 
+    //ignore bots
+    if (!!data.bot_id)
+        return false;
+
+    //ignore edited/deleted messages
+    if (!!data.subtype) {
+        if (data.subtype === 'message_changed' || data.subtype === 'message_deleted')
+            return false;
+    }
+
     //validate message data
     if (!(!!data.user && !!data.text && !!data.channel)) {
         console.error(new Date().toLocaleString() + ' unknown message format! Ignoring:');
@@ -60,10 +70,6 @@ slack.on('message', function (data) {
 
     //only run in valid channels
     if (!isApprovedChannel(slack.getChannel(data.channel).name))
-        return false;
-
-    //ignore bots
-    if (!!data.bot_id)
         return false;
 
     //ignore own messages
