@@ -100,8 +100,8 @@ function buildBreakList(channel) {
         _.size(breaks.over);
 
     //max people on break
-    if (chanObj.maxOnBreak > 0)
-        max = chanObj.maxOnBreak;
+    if (globals.channels[chanObj.name].maxOnBreak > 0)
+        max = globals.channels[chanObj.name].maxOnBreak;
 
     if (typeof(total) === 'number')
         strTotal += total;
