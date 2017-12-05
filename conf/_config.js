@@ -9,6 +9,12 @@ module.exports = {
     /* key to authenticate to wallboard */
     wallboardKey: '',
 
+    wallboardURL: {
+        test: 'localhost:7255',
+        dev: 'wallboard.supportdev.liquidweb.com',
+        stage: 'wallboard.supportdev.liquidweb.com'
+    },
+
     /* database connection information */
     dbInfo: {
         dev: {
