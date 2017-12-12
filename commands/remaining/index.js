@@ -10,24 +10,21 @@ module.exports = {
 };
 
 function remaining(data) {
-
-    if (!globals.channels.hasOwnProperty(data.name))
-        return false;
-
-    let remMsg = 'm until cooldown expires)',
+    let chanObj = globals.channels[data.name],
+        remMsg = 'm until cooldown expires)',
         breaksLeft = conf_breaks.maxDailyBreaks,
         cooldownRemaining;
 
-    if (!!globals.channels[data.name].breaks.cooldown[data.username]) {
-        cooldownTime = new Date().getTime() - globals.channels[data.name].breaks.cooldown[data.username].getTime();
+    if (!!chanObj.meta.cooldown[data.username]) {
+        cooldownTime = new Date().getTime() - chanObj.breaks.cooldown[data.username].getTime();
         cooldownRemaining = Math.ceil(Math.abs(cooldownTime / 60 / 1000));
         remMsg = '\n(' + cooldownRemaining.toString() + remMsg
     }
     else
         remMsg = '';
 
-    if (globals.channels[data.name].breaks.count.hasOwnProperty(data.username))
-        breaksLeft -= globals.channels[data.name].breaks.count[data.username];
+    if (chanObj.meta.count.hasOwnProperty(data.username))
+        breaksLeft -= chanObj.meta.count[data.username];
 
     slack.sendMessage('breaks remaining: ' + breaksLeft + remMsg, data.channel);
 

@@ -32,13 +32,7 @@ function brb(data) {
     // if (data.text.split(' ')[1])
     //    username = slack.getUser(data.text.split(' ')[1]).name;
 
-    /* prevents users from taking a break if they're already on break */
-    // if (breakLib.isOnBreak(username, data.name)) {
-    //     slack.sendMessage('already on break', data.channel);
-    //     return false;
-    // }
-
-    if (!breakLib.canTakeBreak(username, data.name))
+    if (!breakLib.canTakeBreak(username, data.name, data))
         return false;
 
     breakLib.parseBreakTime(data.breakType, arg)
@@ -72,7 +66,8 @@ function brb(data) {
  * sets user on break for "time" minutes
  */
 function setBrb(user, time, chanObj) {
-    let breaks = chanObj.breaks;
+    let breaks = chanObj.breaks,
+        meta = chanObj.meta;
 
     if (breaks.task.hasOwnProperty(user))
         delete breaks.task[user];
@@ -85,7 +80,7 @@ function setBrb(user, time, chanObj) {
     };
 
     /* set break cooldown */
-    breaks.cooldown[user] =
+    meta.cooldown[user] =
         new Date(new Date().getTime() + 60 * 1000 * (conf_breaks.breakCooldown + time));
 
     /* notify user */

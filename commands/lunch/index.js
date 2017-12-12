@@ -52,7 +52,7 @@ function lunch(data) {
     };
 
     /* set break cooldown */
-    breaks.cooldown[username] =
+    chanObj.meta.cooldown[username] =
         new Date(new Date().getTime() + 60 * 1000 * (conf_breaks.breakCooldown + _time));
 
     /* sets agent status to "not accepting chats" */

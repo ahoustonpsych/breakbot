@@ -120,6 +120,9 @@ function isPrivateMessage(msg) {
     return msg.channel.slice(0,1) === 'D';
 }
 
+/*
+ * start of breakbot
+ */
 function main() {
 
     db.initdb();

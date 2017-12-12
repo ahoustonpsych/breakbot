@@ -1,3 +1,4 @@
+const _ = require('lodash');
 let fs = require('fs');
 
 let Promise = require('promise');
@@ -109,6 +110,17 @@ function restoreBreaks() {
 }
 
 function isOnBreak(user, channel) {
+
+    // let breaks = globals.channels[channel].breaks;
+    //
+    // console.log(breaks);
+    // _.each(breaks, (j,k,l) => {
+    //     if (/cooldown|count/.exec(k)) return;
+    //     if (_.findKey(j, user)) console.log(k);
+    // });
+    //
+    // return _.findKey(breaks, user);
+
     return !!globals.channels[channel].breaks.active[user]
     || !!globals.channels[channel].breaks.task[user]
     || !!globals.channels[channel].breaks.bio[user]
@@ -126,7 +138,7 @@ function isOnBreak(user, channel) {
 function canTakeBreak(user, channel) {
 
     let chanId = slack.getChannel(channel).id,
-        breaks = globals.channels[channel].breaks;
+        meta = globals.channels[channel].meta;
 
     if (isOnBreak(user, channel)) {
         slack.sendMessage('err: already on break', chanId);
@@ -134,8 +146,8 @@ function canTakeBreak(user, channel) {
         return false;
     }
 
-    else if (breaks.cooldown.hasOwnProperty(user)) {
-        let rem = new Date().getTime() - breaks.cooldown[user].getTime(); // milliseconds
+    else if (meta.cooldown.hasOwnProperty(user)) {
+        let rem = new Date().getTime() - meta.cooldown[user].getTime(); // milliseconds
         rem = Math.ceil(Math.abs(rem / 60 / 1000));
         slack.sendMessage('err: too soon since last break (' + rem + 'm remaining)', chanId);
         console.log(new Date().toLocaleString(), user, 'BREAK BLOCKED (too soon,', rem + 'm remaining)');
