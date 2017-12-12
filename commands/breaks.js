@@ -109,23 +109,18 @@ function restoreBreaks() {
     });
 }
 
+/*
+ * returns the active break type for "user"
+ * or undefined if they're not on break
+ */
 function isOnBreak(user, channel) {
+    return _.findKey(globals.channels[channel].breaks, user);
 
-    // let breaks = globals.channels[channel].breaks;
-    //
-    // console.log(breaks);
-    // _.each(breaks, (j,k,l) => {
-    //     if (/cooldown|count/.exec(k)) return;
-    //     if (_.findKey(j, user)) console.log(k);
-    // });
-    //
-    // return _.findKey(breaks, user);
-
-    return !!globals.channels[channel].breaks.active[user]
-    || !!globals.channels[channel].breaks.task[user]
-    || !!globals.channels[channel].breaks.bio[user]
-    || !!globals.channels[channel].breaks.over[user]
-    || !!globals.channels[channel].breaks.lunch[user];
+    // return !!globals.channels[channel].breaks.active[user]
+    // || !!globals.channels[channel].breaks.task[user]
+    // || !!globals.channels[channel].breaks.bio[user]
+    // || !!globals.channels[channel].breaks.over[user]
+    // || !!globals.channels[channel].breaks.lunch[user];
 }
 
 /*
@@ -138,25 +133,34 @@ function isOnBreak(user, channel) {
 function canTakeBreak(user, channel) {
 
     let chanId = slack.getChannel(channel).id,
-        meta = globals.channels[channel].meta;
+        chanObj = globals.channels[channel],
+        breakType = isOnBreak(user, channel);
 
-    if (isOnBreak(user, channel)) {
-        slack.sendMessage('err: already on break', chanId);
-        console.log(new Date().toLocaleString(), user, 'BREAK BLOCKED (already on break)');
+    //reject if on break
+    if (breakType) {
+        //TODO remove this hack
+        if (breakType === 'active') breakType = 'brb';
+
+        slack.sendMessage('err: already on *' + breakType + '*', chanId);
+        console.log(new Date().toLocaleString(), `${user} BREAK BLOCKED (already on break)`);
         return false;
     }
 
-    else if (meta.cooldown.hasOwnProperty(user)) {
-        let rem = new Date().getTime() - meta.cooldown[user].getTime(); // milliseconds
+    //reject if cooldown hasn't expired
+    else if (chanObj.meta.cooldown.hasOwnProperty(user)) {
+        let rem = new Date().getTime() - chanObj.meta.cooldown[user].getTime(); // milliseconds
         rem = Math.ceil(Math.abs(rem / 60 / 1000));
-        slack.sendMessage('err: too soon since last break (' + rem + 'm remaining)', chanId);
-        console.log(new Date().toLocaleString(), user, 'BREAK BLOCKED (too soon,', rem + 'm remaining)');
+        slack.sendMessage(`err: too soon since last break (${rem}m remaining)`, chanId);
+        console.log(new Date().toLocaleString(), `${user} BREAK BLOCKED (too soon, ${rem}m remaining)`);
         return false;
     }
 
+    //reject if there's too many people on break
     else if (!slotAvailable(channel)) {
-        slack.sendMessage('err: too many people on break. check !list', chanId);
-        console.log(new Date().toLocaleString(), user, 'BREAK BLOCKED (too many on break)');
+        let totalOnBreak = _.size(chanObj.breaks.active) + _.size(chanObj.breaks.over),
+            max = chanObj.maxOnBreak;
+        slack.sendMessage(`err: too many people on break (*total:* ${totalOnBreak}, *max:* ${max})`, chanId);
+        console.log(new Date().toLocaleString(), `${user} BREAK BLOCKED (too many on break)`);
         return false;
     }
 
@@ -166,15 +170,31 @@ function canTakeBreak(user, channel) {
     //     return false;
     // }
 
-    else if (!globals.channels[channel].increaseBreakCount(user)) {
-        slack.sendMessage('err: hit daily break limit (' + conf_breaks.maxDailyBreaks + ')', chanId);
+    //reject if daily break limit has been hit
+    if (isOverLimit(user, channel)) {
+        slack.sendMessage(`err: hit daily break limit (${conf_breaks.maxDailyBreaks})`, chanId);
         console.log(new Date().toLocaleString(), user, 'BREAK BLOCKED (hit daily limit)');
         return false;
     }
 
+    //not over limit
     else {
-        return true;
+
     }
+
+    return true;
+}
+
+/*
+ * checks if user is over their daily break limit
+ */
+function isOverLimit(user, channel) {
+    let chanObj = globals.channels[channel];
+
+    if (chanObj.meta.count.hasOwnProperty(user)) {
+        return chanObj.meta.count[user] >= conf_breaks.maxDailyBreaks;
+    }
+    return false;
 }
 
 /*

@@ -67,7 +67,8 @@ function brb(data) {
  */
 function setBrb(user, time, chanObj) {
     let breaks = chanObj.breaks,
-        meta = chanObj.meta;
+        meta = chanObj.meta,
+        breakStart = new Date().getTime();
 
     if (breaks.task.hasOwnProperty(user))
         delete breaks.task[user];
@@ -79,9 +80,17 @@ function setBrb(user, time, chanObj) {
         remaining: time
     };
 
-    /* set break cooldown */
-    meta.cooldown[user] =
-        new Date(new Date().getTime() + 60 * 1000 * (conf_breaks.breakCooldown + time));
+    /* set break cooldown after 60 seconds */
+    meta.cooldownGrace[user] = setTimeout(() => {
+        clearTimeout(meta.cooldownGrace[user]);
+
+        /* set break cooldown */
+        meta.cooldown[user] =
+            new Date(breakStart + 60 * 1000 * (conf_breaks.breakCooldown + time));
+
+        chanObj.increaseBreakCount(user);
+
+    }, 60000);
 
     /* notify user */
     slack.sendMessage('Set break for ' + user + ' for ' + time.toString() + ' minutes.', chanObj.id);

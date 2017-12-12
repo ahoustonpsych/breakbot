@@ -20,6 +20,8 @@ function lunch(data) {
 
     let chanObj = globals.channels[data.name],
         breaks = chanObj.breaks,
+        meta = chanObj.meta,
+        breakStart = new Date().getTime(),
         username = data.username,
         arg = data.text.split(' ')[0];
 
@@ -51,9 +53,20 @@ function lunch(data) {
         remaining: _time
     };
 
-    /* set break cooldown */
-    chanObj.meta.cooldown[username] =
-        new Date(new Date().getTime() + 60 * 1000 * (conf_breaks.breakCooldown + _time));
+    meta.cooldownGrace[username] = setTimeout(() => {
+        clearTimeout(meta.cooldownGrace[username]);
+
+        /* set break cooldown */
+        meta.cooldown[username] =
+            new Date(breakStart + 60 * 1000 * (conf_breaks.breakCooldown + _time));
+
+        chanObj.increaseBreakCount(username);
+
+    }, 60000);
+
+    // /* set break cooldown */
+    // chanObj.meta.cooldown[username] =
+    //     new Date(new Date().getTime() + 60 * 1000 * (conf_breaks.breakCooldown + _time));
 
     /* sets agent status to "not accepting chats" */
     slack.sendMessage('Set lunch for ' + username + '. See you in 30 minutes!', data.channel);

@@ -3,6 +3,8 @@ let slack = require('../../lib/slack').rtm;
 let globals = require('../../conf/config.globals');
 let breakLib = require('../breaks');
 
+let conf_breaks = require('../../conf/config.breaks');
+
 let db = require('../../lib/database');
 
 /*
@@ -17,11 +19,16 @@ module.exports = {
 
 function back(data) {
 
-    let username = data.username;
+    let username = data.username,
+        meta = globals.channels[data.name].meta;
 
     if (!breakLib.isOnBreak(username, data.name)) {
         slack.sendMessage('err: not on break', data.channel);
         return false;
+    }
+
+    if (meta.cooldownGrace.hasOwnProperty(username)) {
+        clearTimeout(meta.cooldownGrace[username]);
     }
 
     removeBreak(username, data);
@@ -36,7 +43,7 @@ function back(data) {
 
     db.log('command_history', logdata)
         .catch(function (err) {
-            console.error(new Date().toLocaleString() + ' ERROR LOGGING COMMAND', err);
+            console.error(new Date().toLocaleString(), 'ERROR LOGGING COMMAND', err);
         });
 
 }
@@ -45,11 +52,12 @@ function back(data) {
 function removeBreak(user, data) {
 
     let chanObj = globals.channels[data.name],
-        breaks = chanObj.breaks;
+        breaks = chanObj.breaks,
+        rem = !!chanObj.meta.count[user] ? conf_breaks.maxDailyBreaks - chanObj.meta.count[user] : conf_breaks.maxDailyBreaks;
 
     chanObj.clearBreaks(user);
     delete breaks.task[user];
 
-    slack.sendMessage(user + ': welcome back!', data.channel);
+    slack.sendMessage(`${user}: welcome back! ${rem} breaks remaining`, data.channel);
 
 }

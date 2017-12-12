@@ -16,7 +16,7 @@ function remaining(data) {
         cooldownRemaining;
 
     if (!!chanObj.meta.cooldown[data.username]) {
-        cooldownTime = new Date().getTime() - chanObj.breaks.cooldown[data.username].getTime();
+        cooldownTime = new Date().getTime() - chanObj.meta.cooldown[data.username].getTime();
         cooldownRemaining = Math.ceil(Math.abs(cooldownTime / 60 / 1000));
         remMsg = '\n(' + cooldownRemaining.toString() + remMsg
     }

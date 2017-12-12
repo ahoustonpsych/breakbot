@@ -4,6 +4,9 @@ process.env.NODE_ENV = 'test';
 
 let EventEmitter = require('events');
 let Promise = require('promise');
+//let http = require('http');
+
+//let dummyServer = require('./server');
 
 let assert = require('assert');
 let expect = require('expect.js');
@@ -13,7 +16,6 @@ let slack = require('../lib/slack').rtm;
 
 let bot = require('../index');
 
-let messageController = require('../lib/messageController');
 let db = require('../lib/database');
 
 let brb = require('../commands/brb');
@@ -47,34 +49,30 @@ conf.channelDesignation = {
     supers: 'breakbot-staging'
 };
 
+//dummyServer.listen(7255);
+
 function overrides() {
 
-    db.log = (table, data) => {};
+    db.log = (table, data) => { return new Promise((fulfill,reject) => fulfill())};
 
     slack.sendMessage = function (str, chan) {
-
         resdata = {
             message: str,
             channel: chan
         };
-
         emitter.emit('sendMessage', resdata);
     };
 
     slack.sendPrivateMessage = function (str, user) {
-
         resdata = {
             message: str,
             user: user
         };
-
         emitter.emit('sendPrivateMessage', resdata);
     };
-
 }
 
 function freshMock(chan) {
-
     if (!(globals.channels.hasOwnProperty(chan)))
         return;
 
@@ -879,7 +877,7 @@ describe('Commands', function () {
             it('should end ahouston\'s break', function (done) {
                 emitter.on('sendMessage', function (res) {
                     expect(res).to.eql({
-                        message: 'ahouston: welcome back!',
+                        message: 'ahouston: welcome back! 4 breaks remaining',
                         channel: CHANLIST['breakbot-support']
                     });
                     expect(globals.channels['breakbot-support'].breaks.active).to.be.empty();
@@ -897,7 +895,7 @@ describe('Commands', function () {
             it('should end ahouston\'s break', function (done) {
                 emitter.on('sendMessage', function (res) {
                     expect(res).to.eql({
-                        message: 'ahouston: welcome back!',
+                        message: 'ahouston: welcome back! 4 breaks remaining',
                         channel: CHANLIST['breakbot-support']
                     });
                     expect(globals.channels['breakbot-support'].breaks.active).to.be.empty();
@@ -1064,7 +1062,7 @@ describe('Situations', function () {
             it('should reject with error', function (done) {
                 emitter.on('sendMessage', function (res) {
                     expect(res).to.eql({
-                        message: 'err: already on break',
+                        message: 'err: already on *brb*',
                         channel: CHANLIST['breakbot-support']
                     });
                     done();
@@ -1087,7 +1085,7 @@ describe('Situations', function () {
             emitter = new EventEmitter();
             if (globals.channels.hasOwnProperty('breakbot-support')) {
                 globals.channels['breakbot-support'].breaks.active = {};
-                globals.channels['breakbot-support'].breaks.cooldown = {};
+                globals.channels['breakbot-support'].meta.cooldown = {};
             }
             done();
         });
@@ -1141,9 +1139,54 @@ describe('Situations', function () {
                     done();
                 });
 
-                globals.channels['breakbot-support'].breaks.count['ahouston'] = 4;
+                globals.channels['breakbot-support'].meta.count['ahouston'] = 4;
 
                 data.text = '!brb 5';
+                bot.startProcessing(data);
+            });
+        });
+    });
+
+    describe('#daily break limit (with !back)', function () {
+
+        before(function (done) {
+            freshMock('breakbot-support');
+            done();
+        });
+
+        beforeEach(function (done) {
+            emitter = new EventEmitter();
+            done();
+        });
+
+        describe('original break', function () {
+
+            it('should set ahouston on break for 15 minutes', function (done) {
+                emitter.on('sendMessage', function (res) {
+                    expect(res).to.eql({
+                        message: 'Set break for ahouston for 15 minutes.',
+                        channel: CHANLIST['breakbot-support']
+                    });
+                    done();
+                });
+
+                data.text = '!brb 15';
+                bot.startProcessing(data);
+            });
+        });
+
+        describe('returning from break', function () {
+            it('should end ahouston\'s break', function (done) {
+                emitter.on('sendMessage', function (res) {
+                    expect(res).to.eql({
+                        message: 'ahouston: welcome back! 3 breaks remaining',
+                        channel: CHANLIST['breakbot-support']
+                    });
+                    expect(globals.channels['breakbot-support'].breaks.active).to.be.empty();
+                    done();
+                });
+
+                data.text = '!back';
                 bot.startProcessing(data);
             });
         });
@@ -1460,7 +1503,7 @@ describe('Situations', function () {
         });
     });
 
-    describe('#super channel', () => {
+    describe.skip('#super channel', () => {
         beforeEach(done => {
             emitter = new EventEmitter();
 
@@ -1516,5 +1559,64 @@ describe('Situations', function () {
             // console.log(data);
             //bot.startProcessing(data);
         })
-    })
+    });
+
+    describe.skip('#super notifications', () => {
+        before(done => {
+            freshMock('breakbot-support');
+            done();
+        });
+
+        beforeEach(done => {
+            emitter = new EventEmitter();
+
+            //freshMock('breakbot-support');
+            // freshMock('breakbot-livechat');
+
+            freshMessage();
+            done();
+        });
+
+        describe('set break', function () {
+            it('should set ahouston on break for 15 minutes', function (done) {
+                emitter.on('sendMessage', (res) => {
+                    expect(res).to.eql({
+                        message: 'Set break for ahouston for 15 minutes.',
+                        channel: CHANLIST['breakbot-support']
+                    });
+                    done();
+                });
+
+                data.text = '!brb 15';
+                bot.startProcessing(data);
+            });
+
+            after(done => {
+                //roll out time back 17 minutes
+                globals.channels['breakbot-support'].breaks.active['ahouston'].outTime -= 17 * 60 * 60 * 1000;
+                done();
+            })
+        });
+
+        describe('2 minutes over break', () => {
+            before(done => {
+                //emitter = new EventEmitter();
+                freshMessage();
+                done();
+            });
+
+            it('should send a notification to bcleveland', done => {
+                emitter.on('sendPrivateMessage', res => {
+                    expect(res).to.eql({
+                        message: '`ahouston` is *2m* over their break.',
+                        user: slack.getUser('bcleveland').id
+                    });
+                    done();
+                });
+
+
+            });
+        });
+    });
+
 });
