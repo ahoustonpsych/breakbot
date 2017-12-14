@@ -57,7 +57,6 @@ function lunch(data) {
         clearTimeout(meta.cooldownGrace[username]);
         delete meta.cooldownGrace[username];
 
-
         /* set break cooldown */
         meta.cooldown[username] =
             new Date(breakStart + 60 * 1000 * (conf_breaks.breakCooldown + _time));

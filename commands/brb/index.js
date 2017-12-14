@@ -93,8 +93,6 @@ function setBrb(user, time, chanObj) {
 
         }, 60000);
 
-    console.log(meta);
-
     /* notify user */
     slack.sendMessage('Set break for ' + user + ' for ' + time.toString() + ' minutes.', chanObj.id);
 
