@@ -25,8 +25,14 @@ module.exports = {
 /* save all channel/break data */
 function saveBreaks() {
     return new Promise(function (fulfill, reject) {
+        let globcopy = _.cloneDeep(globals);
 
-        let globalsSnapshot = JSON.stringify(globals);
+        _.each(globcopy.channels, (i,j,k) => delete globcopy.channels[j].meta.cooldownGrace);
+        console.log(globcopy.channels['breakbot-windows'].meta);
+
+        globalsSnapshot = _.attempt(_.partial(JSON.stringify, globcopy));
+
+        // let globalsSnapshot = JSON.stringify(globals);
 
         /* all break data */
         if (globalsSnapshot !== undefined) {
