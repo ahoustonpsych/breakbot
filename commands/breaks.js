@@ -28,7 +28,6 @@ function saveBreaks() {
         let globcopy = _.cloneDeep(globals);
 
         _.each(globcopy.channels, (i,j,k) => delete globcopy.channels[j].meta.cooldownGrace);
-        console.log(globcopy.channels['breakbot-windows'].meta);
 
         globalsSnapshot = _.attempt(_.partial(JSON.stringify, globcopy));
 
