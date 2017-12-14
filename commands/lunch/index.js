@@ -55,6 +55,8 @@ function lunch(data) {
 
     meta.cooldownGrace[username] = setTimeout(() => {
         clearTimeout(meta.cooldownGrace[username]);
+        delete meta.cooldownGrace[username];
+
 
         /* set break cooldown */
         meta.cooldown[username] =

@@ -82,15 +82,18 @@ function setBrb(user, time, chanObj) {
 
     /* set break cooldown after 60 seconds */
     meta.cooldownGrace[user] = setTimeout(() => {
-        clearTimeout(meta.cooldownGrace[user]);
+            //clearTimeout(meta.cooldownGrace[user]);
+            delete meta.cooldownGrace[user];
 
-        /* set break cooldown */
-        meta.cooldown[user] =
-            new Date(breakStart + 60 * 1000 * (conf_breaks.breakCooldown + time));
+            /* set break cooldown */
+            meta.cooldown[user] =
+                new Date(breakStart + 60 * 1000 * (conf_breaks.breakCooldown + time));
 
-        chanObj.increaseBreakCount(user);
+            chanObj.increaseBreakCount(user);
 
-    }, 60000);
+        }, 60000);
+
+    console.log(meta);
 
     /* notify user */
     slack.sendMessage('Set break for ' + user + ' for ' + time.toString() + ' minutes.', chanObj.id);
