@@ -1,6 +1,6 @@
 let config = {
     /* default break time, in minutes */
-    defaultBreak: 5,
+    defaultBreak: 15,
     /* max break time, in minutes */
     maxBreak: 15,
     /* max task time, in minutes */
