@@ -60,21 +60,25 @@ function restoreBreaks() {
             return;
         }
 
-        let parsed = JSON.parse(res);
+        let parsed = _.attempt(_.partial(JSON.parse, res));
 
-        //for each channel obj
-        Object.keys(parsed.channels).forEach((chan) => {
+        /* restore each prop in each channel obj */
+        _.each(parsed.channels, (obj, chanName) => {
 
-            globalChanObj = globals.channels[chan];
-            parsedChanObj = parsed.channels[chan];
+            globalChanObj = globals.channels[chanName];
+            parsedChanObj = parsed.channels[chanName];
 
-            Object.keys(parsedChanObj).forEach((key) => {
+            //create cooldownGrace obj (since we deleted it)
+            parsedChanObj.meta.cooldownGrace= {};
+
+            //restore schedules separately
+            _.each(parsedChanObj, (obj, key) => {
                 if (key === 'schedule') return;
                 globalChanObj[key] = parsedChanObj[key];
             });
 
             //for each lunch slot obj
-            Object.keys(parsedChanObj.schedule).forEach((slot) => {
+            _.each(parsedChanObj.schedule, (obj, slot) => {
                 //for each scheduled lunch el
                 for (slotIdx in parsedChanObj.schedule[slot]) {
                     if (parsedChanObj.schedule[slot][slotIdx] === null)
