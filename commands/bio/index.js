@@ -4,7 +4,7 @@ let db = require('../../lib/database');
 let globals = require('../../conf/config.globals');
 
 /* bio time */
-let time = 5;
+let TIME = 5;
 
 module.exports = {
     expr: /^(!bio)|(breakbot:? bio)/i,
@@ -20,23 +20,17 @@ function bio(data) {
     // if (!breakLib.canTakeBreak(data.username, data.name))
     //     return false;
 
-    /* prevents users from taking a break if they're already on a break */
-    // if (breakLib.isOnBreak(username, data.name)) {
-    //     slack.sendMessage('already on break', data.channel);
-    //     return false;
-    // }
-
     delete breaks.task[data.username];
     chanObj.clearBreaks(data.username);
 
-    setBio(data.username, time, chanObj);
+    setBio(data.username, TIME, chanObj);
 
     /* logging */
     let logdata = {
         username: data.username,
         channel: data.name,
         command: '!bio',
-        duration: time,
+        duration: TIME,
         date: 'now'
     };
 
@@ -50,7 +44,12 @@ function bio(data) {
  * sets user on bio break for 5 minutes
  */
 function setBio(user, time, chanObj) {
-    let breaks = chanObj.breaks;
+    let breaks = chanObj.breaks,
+        expireTime = new Date(new Date().getTime() + time * 60 * 1000),
+        meridiem = expireTime.getHours() > 12 ? 'PM' : 'AM',
+        expireHours = expireTime.getHours() > 12 ? expireTime.getHours() % 12 : expireTime.getHours(),
+        expireMinutes = expireTime.getMinutes() < 10 ? '0' + expireTime.getMinutes() : expireTime.getMinutes(),
+        expireFormatted = `${expireHours}:${expireMinutes} ${meridiem}`;
 
     breaks.bio[user] = {
         outTime: new Date().getTime(),
@@ -60,6 +59,6 @@ function setBio(user, time, chanObj) {
     };
 
     /* sets agent status to "not accepting chats" */
-    slack.sendMessage('Set ' + time.toString() + ' minute bio for ' + user + '.', chanObj.id);
+    slack.sendMessage(`Set ${time.toString()} minute bio for ${user}. See you at ${expireFormatted}!`, chanObj.id);
 
 }

@@ -68,7 +68,12 @@ function brb(data) {
 function setBrb(user, time, chanObj) {
     let breaks = chanObj.breaks,
         meta = chanObj.meta,
-        breakStart = new Date().getTime();
+        breakStart = new Date().getTime(),
+        expireTime = new Date(new Date().getTime() + time * 60 * 1000),
+        meridiem = expireTime.getHours() > 12 ? 'PM' : 'AM',
+        expireHours = expireTime.getHours() > 12 ? expireTime.getHours() % 12 : expireTime.getHours(),
+        expireMinutes = expireTime.getMinutes() < 10 ? '0' + expireTime.getMinutes() : expireTime.getMinutes(),
+        expireFormatted = `${expireHours}:${expireMinutes} ${meridiem}`;
 
     if (breaks.task.hasOwnProperty(user))
         delete breaks.task[user];
@@ -94,7 +99,7 @@ function setBrb(user, time, chanObj) {
         }, 60000);
 
     /* notify user */
-    slack.sendMessage('Set break for ' + user + ' for ' + time.toString() + ' minutes.', chanObj.id);
+    slack.sendMessage(`Set break for ${user} for ${time.toString()} minutes. See you at ${expireFormatted}!`, chanObj.id);
 
     return true;
 }

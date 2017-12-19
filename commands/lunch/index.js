@@ -9,7 +9,7 @@ let luncher = require('../luncher');
 let db = require('../../lib/database');
 
 /* lunch time */
-const _time = 30;
+const TIME = 30;
 
 module.exports = {
     expr: /^(!lunch)|(breakbot:? lunch)/i,
@@ -23,7 +23,12 @@ function lunch(data) {
         meta = chanObj.meta,
         breakStart = new Date().getTime(),
         username = data.username,
-        arg = data.text.split(' ')[0];
+        arg = data.text.split(' ')[0],
+        expireTime = new Date(new Date().getTime() + TIME * 60 * 1000),
+        meridiem = expireTime.getHours() > 12 ? 'PM' : 'AM',
+        expireHours = expireTime.getHours() > 12 ? expireTime.getHours() % 12 : expireTime.getHours(),
+        expireMinutes = expireTime.getMinutes() < 10 ? '0' + expireTime.getMinutes() : expireTime.getMinutes(),
+        expireFormatted = `${expireHours}:${expireMinutes} ${meridiem}`;
 
     if (arg) {
         scheduler(data);
@@ -48,9 +53,9 @@ function lunch(data) {
 
     breaks.lunch[username] = {
         outTime: new Date().getTime(),
-        duration: _time,
+        duration: TIME,
         channel: data.name,
-        remaining: _time
+        remaining: TIME
     };
 
     meta.cooldownGrace[username] = setTimeout(() => {
@@ -59,7 +64,7 @@ function lunch(data) {
 
         /* set break cooldown */
         meta.cooldown[username] =
-            new Date(breakStart + 60 * 1000 * (conf_breaks.breakCooldown + _time));
+            new Date(breakStart + 60 * 1000 * (conf_breaks.breakCooldown + TIME));
 
         chanObj.increaseBreakCount(username);
 
@@ -70,14 +75,14 @@ function lunch(data) {
     //     new Date(new Date().getTime() + 60 * 1000 * (conf_breaks.breakCooldown + _time));
 
     /* sets agent status to "not accepting chats" */
-    slack.sendMessage('Set lunch for ' + username + '. See you in 30 minutes!', data.channel);
+    slack.sendMessage(`Set 30 minute lunch for ${username}. See you at ${expireFormatted}!`, data.channel);
 
     /* logging */
     let logdata = {
         username: username,
         channel: data.name,
         command: '!lunch',
-        duration: _time,
+        duration: TIME,
         date: 'now'
     };
 
