@@ -25,7 +25,7 @@ function lunch(data) {
         username = data.username,
         arg = data.text.split(' ')[0],
         expireTime = new Date(new Date().getTime() + TIME * 60 * 1000),
-        meridiem = expireTime.getHours() > 12 ? 'PM' : 'AM',
+        meridiem = expireTime.getHours() >= 12 ? 'PM' : 'AM',
         expireHours = expireTime.getHours() > 12 ? expireTime.getHours() % 12 : expireTime.getHours(),
         expireMinutes = expireTime.getMinutes() < 10 ? '0' + expireTime.getMinutes() : expireTime.getMinutes(),
         expireFormatted = `${expireHours}:${expireMinutes} ${meridiem}`;

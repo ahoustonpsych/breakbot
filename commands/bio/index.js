@@ -46,7 +46,7 @@ function bio(data) {
 function setBio(user, time, chanObj) {
     let breaks = chanObj.breaks,
         expireTime = new Date(new Date().getTime() + time * 60 * 1000),
-        meridiem = expireTime.getHours() > 12 ? 'PM' : 'AM',
+        meridiem = expireTime.getHours() >= 12 ? 'PM' : 'AM',
         expireHours = expireTime.getHours() > 12 ? expireTime.getHours() % 12 : expireTime.getHours(),
         expireMinutes = expireTime.getMinutes() < 10 ? '0' + expireTime.getMinutes() : expireTime.getMinutes(),
         expireFormatted = `${expireHours}:${expireMinutes} ${meridiem}`;
