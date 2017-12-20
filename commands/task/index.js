@@ -142,14 +142,15 @@ function task(data) {
 
 function setTask(user, time, reason, chanObj) {
     let breaks = chanObj.breaks,
-        expireTime = new Date(new Date().getTime() + time * 60 * 1000),
+        breakStart = new Date().getTime(),
+        expireTime = new Date(breakStart + time * 60 * 1000),
         expireFormatted = Helpers.formatTime(expireTime);
 
     /* nuke existing breaks */
     chanObj.clearBreaks(user, chanObj.name);
 
     breaks.task[user] = {
-        outTime: new Date().getTime(),
+        outTime: breakStart,
         duration: time,
         channel: chanObj.name,
         remaining: time,
@@ -164,20 +165,3 @@ function isValidUser(user) {
     let cleaned = topic.removeSpecial(user);
     return slack.getUser(cleaned) instanceof Object;
 }
-
-// function putOnTask(data, user, time, reason) {
-//
-//     let breaks = globals.channels[data.name].breaks;
-//
-//     if (users.length > 1)
-//         slack.sendMessage('Put on task: ' + users.join(' ') + '. Please use *!back* to log back in when you are done',
-//             data.channel);
-//
-//     else if (users.length == 1)
-//         slack.sendMessage('Put on task: ' + users + '. Please use *!back* to log back in when you are done',
-//             data.channel);
-//
-//     else
-//         console.error(new Date().toLocaleString() + ' invalid user list for !task somehow: ' + users);
-//
-// }

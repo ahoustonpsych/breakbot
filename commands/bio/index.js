@@ -47,17 +47,17 @@ function bio(data) {
  */
 function setBio(user, time, chanObj) {
     let breaks = chanObj.breaks,
-        expireTime = new Date(new Date().getTime() + time * 60 * 1000),
+        breakStart = new Date().getTime(),
+        expireTime = new Date(breakStart + time * 60 * 1000),
         expireFormatted = Helpers.formatTime(expireTime);
 
     breaks.bio[user] = {
-        outTime: new Date().getTime(),
+        outTime: breakStart,
         duration: time,
         channel: chanObj.name,
         remaining: time
     };
 
-    /* sets agent status to "not accepting chats" */
     slack.sendMessage(`Set ${time.toString()} minute bio for ${user}. See you at ${expireFormatted}!`, chanObj.id);
 
 }
