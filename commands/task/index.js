@@ -8,6 +8,8 @@ let breakLib = require('../breaks');
 let db = require('../../lib/database');
 let topic = require('../topic');
 
+let Helpers = require('../../lib/helpers');
+
 /*
  * USAGE:
  * !task [user] [time] [reason]
@@ -141,10 +143,7 @@ function task(data) {
 function setTask(user, time, reason, chanObj) {
     let breaks = chanObj.breaks,
         expireTime = new Date(new Date().getTime() + time * 60 * 1000),
-        meridiem = expireTime.getHours() >= 12 ? 'PM' : 'AM',
-        expireHours = expireTime.getHours() > 12 ? expireTime.getHours() % 12 : expireTime.getHours(),
-        expireMinutes = expireTime.getMinutes() < 10 ? '0' + expireTime.getMinutes() : expireTime.getMinutes(),
-        expireFormatted = `${expireHours}:${expireMinutes} ${meridiem}`;
+        expireFormatted = Helpers.formatTime(expireTime);
 
     /* nuke existing breaks */
     chanObj.clearBreaks(user, chanObj.name);

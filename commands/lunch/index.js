@@ -8,6 +8,8 @@ let luncher = require('../luncher');
 
 let db = require('../../lib/database');
 
+let Helpers = require('../../lib/helpers');
+
 /* lunch time */
 const TIME = 30;
 
@@ -21,14 +23,11 @@ function lunch(data) {
     let chanObj = globals.channels[data.name],
         breaks = chanObj.breaks,
         meta = chanObj.meta,
-        breakStart = new Date().getTime(),
         username = data.username,
         arg = data.text.split(' ')[0],
-        expireTime = new Date(new Date().getTime() + TIME * 60 * 1000),
-        meridiem = expireTime.getHours() >= 12 ? 'PM' : 'AM',
-        expireHours = expireTime.getHours() > 12 ? expireTime.getHours() % 12 : expireTime.getHours(),
-        expireMinutes = expireTime.getMinutes() < 10 ? '0' + expireTime.getMinutes() : expireTime.getMinutes(),
-        expireFormatted = `${expireHours}:${expireMinutes} ${meridiem}`;
+        breakStart = new Date().getTime(),
+        expireTime = new Date(breakStart + TIME * 60 * 1000),
+        expireFormatted = Helpers.formatTime(expireTime);
 
     if (arg) {
         scheduler(data);

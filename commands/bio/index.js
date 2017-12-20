@@ -3,6 +3,8 @@ let slack = require('../../lib/slack').rtm;
 let db = require('../../lib/database');
 let globals = require('../../conf/config.globals');
 
+let Helpers = require('../../lib/helpers');
+
 /* bio time */
 let TIME = 5;
 
@@ -46,10 +48,7 @@ function bio(data) {
 function setBio(user, time, chanObj) {
     let breaks = chanObj.breaks,
         expireTime = new Date(new Date().getTime() + time * 60 * 1000),
-        meridiem = expireTime.getHours() >= 12 ? 'PM' : 'AM',
-        expireHours = expireTime.getHours() > 12 ? expireTime.getHours() % 12 : expireTime.getHours(),
-        expireMinutes = expireTime.getMinutes() < 10 ? '0' + expireTime.getMinutes() : expireTime.getMinutes(),
-        expireFormatted = `${expireHours}:${expireMinutes} ${meridiem}`;
+        expireFormatted = Helpers.formatTime(expireTime);
 
     breaks.bio[user] = {
         outTime: new Date().getTime(),

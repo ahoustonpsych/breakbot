@@ -7,6 +7,8 @@ let globals = require('../../conf/config.globals');
 let breakLib = require('../breaks');
 let db = require('../../lib/database');
 
+let Helpers = require('../../lib/helpers');
+
 
 /* USAGE:
  * !brb [time]
@@ -69,17 +71,14 @@ function setBrb(user, time, chanObj) {
     let breaks = chanObj.breaks,
         meta = chanObj.meta,
         breakStart = new Date().getTime(),
-        expireTime = new Date(new Date().getTime() + time * 60 * 1000),
-        meridiem = expireTime.getHours() >= 12 ? 'PM' : 'AM',
-        expireHours = expireTime.getHours() > 12 ? expireTime.getHours() % 12 : expireTime.getHours(),
-        expireMinutes = expireTime.getMinutes() < 10 ? '0' + expireTime.getMinutes() : expireTime.getMinutes(),
-        expireFormatted = `${expireHours}:${expireMinutes} ${meridiem}`;
+        expireTime = new Date(breakStart + time * 60 * 1000),
+        expireFormatted = Helpers.formatTime(expireTime);
 
     if (breaks.task.hasOwnProperty(user))
         delete breaks.task[user];
 
     breaks.active[user] = {
-        outTime: new Date().getTime(),
+        outTime: breakStart,
         duration: time,
         channel: chanObj.name,
         remaining: time
