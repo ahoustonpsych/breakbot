@@ -19,7 +19,6 @@ function add(data) {
     //assume user wants to add their own name if none is provided
     let arg = data.text? data.text.split(' '): [data.username];
 
-    //console.log(`arg: ${arg}`);
     // let chanObj = globals.channels[data.name],
     //     arg = data.text.split(' '),
     //     subject = arg
