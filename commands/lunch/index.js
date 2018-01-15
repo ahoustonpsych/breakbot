@@ -74,7 +74,9 @@ function lunch(data) {
     //     new Date(new Date().getTime() + 60 * 1000 * (conf_breaks.breakCooldown + _time));
 
     /* sets agent status to "not accepting chats" */
-    slack.sendMessage(`Set 30 minute lunch for ${username}. See you at ${expireFormatted}!`, data.channel);
+    slack.sendMessage(
+        `Set 30 minute lunch for ${username}. See you at ${expireFormatted}!\n(use !back within 60 seconds to cancel)`,
+        data.channel);
 
     /* logging */
     let logdata = {

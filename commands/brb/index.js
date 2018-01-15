@@ -98,7 +98,9 @@ function setBrb(user, time, chanObj) {
         }, 60000);
 
     /* notify user */
-    slack.sendMessage(`Set break for ${user} for ${time.toString()} minutes. See you at ${expireFormatted}!`, chanObj.id);
+    slack.sendMessage(
+        `Set ${time} minute break for ${user}. See you at ${expireFormatted}!\n(use !back within 60 seconds to cancel)`,
+        chanObj.id);
 
     return true;
 }
