@@ -1,5 +1,6 @@
 let slack = require('../../lib/slack').rtm;
 let Promise = require('promise');
+let conf = require('../../conf/config');
 
 let globals = require('../../conf/config.globals');
 let conf_breaks = require('../../conf/config.breaks');
@@ -24,8 +25,24 @@ module.exports = {
 
 function task(data) {
 
-    let user, users, time, reason,
-        offset = 0, // arg offset
+    //data.username = 'jlangfeldt';
+
+    globals.channels[conf.channelDesignation['support']].isPunchedSuper(data.username)
+        .then(res => {
+            //user is a supervisor, continue
+            continueTask(data);
+        })
+        .catch(err => {
+            console.error(new Date().toLocaleString(), `${data.username} is not a supervisor. Rejecting TASK`);
+            slack.sendMessage('*err:* only supervisors may use this command', data.channel);
+        });
+
+}
+
+function continueTask(data) {
+
+    let user, time, reason,
+        offset = 0, // arg offset, either 1 or 0 depending on if a username was given
         chanObj = globals.channels[data.name],
         breaks = chanObj.breaks,
         msgArr = data.text.split(' '),
@@ -36,8 +53,11 @@ function task(data) {
         user = arg;
     }
 
-    else
-        user = data.username;
+    else {
+        //user = data.username;
+        slack.sendMessage('*err:* no user given. syntax: *!task [user] [time] [reason]*', data.channel);
+        return false;
+    }
 
     /* offsets time/reason position by 1 if username is provided */
     time = msgArr[offset];
@@ -118,7 +138,6 @@ function setTask(user, time, reason, chanObj) {
     };
 
     slack.sendMessage(`Set ${user} on task for ${time} minutes. See you at ${expireFormatted}!`, chanObj.id);
-
 }
 
 function isValidUser(user) {
