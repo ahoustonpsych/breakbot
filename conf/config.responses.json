@@ -1,0 +1,10 @@
+{
+  "startBreak": "Set <%= duration %> minute *<%= type %>* for <%= user %>. See you at <%= return_time %>!",
+  "endBreak": "<%= user %>: welcome back! <%= remaining %> breaks remaining",
+  "scheduleLunch": "",
+  "removeLunch": "",
+  "error": "*err:* <%= error %>",
+  "taskNoUser": "",
+  "taskNoTime": "",
+  "taskNoReason": ""
+}

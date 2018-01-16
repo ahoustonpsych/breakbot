@@ -58,6 +58,13 @@ function removeBreak(user, data) {
     chanObj.clearBreaks(user);
     delete breaks.task[user];
 
-    slack.sendMessage(`${user}: welcome back! ${rem} breaks remaining`, data.channel);
+    //slack.sendMessage(`${user}: welcome back! ${rem} breaks remaining`, data.channel);
+
+    let args = {
+        user: user,
+        remaining: rem
+    };
+
+    slack.sendMsg('endBreak', args, data.channel)
 
 }

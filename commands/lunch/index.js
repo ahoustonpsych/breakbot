@@ -73,10 +73,18 @@ function lunch(data) {
     // chanObj.meta.cooldown[username] =
     //     new Date(new Date().getTime() + 60 * 1000 * (conf_breaks.breakCooldown + _time));
 
-    /* sets agent status to "not accepting chats" */
-    slack.sendMessage(
-        `Set 30 minute lunch for ${username}. See you at ${expireFormatted}!\n(use !back within 60 seconds to cancel)`,
-        data.channel);
+    // slack.sendMessage(
+    //     `Set 30 minute lunch for ${username}. See you at ${expireFormatted}!\n(use !back within 60 seconds to cancel)`,
+    //     data.channel);
+
+    let args = {
+        user: username,
+        type: 'lunch',
+        duration: TIME,
+        return_time: expireFormatted
+    };
+
+    slack.sendMsg('startBreak', args, data.channel);
 
     /* logging */
     let logdata = {

@@ -138,7 +138,16 @@ function setTask(user, time, reason, chanObj) {
         reason: reason
     };
 
-    slack.sendMessage(`Set ${user} on task for ${time} minutes. See you at ${expireFormatted}!`, chanObj.id);
+    //slack.sendMessage(`Set ${user} on task for ${time} minutes. See you at ${expireFormatted}!`, chanObj.id);
+
+    let args = {
+        user: user,
+        type: 'task',
+        duration: time,
+        return_time: expireFormatted
+    };
+
+    slack.sendMsg('startBreak', args, chanObj.id);
 }
 
 function isValidUser(user) {

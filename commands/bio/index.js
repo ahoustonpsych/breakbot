@@ -58,8 +58,17 @@ function setBio(user, time, chanObj) {
         remaining: time
     };
 
-    slack.sendMessage(
-        `Set ${time} minute bio for ${user}. See you at ${expireFormatted}!\n(use !back within 60 seconds to cancel)`,
-        chanObj.id);
+    // slack.sendMessage(
+    //     `Set ${time} minute bio for ${user}. See you at ${expireFormatted}!\n(use !back within 60 seconds to cancel)`,
+    //     chanObj.id);
+
+    let args = {
+        user: user,
+        type: 'bio',
+        duration: time,
+        return_time: expireFormatted
+    };
+
+    slack.sendMsg('startBreak', args, chanObj.id);
 
 }
