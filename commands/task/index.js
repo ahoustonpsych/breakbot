@@ -25,9 +25,10 @@ module.exports = {
 
 function task(data) {
 
-    //data.username = 'jlangfeldt';
+    //data.username = 'cfisher';
 
-    globals.channels[conf.channelDesignation['support']].isPunchedSuper(data.username)
+    //TODO use just chanObj instead of support specifically
+    globals.channels[conf.channelDesignation['support']].isSuper(data.username)
         .then(res => {
             //user is a supervisor, continue
             continueTask(data);
