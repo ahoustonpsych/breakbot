@@ -96,7 +96,7 @@ function buildBreakList(channel) {
     total =
         _.size(breaks.active) +
         //Object.keys(breaks.bio).length +
-        //Object.keys(breaks.lunch).length +
+        _.size(breaks.lunch) +
         _.size(breaks.over);
 
     //max people on break

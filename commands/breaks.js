@@ -166,7 +166,7 @@ function canTakeBreak(user, channel) {
 
     //reject if there's too many people on break
     else if (!slotAvailable(channel)) {
-        let totalOnBreak = _.size(chanObj.breaks.active) + _.size(chanObj.breaks.over),
+        let totalOnBreak = _.size(chanObj.breaks.active) + _.size(chanObj.breaks.over) + _.size(chanObj.breaks.lunch),
             max = chanObj.maxOnBreak;
         slack.sendMessage(`err: too many people on break (*total:* ${totalOnBreak}, *max:* ${max})`, chanId);
         console.log(new Date().toLocaleString(), `${user} BREAK BLOCKED (too many on break)`);
@@ -216,11 +216,11 @@ function slotAvailable(channel) {
     breaks = globals.channels[channel].breaks;
 
     totalOut =
-        Object.keys(breaks.active).length +
-        Object.keys(breaks.over).length;
+        _.size(breaks.active) +
+        _.size(breaks.over) +
+        _.size(breaks.lunch);
         /* uncomment to include other break types when calculating limits */
         // Object.keys(breaks.bio).length +
-        // Object.keys(breaks.lunch).length +
         // Object.keys(breaks.task).length;
 
     max = globals.channels[channel].maxOnBreak > 1 ? globals.channels[channel].maxOnBreak : conf_breaks.maxOnBreak;
