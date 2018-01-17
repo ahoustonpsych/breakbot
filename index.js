@@ -84,7 +84,9 @@ slack.on('message', function (data) {
 /* throw error if slack dies */
 slack.on('disconnect', data => {
     console.error(new Date().toLocaleString() + ' **************SLACK DIED**************');
-    throw new Error(data);
+    breaks.saveBreaks()
+        .then(() => { throw new Error(data); })
+        .catch(err => console.error(new Date().toLocaleString(), 'ERROR SAVING BREAKS AFTER SLACK DIED:', err));
 });
 
 function startProcessing(data) {
