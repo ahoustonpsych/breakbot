@@ -51,7 +51,7 @@ function continueTask(data) {
 
     if (isValidUser(arg)) {
         offset += 1;
-        user = arg;
+        user = arg.toLowerCase();
     }
 
     else {
