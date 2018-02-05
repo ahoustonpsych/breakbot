@@ -49,7 +49,7 @@ function continueTask(data) {
         msgArr = data.text.split(' '),
         arg = msgArr[0];
 
-    if (isValidUser(arg)) {
+    if (slack.isUser(arg)) {
         offset += 1;
         user = arg.toLowerCase();
     }
@@ -139,9 +139,4 @@ function setTask(user, time, reason, chanObj) {
     };
 
     slack.sendMessage(`Set ${user} on task for ${time} minutes. See you at ${expireFormatted}!`, chanObj.id);
-}
-
-function isValidUser(user) {
-    let cleaned = topic.removeSpecial(user);
-    return slack.getUser(cleaned) instanceof Object;
 }

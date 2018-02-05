@@ -1,3 +1,4 @@
+let _ = require('lodash');
 let slack = require('../../lib/slack').rtm;
 
 let globals = require('../../conf/config.globals');
@@ -19,33 +20,57 @@ module.exports = {
 
 function back(data) {
 
-    let username = data.username,
-        meta = globals.channels[data.name].meta;
+    let msgArr = data.text.split(' '),
+        userList = _.size(msgArr)? []: [data.username],
+        chanObj = globals.channels[data.name];
 
-    if (!breakLib.isOnBreak(username, data.name)) {
-        slack.sendMessage('err: not on break', data.channel);
-        return false;
+    if (chanObj.isSuper(data.username)) {
+        _.each(msgArr, user => {
+            user = user.toLowerCase();
+            if (slack.isUser(user))
+                userList.push(user);
+            else {
+                console.log('bad user:',user);
+            }
+        })
+    } else { //user using !back, no extra args
+        userList.push(data.username);
+        console.log('not a super:',data.username);
     }
 
-    if (meta.cooldownGrace.hasOwnProperty(username)) {
-        clearTimeout(meta.cooldownGrace[username]);
-    }
+    continueBack(data,userList);
 
-    removeBreak(username, data);
+}
 
-    /* logging */
-    let logdata = {
-        username: username,
-        channel: data.name,
-        date: 'now',
-        command: '!back'
-    };
+function continueBack(data, userList) {
 
-    db.log('command_history', logdata)
-        .catch(function (err) {
-            console.error(new Date().toLocaleString(), 'ERROR LOGGING COMMAND', err);
-        });
+    let chanObj = globals.channels[data.name],
+        meta = chanObj.meta;
 
+    _.each(userList, user => {
+        if (!breakLib.isOnBreak(user, data.name))
+            console.log(new Date().toLocaleString(), 'err: not on break:', user);
+        else {
+            if (meta.cooldownGrace.hasOwnProperty(user)) {
+                clearTimeout(meta.cooldownGrace[user]);
+            }
+
+            removeBreak(user, data);
+
+            /* logging */
+            let logdata = {
+                username: user,
+                channel: data.name,
+                date: 'now',
+                command: '!back'
+            };
+
+            db.log('command_history', logdata)
+                .catch(function (err) {
+                    console.error(new Date().toLocaleString(), 'ERROR LOGGING COMMAND', err);
+                });
+        }
+    });
 }
 
 /* log user in */

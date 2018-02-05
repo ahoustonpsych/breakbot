@@ -36,7 +36,7 @@ function setTopic(chanObj, newTopic) {
 function removeSpecial(str) {
     if (typeof(str) !== 'string')
         return '';
-    return str.replace(/[!@#$%^&?*(){}<>\[\]\/\\|_+\-=.,`~;:]+/g, '');
+    return str.replace(/[!@#$%^&?*(){}<>\[\]\/\\|_+\-=.,`~;:'"]+/g, '');
 }
 
 /*
@@ -46,6 +46,6 @@ function cleanTopic(topic) {
     return removeSpecial(topic)
         .replace(/chat(ters)?|cap(('|'n)?|tain)?|back(up)?|lead(er)?/ig, '')
         .split(' ')
-        .filter(function (el) { return el !== '' && slack.getUser(el) instanceof Object })
+        .filter(function (el) { return el !== '' && slack.isUser(el) })
         .map((el) => { return slack.getUser(el).name });
 }
