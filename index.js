@@ -24,6 +24,7 @@ module.exports = {
 
 slack.on('authenticated', function (data) {
     console.log(new Date().toLocaleString() + ' authenticated to slack');
+    globals.slack = slack;  // global slack obj
 
     /* init channel objects */
     data.channels.forEach((chan) => {
