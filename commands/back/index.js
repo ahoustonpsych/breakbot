@@ -20,9 +20,20 @@ module.exports = {
 
 function back(data) {
 
-    let msgArr = data.text.split(' '),
-        userList = _.size(msgArr)? []: [data.username],
+    let userList,
+        msgArr = data.text.split(' '),
         chanObj = globals.channels[data.name];
+
+    if (_.size(msgArr) === 1) {
+        if (msgArr[0] === '') {
+            userList = [data.username];
+        }
+        else {
+            userList = msgArr;
+        }
+    } else {
+        userList = msgArr
+    }
 
     if (chanObj.isSuper(data.username)) {
         _.each(msgArr, user => {
@@ -30,12 +41,12 @@ function back(data) {
             if (slack.isUser(user))
                 userList.push(user);
             else {
-                console.log('bad user:',user);
+                console.log(new Date().toLocaleString(), 'bad user:', user);
             }
         })
     } else { //user using !back, no extra args
         userList.push(data.username);
-        console.log('not a super:',data.username);
+        console.log('not a super:', data.username);
     }
 
     continueBack(data,userList);
