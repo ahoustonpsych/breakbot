@@ -143,7 +143,7 @@ function canTakeBreak(user, channel) {
 
     let chanId = slack.getChannel(channel).id,
         chanObj = globals.channels[channel],
-        breakType = isOnBreak(user, channel);
+        breakType = chanObj.isOnBreak(user);
 
     //reject if on break
     if (breakType) {
