@@ -12,7 +12,7 @@ function slap(data) {
     if (victim.toLowerCase() === 'breakbot' || victim === '<@U2KASR2FN>')
         victim = data.username;
 
-    slack.sendMessage('_slapped ' + victim + ' around a bit with a large trout_', data.channel);
+    slack.sendMessage('_slaps ' + victim + ' around a bit with a large trout_', data.channel);
 
     let logdata = {
         username: slack.dataStore.getUserById(data.user).name,

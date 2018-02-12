@@ -27,7 +27,10 @@ function saveBreaks() {
     return new Promise(function (fulfill, reject) {
         let globcopy = _.cloneDeep(globals);
 
-        _.each(globcopy.channels, (i,j,k) => delete globcopy.channels[j].meta.cooldownGrace);
+        _.each(globcopy.channels, (i,j) => delete globcopy.channels[j].meta.cooldownGrace);
+
+        delete globcopy.slack;
+        delete globcopy.web;
 
         globalsSnapshot = _.attempt(_.partial(JSON.stringify, globcopy));
 
