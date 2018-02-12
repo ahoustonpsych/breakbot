@@ -20,14 +20,26 @@ module.exports = {
  */
 function setTopic(chanObj, newTopic) {
     /* private channels */
-    if (chanObj.channel[0] === 'G')
-        globals.web.groups.setTopic(chanObj.channel, newTopic);
+    if (chanObj.channel[0] === 'G') {
+        globals.web.groups.setTopic(chanObj.channel, newTopic)
+            .then(res => {
+                globals.channels[chanObj.name].topic = newTopic;
+            })
+            .catch(err => {
+                return err
+            });
+    }
 
     /* public channels */
-    else
-        globals.web.channels.setTopic(chanObj.channel, newTopic);
-
-    globals.channels[chanObj.name].topic = newTopic;
+    else {
+        globals.web.channels.setTopic(chanObj.channel, newTopic)
+            .then(res => {
+                globals.channels[chanObj.name].topic = newTopic;
+            })
+            .catch(err => {
+                return err
+            });
+    }
 }
 
 /*

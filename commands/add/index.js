@@ -2,7 +2,6 @@ const _ = require('lodash');
 
 let slack = require('../../lib/slack').rtm;
 let topic = require('../topic');
-let H
 
 let globals = require('../../conf/config.globals');
 
@@ -43,7 +42,12 @@ function add(data) {
 
     arg = _.uniqBy(arg, _.toLower);
 
-    topic.setTopic(data, `${globals.channels[data.name].topic} ${arg.join(' ')}`);
+    let res = topic.setTopic(data, `${globals.channels[data.name].topic} ${arg.join(' ')}`);
+
+    /* TODO properly fix this */
+    if (res) {
+        slack.sendMessage('*err:* topic too long', data.channel);
+    }
 
     console.log(new Date().toLocaleString(), `ADD: updated topic in ${data.name}:`, globals.channels[data.name].topic)
 }
