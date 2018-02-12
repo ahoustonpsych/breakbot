@@ -3,6 +3,7 @@ let slack = require('../../lib/slack').rtm;
 
 let globals = require('../../conf/config.globals');
 let breakLib = require('../breaks');
+let topic = require('../topic');
 
 let conf_breaks = require('../../conf/config.breaks');
 
@@ -35,21 +36,26 @@ function back(data) {
         userList = msgArr
     }
 
-    if (chanObj.isSuper(data.username)) {
-        _.each(msgArr, user => {
-            user = user.toLowerCase();
-            if (slack.isUser(user))
-                userList.push(user);
-            else {
-                console.log(new Date().toLocaleString(), 'bad user:', user);
-            }
+    chanObj.isSuper(data.username)
+        .then(breakType => {
+            userList = _.map(userList, user => {
+                /* handle uid */
+                //TODO put this somewhere else
+                if (slack.isUser(user)) {
+                    return slack.getUser(user).name;
+                }
+                else {
+                    console.log(new Date().toLocaleString(), 'WARNING - !back - bad user:', user);
+                    return user;
+                }
+            });
+            continueBack(data,userList);
         })
-    } else { //user using !back, no extra args
-        userList.push(data.username);
-        console.log('not a super:', data.username);
-    }
-
-    continueBack(data,userList);
+        .catch(err => {
+            console.log(new Date().toLocaleString(), 'WARNING - !back - not a super:', data.username);
+            userList = [data.username];
+            continueBack(data,userList);
+        });
 
 }
 
@@ -59,9 +65,7 @@ function continueBack(data, userList) {
         meta = chanObj.meta;
 
     _.each(userList, user => {
-        if (!breakLib.isOnBreak(user, data.name))
-            console.log(new Date().toLocaleString(), 'err: not on break:', user);
-        else {
+        if (breakLib.isOnBreak(user, data.name)) {
             if (meta.cooldownGrace.hasOwnProperty(user)) {
                 clearTimeout(meta.cooldownGrace[user]);
             }
@@ -80,6 +84,10 @@ function continueBack(data, userList) {
                 .catch(function (err) {
                     console.error(new Date().toLocaleString(), 'ERROR LOGGING COMMAND', err);
                 });
+        }
+        else {
+            console.log(new Date().toLocaleString(), 'ERROR - !back - not on break:', user);
+            slack.sendMessage('*err:* not on break - ' + user, data.channel);
         }
     });
 }
