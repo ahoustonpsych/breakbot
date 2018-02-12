@@ -1,5 +1,6 @@
 
 let slack = require('./lib/slack').rtm;
+let web = require('./lib/slack').web;
 
 let conf = require('./conf/config');
 let conf_breaks = require('./conf/config.breaks');
@@ -25,6 +26,7 @@ module.exports = {
 slack.on('authenticated', function (data) {
     console.log(new Date().toLocaleString() + ' authenticated to slack');
     globals.slack = slack;  // global slack obj
+    globals.web = web;
 
     /* init channel objects */
     data.channels.forEach((chan) => {
