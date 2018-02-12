@@ -51,7 +51,7 @@ function continueTask(data) {
 
     if (slack.isUser(arg)) {
         offset += 1;
-        user = arg.toLowerCase();
+        user = slack.getUser(arg).name.toLowerCase();
     }
 
     else {
