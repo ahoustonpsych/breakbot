@@ -1,0 +1,27 @@
+BUGS:
+- wallboard/slack disconnect = all breaks and lunches lost
+- fri feb 23rd, break counts didn't reset from thursday
+- lunches aren't saved on !restart
+- breakbot can't parse @usernames from the topic (in #livechat)
+- !add doesn't respond when the topic is too long (needs error handling)
+NEW:
+- finish /update endpoint -- pass info to smuj. add support for task "reasons"
+    - log whenever /update is hit
+- add 10 hours of logs to /logs
+- add break queue system
+- maybe make max-on-break a factor of the queue sizes
+OTHER:
+- update db query file to use mysql.format().
+- create new tables for punches and commands, with more columns. add "misc" column.
+    - punches: if punching out log time punched in. maybe a daysthisweek column but that can be extracted in code.
+    - commands:
+        - "command type" column, like "break", "schedule", "data check"
+        - column in !back representing actual break time - set break time.
+        - add column indicating who sent the cmd, and who the cmd affects
+- overhaul responses. use _.template() - also push to master
+- properly purge empty lunch slots
+- update task to check against #livechat topic and update the appropriate list
+- save break data when slack dies (also with other crashy events)
+- "!task 20 0" - the 0 gets parsed as null, and throws a "no reason given" error. should throw a "no user given" instead.
+- format each element from the "data" object separately before any command processing runs
+- expand to work with windows, ent, etc.
