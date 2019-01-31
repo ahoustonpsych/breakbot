@@ -1,4 +1,6 @@
 # breakbot
+# Currently incompatible with @slack/client 4.x
+## Migration to v4.x ongoing
 
 # installation
 "forever" keeps the process running forever (like systemd with services):
