@@ -1,13 +1,13 @@
 {
   "name": "breakbot",
-  "version": "3.0.0.1",
+  "version": "3.0.0",
   "description": "slack bot that facilitates employees taking breaks",
   "main": "index.js",
   "dependencies": {
     "@slack/client": "^4.8.0",
     "body-parser": "^1.18.3",
-    "eslint": "^5.12.1",
     "express": "^4.16.4",
+    "mysql": "^2.16.0",
     "promise": "^8.0.2",
     "request": "^2.88.0",
     "socket.io-client": "^2.2.0",
