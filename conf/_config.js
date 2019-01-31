@@ -4,17 +4,6 @@ module.exports = {
     /* slack api token */
     slackAPIKey: '',
 
-    /* user to connect to wallboard */
-    wallboardUser: '',
-    /* key to authenticate to wallboard */
-    wallboardKey: '',
-
-    wallboardURL: {
-        test: 'localhost:7255',
-        dev: 'wallboard.supportdev.liquidweb.com',
-        stage: 'wallboard.supportdev.liquidweb.com'
-    },
-
     /* database connection information */
     dbInfo: {
         dev: {
@@ -50,7 +39,7 @@ module.exports = {
         '1st-shift-leads'
     ],
 
-    /* ties channels to departments*/
+    /* ties channels to departments */
     channelDesignation: {
         'support': 'support',
         'livechat': 'livechat',
@@ -64,5 +53,20 @@ module.exports = {
         stage: './logs/logging.db'
     },
 
-    loglevel: 'error'
+    loglevel: 'error',
+
+	/*
+	 * Obsolete, fields retained for compatibility
+	 * (for now...)
+	 */
+	/* user to connect to wallboard */
+	wallboardUser: '',
+	/* key to authenticate to wallboard */
+	wallboardKey: '',
+	wallboardURL: {
+		test: 'localhost:7255',
+		dev: '',
+		stage: ''
+	}
+
 };

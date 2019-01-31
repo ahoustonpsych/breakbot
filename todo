@@ -1,5 +1,5 @@
 BUGS:
-- wallboard/slack disconnect = all breaks and lunches lost
+- slack disconnect = all breaks and lunches lost
 - fri feb 23rd, break counts didn't reset from thursday
 - lunches aren't saved on !restart
 - breakbot can't parse @usernames from the topic (in #livechat)
@@ -24,4 +24,5 @@ OTHER:
 - save break data when slack dies (also with other crashy events)
 - "!task 20 0" - the 0 gets parsed as null, and throws a "no reason given" error. should throw a "no user given" instead.
 - format each element from the "data" object separately before any command processing runs
-- expand to work with windows, ent, etc.
+- expand to work with other channels
+- clean up package.json
