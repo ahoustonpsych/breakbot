@@ -1,8 +1,9 @@
 let slack = require('../../lib/slack').rtm;
 let db = require('../../lib/database');
 
+/* TODO: add link to command list */
 let helpMsg =
-    'Command list: https://wiki.int.liquidweb.com/articles/breakbot';
+    'Command list: ';
 
 /*
  * USAGE:

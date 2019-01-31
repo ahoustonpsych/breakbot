@@ -1,7 +1,5 @@
 # breakbot
 
-Commands here: https://wiki.int.liquidweb.com/articles/Breakbot
-
 # installation
 "forever" keeps the process running forever (like systemd with services):
 
@@ -10,7 +8,7 @@ Commands here: https://wiki.int.liquidweb.com/articles/Breakbot
 # config
 * in `conf/`, rename `_config.js` to `config.js`
 * in `config.js`, fill in the following settings:
-    * **slackAPIKey** - create a new bot user in slack and get the key here: https://lw.slack.com/apps/new/A0F7YS25R-bots
+    * **slackAPIKey** - create a new bot user in slack and get the key here: https://TeamName.slack.com/apps/new/A0F7YS25R-bots
         * **note:** you'll need to define which channels to operate in when creating the bot user
     * **channels** - slack channels to monitor for normal commands
     * **channelDesignation** - department-channel pairing. use the `channels` options to fill these
@@ -31,9 +29,6 @@ stdout goes to `logs/general.log`
 stderr goes to `logs/error.log`
 
 # issues/features
-https://git.liquidweb.com/ahouston/breakbot/issues
+https://github.com/TheGreekBrit/breakbot/issues
 
-you can also just poke me (ahouston) directly
-
-# questions/hate/everything else
-ahouston@liquidweb.com, or ahouston in slack
+you can also just poke me (TheGreekBrit) directly
